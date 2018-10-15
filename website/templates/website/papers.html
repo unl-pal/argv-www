@@ -1,0 +1,31 @@
+{% extends 'website/layout.html' %}
+{% block title %}{{ paper }}{% endblock %}
+{% block papersactive %}active{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <h1>Papers</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th>Publish</th>
+                    <th>URL</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for paper in allPapers %}
+                    <tr>
+                        <td><a href="{% url 'website:paperDetails' paper.id %}">{{ paper.title }}</a></td>
+                        <td>{{ paper.author }}</td>
+                        <td>{{ paper.year }}</td>
+                        <td>{{ paper.publish }}</td>
+                        <td>{{ paper.link }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

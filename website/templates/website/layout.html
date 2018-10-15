@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>{% block title %}Layout{% endblock %}</title>
+	{% load staticfiles %}
+
+	<!--Bootstrap-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<!--CSS Override-->
+	<link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
+    <script type="{% static 'static/javascript.js' %}"></script>
+</head>
+<header>
+	<nav class="navbar navbar-default">
+        <!--Main Buttons-->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'website:index' %}"> Home </a>
+        </div>
+
+        <!--Navbar Links-->
+        <div class="collapse navbar-collapse" id="topNavBar">
+            <ul class="nav navbar-nav navbar-left">
+                <li class="{% block fundingactive %}{% endblock %}">
+                    <a href="{% url 'website:funding'%}">Funding</a>
+                </li>
+                <li class="{% block papersactive %}{% endblock %}">
+                    <a href="{% url 'website:papers' %}">Papers</a>
+                </li>
+                <li class="{% block peopleactive %}{% endblock %}">
+                    <a href="{% url 'website:people' %}">People</a>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if not user.is_authenticated %}
+                    <li class="{% block registeractive %}{% endblock %}">
+                        <a href="{% url 'website:register' %}">Register</a>
+                    </li>
+                {% else %}
+                    <li class="{% block profileactive %}{% endblock %}">
+                        <a href="{% url 'website:editProfile' %}">Profile</a>
+                    </li>
+                {% endif %}
+                <li class="{% block loginactive %}{% endblock %}">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'website:logout' %}">Logout</a>
+                    {% else %}
+                        <a href="{% url 'website:login' %}">Login</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+	</nav>
+</header>
+<body>
+{% block body%}{% endblock %}
+<footer class="footer">
+    <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
+    This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
+    Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.</p>
+</footer>
+</body>
+</html>

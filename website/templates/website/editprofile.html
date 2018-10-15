@@ -1,0 +1,28 @@
+{% extends 'website/layout.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block profileactive %}active{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form class="form form-default" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages%}
+                                <li class="{{ message.tags }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% for field in userForm %}
+                        <label>{{ field.label_tag }}</label><p>{{ field }}</p>
+                    {% endfor %}
+                    {% for field in profileForm %}
+                        <label>{{ field.label_tag }}</label><p>{{ field }}</p>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
