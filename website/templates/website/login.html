@@ -1,0 +1,29 @@
+{% extends 'website/layout.html' %}
+{% block title %}{% if form.email %}Register{% else %}Login{% endif %}{% endblock %}
+{% block registeractive %}
+    {% if form.email %}
+        active
+    {% else %}
+
+    {% endif %}
+{% endblock %}
+{% block loginactive %}
+    {% if form.email %}
+
+    {% else %}
+        active
+    {% endif %}
+{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form class="form form-default" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include 'website/form.html' %}
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
