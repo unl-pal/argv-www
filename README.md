@@ -1,6 +1,8 @@
-# PAClab Project
+# PAClab - The Program Analaysis ColLABoratory
 
 # PAClab development repository using django framework
+
+# This repository contains the frontend website for PACLab.
 
 Requirements -
 Python3
