@@ -1,15 +1,15 @@
-#PAClab Project
+# PAClab Project
 
-#PAClab development repository using django framework
+# PAClab development repository using django framework
 
-#Requirements -
-#Python3
-#Pip
-#dj-database-url==0.5.0
-#Django==2.0.8
-#python-decouple==3.1
-#Pillow==5.2.0
-#pytz==2018.5
+Requirements -
+Python3
+Pip
+dj-database-url==0.5.0
+Django==2.0.8
+python-decouple==3.1
+Pillow==5.2.0
+pytz==2018.5
 
 1. Install python
 2. Install pip
@@ -36,4 +36,4 @@
     to create your tables in your database
 15. Run django's development server using command: python3 manage.py runserver
 
-# If you're using Ubuntu + apache we recommend using this guide: https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-16-04 to help set up django on your server
+If you're using Ubuntu + apache we recommend using this guide: https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-16-04 to help set up django on your server
