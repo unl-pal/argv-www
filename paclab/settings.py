@@ -66,6 +66,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'website.context_processors.adminConstant',
+                'website.context_processors.moderatorConstant',
+                'website.context_processors.retiredConstant',
             ],
         },
     },
