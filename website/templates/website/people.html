@@ -21,7 +21,7 @@
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person|inGroup:MODERATOR %}
+            {% if person.is_staff and person.is_active and person.profile.isModerator %}
                 <div class="row">
                     <div class="col-xs-2">
                         <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
@@ -37,7 +37,7 @@
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person|inGroup:RETIRED %}
+            {% if person.is_staff and person.is_active and person.profile.isRetired %}
                 <div class="row">
                     <div class="col-xs-2">
                         <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
