@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 # Create your models here.
@@ -61,3 +61,10 @@ def createUserProfile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+@receiver(post_delete, sender=Profile)
+def deleteOnDelete(sender, instance, **kwargs):
+    if instance.photo:
+        if os.path.isfile(instance.photo.path):
+            os.remove(instance.photo.path)
