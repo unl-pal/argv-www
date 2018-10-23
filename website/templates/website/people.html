@@ -5,7 +5,7 @@
 {% block body %}
     <div class="container-fluid">
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person|inGroup:ADMIN %}
+            {% if person.is_staff and person.is_active and person.profile.isAdmin %}
                 <div class="row">
                     <div class="col-xs-2">
                         <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
