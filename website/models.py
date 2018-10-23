@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 
 # Create your models here.
@@ -66,5 +66,23 @@ def saveUserProfile(sender, instance, **kwargs):
 @receiver(post_delete, sender=Profile)
 def deleteOnDelete(sender, instance, **kwargs):
     if instance.photo:
-        if os.path.isfile(instance.photo.path):
-            os.remove(instance.photo.path)
+        if os.path.basename(instance.photo.name) != "defaultuser.png":
+            if os.path.isfile(instance.photo.path):
+                os.remove(instance.photo.path)
+
+@receiver(pre_save, sender=Profile)
+def deleteOnChange(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        oldPhoto = Profile.objects.get(pk=instance.pk).photo
+    except Profile.DoesNotExist:
+        return False
+
+    newPhoto = instance.photo
+    if os.path.basename(oldPhoto.name) == "defaultuser.png":
+        return False
+    else:
+        if os.path.isfile(oldPhoto.path):
+            os.remove(oldPhoto.path)
