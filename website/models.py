@@ -83,9 +83,9 @@ def deleteOnChange(sender, instance, **kwargs):
     newPhoto = instance.photo
     if os.path.basename(oldPhoto.name) == "defaultuser.png":
         return False
-    else:
-        if os.path.basename(oldPhoto.name) == os.path.basename(newPhoto.name):
-            return False
+    
+    if os.path.basename(oldPhoto.name) == os.path.basename(newPhoto.name):
+        return False
 
-        if os.path.isfile(oldPhoto.path):
-            os.remove(oldPhoto.path)
+    if os.path.isfile(oldPhoto.path):
+        os.remove(oldPhoto.path)
