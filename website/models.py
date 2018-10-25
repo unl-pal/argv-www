@@ -66,9 +66,7 @@ def saveUserProfile(sender, instance, **kwargs):
 @receiver(post_delete, sender=Profile)
 def deleteOnDelete(sender, instance, **kwargs):
     if instance.photo:
-        if os.path.basename(instance.photo.name) != "defaultuser.png":
-            if os.path.isfile(instance.photo.path):
-                os.remove(instance.photo.path)
+        self.helperCheckDefault(instance.photo)
 
 @receiver(pre_save, sender=Profile)
 def deleteOnChange(sender, instance, **kwargs):
@@ -80,12 +78,11 @@ def deleteOnChange(sender, instance, **kwargs):
     except Profile.DoesNotExist:
         return False
 
-    newPhoto = instance.photo
-    if os.path.basename(oldPhoto.name) == "defaultuser.png":
-        return False
-    
-    if os.path.basename(oldPhoto.name) == os.path.basename(newPhoto.name):
+    self.helperCheckDefault(oldPhoto)
+
+def helperCheckDefault(self, itemInQuestion):
+    if os.path.basename(itemInQuestion.name) == "defaultuser.png":
         return False
 
-    if os.path.isfile(oldPhoto.path):
-        os.remove(oldPhoto.path)
+    if os.path.isfile(itemInQuestion):
+        os.remove(itemInQuestion.path)
