@@ -21,10 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('passwordreset/', auth_views.PasswordResetView.as_view(template_name='passwordReset.html'), name='password_reset'),
-    path('passwordresetdone/', auth_views.PasswordResetDoneView.as_view(template_name='passwordResetDone.html'), name='password_reset_done'),
-    path('passwordresetconfirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='passwordResetConfirm.html'), name='password_reset_confirm'),
-    path('passwordresetcomplete/', auth_views.PasswordResetCompleteView.as_view(template_name='passwordResetComplete.html'), name='password_reset_complete'),
+    path('password/reset/', auth_views.PasswordResetView.as_view(template_name='passwordReset.html'), name='password_reset'),
+    path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='passwordResetDone.html'), name='password_reset_done'),
+    path('password/reset/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='passwordResetConfirm.html'), name='password_reset_confirm'),
+    path('password/reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='passwordResetComplete.html'), name='password_reset_complete'),
     path('', include('website.urls'))
 ]
 
