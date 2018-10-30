@@ -80,17 +80,7 @@ def saveUserProfile(sender, instance, **kwargs):
 @receiver(post_save, sender=Profile)
 def updatePhoto(sender, instance, **kwargs):
     image = Image.open(instance.photo.file)
-    width, height = image.size
     image.thumbnail((500, 500), Image.ANTIALIAS)
-    width, height = image.size
-    x, y = 0, 0
-    if width > height:
-        x, y = (width - height)//2, 0
-    elif width < height:
-        x, y = 0,(height - width)//2
-    width, height = image.size
-    image = image.crop((x, y, width - x, height - y))
-    image = image.resize((500, 500), Image.ANTIALIAS)
     image.save(instance.photo.path)
 
 @receiver(post_delete, sender=Profile)
