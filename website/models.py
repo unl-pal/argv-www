@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from PIL import Image
 from django.core.files import File
+from .validators import validate_file_size
 
 # Create your models here.
 class Papers(models.Model):
@@ -19,7 +20,7 @@ class Papers(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    photo = models.ImageField(default='defaultuser.png')
+    photo = models.ImageField(default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
     NONE = '--'
     DOCTOR = 'Dr.'
