@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from PIL import Image
+from django.core.files import File
 
 # Create your models here.
 class Papers(models.Model):
@@ -51,6 +53,20 @@ class Profile(models.Model):
 
     def isRetired(self):
         return self.staffStatus in (self.RETIRED)
+
+    def save(self):
+        image = Image.open(self.photo.file)
+        width, height = image.size
+        image.thumbnail((500, 500), Image.ANTIALIAS)
+        width, height = image.size
+        if width > height:
+            x, y = (width - height)//2, 0
+        elif width < height:
+            x, y = 0,(height - width)//2
+        width, height = image.size
+        image = image.crop((x, y, width - x, height - y))
+        image = image.resize((500, 500), Image.ANTIALIAS)
+        image.save(self.photo.path)
 
     def isDoctor(self):
         return self.surname in (self.DOCTOR)
