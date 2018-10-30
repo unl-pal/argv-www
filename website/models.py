@@ -54,20 +54,6 @@ class Profile(models.Model):
     def isRetired(self):
         return self.staffStatus in (self.RETIRED)
 
-    def save(self):
-        image = Image.open(self.photo.file)
-        width, height = image.size
-        image.thumbnail((500, 500), Image.ANTIALIAS)
-        width, height = image.size
-        if width > height:
-            x, y = (width - height)//2, 0
-        elif width < height:
-            x, y = 0,(height - width)//2
-        width, height = image.size
-        image = image.crop((x, y, width - x, height - y))
-        image = image.resize((500, 500), Image.ANTIALIAS)
-        image.save(self.photo.path)
-
     def isDoctor(self):
         return self.surname in (self.DOCTOR)
 
@@ -89,3 +75,46 @@ def createUserProfile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
+
+@receiver(post_save, sender=Profile)
+def updatePhoto(sender, instance, **kwargs):
+    image = Image.open(instance.photo.file)
+    width, height = image.size
+    image.thumbnail((500, 500), Image.ANTIALIAS)
+    width, height = image.size
+    x, y = 0, 0
+    if width > height:
+        x, y = (width - height)//2, 0
+    elif width < height:
+        x, y = 0,(height - width)//2
+    width, height = image.size
+    image = image.crop((x, y, width - x, height - y))
+    image = image.resize((500, 500), Image.ANTIALIAS)
+    image.save(instance.photo.path)
+
+@receiver(post_delete, sender=Profile)
+def deleteOnDelete(sender, instance, **kwargs):
+    if instance.photo:
+        if os.path.basename(instance.photo.name) != "defaultuser.png":
+            if os.path.isfile(instance.photo.path):
+                os.remove(instance.photo.path)
+
+@receiver(pre_save, sender=Profile)
+def deleteOnChange(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        oldPhoto = Profile.objects.get(pk=instance.pk).photo
+    except Profile.DoesNotExist:
+        return False
+
+    newPhoto = instance.photo
+    if os.path.basename(oldPhoto.name) == "defaultuser.png":
+        return False
+    else:
+        if os.path.basename(oldPhoto.name) == os.path.basename(newPhoto.name):
+            return False
+
+        if os.path.isfile(oldPhoto.path):
+            os.remove(oldPhoto.path)
