@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Create your models here.
-class Papers(models.Model):
+class Paper(models.Model):
     author = models.CharField(max_length=250, default="")
     title = models.CharField(max_length=250, default="")
     year = models.IntegerField(default=None)
@@ -30,28 +30,40 @@ class Profile(models.Model):
         choices=SURNAME_CHOICES,
         default=NONE,
     )
-    NONE = '--'
-    STUDENT = 'Student'
-    FACULTY = 'Faculty'
-    STUDENT_OR_FACULTY = (
-        (NONE, ''),
-        (STUDENT, 'STUDENT'),
-        (FACULTY, 'FACULTY'),
-    )
-    studentorfaculty = models.CharField(
-        max_length=15,
-        choices=STUDENT_OR_FACULTY,
-        default=NONE,
+    NONE = 'User'
+    RETIRED = 'Retired'
+    MODERATOR = 'Moderator'
+    ADMIN = 'Admin'
+    STAFF_STATUS = (
+        (NONE, 'USER'),
+        (RETIRED, 'RETIRED'),
+        (MODERATOR, 'MODERATOR'),
+        (ADMIN, 'ADMIN'),
     )
 
-    def isFaculty(self):
-        return self.studentorfaculty in (self.FACULTY)
+    staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=NONE)
+
+    def isAdmin(self):
+        return self.staffStatus in (self.ADMIN)
+
+    def isModerator(self):
+        return self.staffStatus in (self.MODERATOR)
+
+    def isRetired(self):
+        return self.staffStatus in (self.RETIRED)
 
     def isDoctor(self):
         return self.surname in (self.DOCTOR)
 
     def __str__(self):
         return self.user.first_name
+
+    class Meta:
+        permissions = (
+            ("Admin", "A faculty member working on the project."),
+            ("Moderator", "An assistant currently working on the project."),
+            ("Retired", "Previous researchers on project."),
+        )
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
