@@ -16,7 +16,7 @@ def get_filename(instance, filename):
     filename += ext
     return filename
 
-class Papers(models.Model):
+class Paper(models.Model):
     author = models.CharField(max_length=250, default="")
     title = models.CharField(max_length=250, default="")
     year = models.IntegerField(default=None)
