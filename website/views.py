@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .models import Papers, Profile
+from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
 # Create your views here.
@@ -24,8 +24,8 @@ class PapersView(ListView):
 		return Papers.objects.all()
 
 class PaperDetails(DetailView):
-	template_name="website/paperDetails.html"
-	model = Papers
+    template_name="website/paperDetails.html"
+    model = Paper
 
 class PeopleView(ListView):
 	template_name="website/people.html"

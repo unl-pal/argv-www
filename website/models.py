@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Create your models here.
-class Papers(models.Model):
+class Paper(models.Model):
     author = models.CharField(max_length=250, default="")
     title = models.CharField(max_length=250, default="")
     year = models.IntegerField(default=None)
