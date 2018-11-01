@@ -90,8 +90,11 @@ def saveUserProfile(sender, instance, **kwargs):
 def helperCheckDefault(photo):
     if os.path.basename(photo.name) != "defaultuser.png":
         if os.path.isfile(photo.path):
-            os.remove(photo.path)
-            return True
+            try:
+                os.remove(photo.path)
+                return True
+            except Photo.DoesNotExist:
+                return False
     return False
 
 @receiver(post_delete, sender=Profile)
