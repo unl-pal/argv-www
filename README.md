@@ -26,7 +26,7 @@ PAClab development repository using Django framework.
    - `SECRET_KEY=your-secret-key-from-previous-step`
    - `DEBUG=True`
    - `ALLOWED_HOSTS=your-server-name` or localhost if using django's packaged development server
-   - `DATABASE_URL=sqlite:///db.sqlite3` or url to your database
+   - `DATABASE_URL=sqlite:////db.sqlite3` or url to your database
 10. Clone repository from GitHub into your project directory
 11. Navigate terminal to root of project directory (where `manage.py` is)
 12. Create an admin user: `python3 manage.py createsuperuser`
