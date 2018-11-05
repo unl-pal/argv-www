@@ -10,7 +10,6 @@ class Paper(models.Model):
     year = models.IntegerField(default=None)
     publish = models.CharField(max_length=250, default="")
     link = models.CharField(max_length=1000, default="")
-    upload = models.FileField(default=None)
 
     def __str__(self):
         return self.title + ' - ' + self.author
