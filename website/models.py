@@ -87,7 +87,7 @@ def createUserProfile(sender, instance, created, **kwargs):
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
 
-def helperCheckDefault(photo):
+def removeProfilePhoto(photo):
     if os.path.basename(photo.name) != "defaultuser.png":
         if os.path.isfile(photo.path):
             try:
