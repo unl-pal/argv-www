@@ -100,7 +100,7 @@ def removeProfilePhoto(photo):
 @receiver(post_delete, sender=Profile)
 def deleteOnDelete(sender, instance, **kwargs):
     if instance.photo:
-        helperCheckDefault(instance.photo)
+        removeProfilePhoto(instance.photo)
         return True
     return False
 
@@ -116,6 +116,6 @@ def deleteOnChange(sender, instance, **kwargs):
 
     newPhoto = instance.photo
     if not newPhoto == oldPhoto:
-        helperCheckDefault(oldPhoto)
+        removeProfilePhoto(oldPhoto)
         return True
     return False

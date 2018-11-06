@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>{% block title %}Layout{% endblock %}</title>
-	{% load staticfiles %}
+    <meta charset="utf-8">
+    <title>{% block title %}Layout{% endblock %}</title>
+    {% load staticfiles %}
 
-	<!--Bootstrap-->
+    <!--Bootstrap-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-	<!--CSS Override-->
-	<link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
+    <!--CSS Override-->
+    <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
     <script type="{% static 'static/javascript.js' %}"></script>
 </head>
 <header>
-	<nav class="navbar navbar-default">
+    <nav class="navbar navbar-default">
         <!--Main Buttons-->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
@@ -59,7 +59,7 @@
                 </li>
             </ul>
         </div>
-	</nav>
+    </nav>
 </header>
 <body>
 {% block body%}{% endblock %}
