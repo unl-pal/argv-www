@@ -21,10 +21,12 @@ def get_filename(instance, filename):
 class Paper(models.Model):
     author = models.CharField(max_length=250, default="")
     title = models.CharField(max_length=250, default="")
-    year = models.IntegerField(default=None)
+    date = models.DateField(default=datetime.date.today)
     publish = models.CharField(max_length=250, default="")
     link = models.CharField(max_length=1000, default="")
-    upload = models.FileField(default=None)
+
+    class Meta:
+        ordering = ['-date']
 
     def __str__(self):
         return self.title + ' - ' + self.author
