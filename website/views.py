@@ -21,7 +21,7 @@ class PapersView(ListView):
 	template_name="website/papers.html"
 	context_object_name='allPapers'
 	def get_queryset(self):
-		return Paper.objects.all()
+		return Paper.objects.all().order_by('-year')
 
 class PaperDetails(DetailView):
     template_name="website/paperDetails.html"
