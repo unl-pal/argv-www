@@ -12,6 +12,9 @@ class Paper(models.Model):
     publish = models.CharField(max_length=250, default="")
     link = models.CharField(max_length=1000, default="")
 
+    class Meta:
+        ordering = ['-date']
+
     def __str__(self):
         return self.title + ' - ' + self.author
 
