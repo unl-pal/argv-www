@@ -18,6 +18,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(default='defaultuser.png')
     bio = models.TextField(max_length=1000, blank=True)
+    token = models.CharField(max_length=1000, default="")
     NONE = '--'
     DOCTOR = 'Dr.'
     SURNAME_CHOICES = (

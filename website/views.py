@@ -24,8 +24,8 @@ class PapersView(ListView):
 		return Paper.objects.all()
 
 class PaperDetails(DetailView):
-    template_name="website/paperDetails.html"
-    model = Paper
+	template_name="website/paperDetails.html"
+	model = Paper
 
 class PeopleView(ListView):
 	template_name="website/people.html"
@@ -102,6 +102,7 @@ class EditProfile(View):
 				last_name = userForm.cleaned_data['last_name']
 				photo = profileForm.cleaned_data['photo']
 				bio = profileForm.cleaned_data['bio']
+				token = profileForm.cleaned_data['token']
 				user.first_name = first_name
 				user.last_name = last_name
 				if len(request.FILES) != 0:
@@ -109,6 +110,7 @@ class EditProfile(View):
 				else:
 					profile.photo = profile.photo
 				profile.bio = bio
+				profile.token = token
 				profile.save()
 				user.save()
 				messages.success(request, ('Your profile was successfully updated!'))
