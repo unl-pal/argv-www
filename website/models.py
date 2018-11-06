@@ -7,7 +7,7 @@ from django.dispatch import receiver
 class Paper(models.Model):
     author = models.CharField(max_length=250, default="")
     title = models.CharField(max_length=250, default="")
-    year = models.IntegerField(default=None)
+    year = models.DateFieldField(auto_now_add=True)
     publish = models.CharField(max_length=250, default="")
     link = models.CharField(max_length=1000, default="")
 
