@@ -98,19 +98,15 @@ class EditProfile(View):
 			if userForm.is_valid() and profileForm.is_valid():
 				user = User.objects.get(pk=request.user.pk)
 				profile = user.profile
-				first_name = userForm.cleaned_data['first_name']
-				last_name = userForm.cleaned_data['last_name']
+				user.first_name = userForm.cleaned_data['first_name']
+				user.last_name = userForm.cleaned_data['last_name']
 				photo = profileForm.cleaned_data['photo']
-				bio = profileForm.cleaned_data['bio']
-				token = profileForm.cleaned_data['token']
-				user.first_name = first_name
-				user.last_name = last_name
+				profile.bio = profileForm.cleaned_data['bio']
+				profile.token = profileForm.cleaned_data['token']
 				if len(request.FILES) != 0:
 					profile.photo = photo
 				else:
 					profile.photo = profile.photo
-				profile.bio = bio
-				profile.token = token
 				profile.save()
 				user.save()
 				messages.success(request, ('Your profile was successfully updated!'))
