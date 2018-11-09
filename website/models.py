@@ -77,7 +77,7 @@ class Dataset(models.Model):
 class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, blank=True, null=True)
     input_selection = models.ForeignKey(Selection, blank=True, null=True)
-    output = models.IntegerField()
+    output_selection = models.ForeignKey(Selection)
 
     def __str__(self):
         return self.input_dataset + ' - ' + self.input_selection
