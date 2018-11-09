@@ -9,8 +9,8 @@
                 <tr>
                     <th>Title</th>
                     <th>Author</th>
-                    <th>Year</th>
-                    <th>Publish</th>
+                    <th>Date</th>
+                    <th>Venue</th>
                     <th>URL</th>
                 </tr>
             </thead>
@@ -18,11 +18,11 @@
             <tbody>
                 {% for paper in allPapers %}
                     <tr>
-                        <td><a href="{% url 'website:paperDetails' paper.id %}">{{ paper.title }}</a></td>
+                        <td>{{ paper.title }}</td>
                         <td>{{ paper.author }}</td>
-                        <td>{{ paper.year }}</td>
+                        <td>{{ paper.date }}</td>
                         <td>{{ paper.publish }}</td>
-                        <td>{{ paper.link }}</td>
+                        <td><a href="{{ paper.link }}" target="_blank">{{ paper.link }}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

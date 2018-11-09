@@ -21,7 +21,7 @@ class PapersView(ListView):
     template_name="website/papers.html"
     context_object_name='allPapers'
     def get_queryset(self):
-        return Papers.objects.all()
+        return Paper.objects.all()
 
 class PaperDetails(DetailView):
     template_name="website/paperDetails.html"
@@ -112,7 +112,6 @@ class EditProfile(View):
                         return redirect('website:editProfile')
                 else:
                     profile.photo = profile.photo
-                profile.bio = bio
                 profile.bio = bio
                 profile.save()
                 user.save()
