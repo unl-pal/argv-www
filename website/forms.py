@@ -23,3 +23,8 @@ class ProfileForm(forms.ModelForm):
 	class Meta:
 		model = Profile
 		fields = ['photo', 'bio', 'token']
+        labels = {
+            'photo' : 'Photo',
+            'bio' : 'Bio',
+            'token' : 'Github Personal Access Token'
+        }
