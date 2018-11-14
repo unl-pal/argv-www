@@ -84,6 +84,55 @@ class Profile(models.Model):
             ("Retired", "Previous researchers on project."),
         )
 
+class Dataset(models.Model):
+    name = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+class ProjectSelector(models.Model):
+    input_dataset = models.ForeignKey(Dataset, blank=True, null=True)
+    input_selection = models.ForeignKey(Selection, blank=True, null=True)
+    output_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
+
+    def __str__(self):
+        return self.input_dataset + ' - ' + self.input_selection
+
+class Filter(models.Model):
+    project_selectors = models.ManyToMany(ProjectSelector, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+class ProjectTransformer(models.Model):
+    input_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
+
+    def __str__(self):
+        return self.input_selection
+
+class Selection(models.Model):
+    name = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return 'Selection'
+
+class Transform(models.Model):
+    project_transformers = models.ManyToMany(ProjectTransformer)
+    name = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+class Analysis(models.Model):
+    input_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
+
+    def __str__(self):
+        return self.input_selection
+
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
     if created:
