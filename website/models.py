@@ -78,12 +78,13 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, blank=True, null=True)
     input_selection = models.ForeignKey(Selection, blank=True, null=True)
     output_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
 
     def __str__(self):
         return self.input_dataset + ' - ' + self.input_selection
 
 class Filter(models.Model):
-    project_selector = models.ManyToMany(ProjectSelector, on_delete=models.CASCADE)
+    project_selectors = models.ManyToMany(ProjectSelector, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
@@ -91,6 +92,7 @@ class Filter(models.Model):
 
 class ProjectTransformer(models.Model):
     input_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
 
     def __str__(self):
         return self.input_selection
@@ -102,7 +104,7 @@ class Selection(models.Model):
         return 'Selection'
 
 class Transform(models.Model):
-    project_transformer = models.ManyToMany(ProjectTransformer)
+    project_transformers = models.ManyToMany(ProjectTransformer)
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
@@ -110,6 +112,7 @@ class Transform(models.Model):
 
 class Analysis(models.Model):
     input_selection = models.ForeignKey(Selection)
+    user = models.ForeignKey(User)
 
     def __str__(self):
         return self.input_selection
