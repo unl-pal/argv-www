@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.conf import settings
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
@@ -105,7 +106,7 @@ class EditProfile(View):
                 user.first_name = first_name
                 user.last_name = last_name
                 if len(request.FILES) != 0:
-                    if (photo.size <= 4 * 1024 * 1024):
+                    if (photo.size <= settings.MAX_FILE_ULOAD):
                         profile.photo = photo
                     else:
                         messages.warning(request, ('File size is too big.'))

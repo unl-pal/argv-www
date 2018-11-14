@@ -8,6 +8,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from PIL import Image
 from django.core.files import File
+from django.conf import settings
 from .validators import validate_file_size
 
 # Create your models here.
@@ -145,7 +146,7 @@ def saveUserProfile(sender, instance, **kwargs):
 @receiver(post_save, sender=Profile)
 def updatePhoto(sender, instance, **kwargs):
     image = Image.open(instance.photo.file)
-    image.thumbnail((500, 500), Image.ANTIALIAS)
+    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
     image.save(instance.photo.path)
 
 def removeProfilePhoto(photo):

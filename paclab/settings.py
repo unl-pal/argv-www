@@ -126,3 +126,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+MAX_FILE_UPLOAD = 4 * 1024 * 1024
+THUMBNAIL_SIZE = (500, 500)
