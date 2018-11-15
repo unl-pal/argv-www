@@ -87,45 +87,45 @@ class Dataset(models.Model):
     def __str__(self):
         return self.name
 
-class ProjectSelector(models.Model):
-    input_dataset = models.ForeignKey(Dataset, blank=True, null=True)
-    input_selection = models.ForeignKey(Selection, blank=True, null=True)
-    output_selection = models.ForeignKey(Selection)
-    user = models.ForeignKey(User)
-
-    def __str__(self):
-        return self.input_dataset + ' - ' + self.input_selection
-
-class Filter(models.Model):
-    project_selectors = models.ManyToMany(ProjectSelector, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200, default="")
-
-    def __str__(self):
-        return self.name
-
-class ProjectTransformer(models.Model):
-    input_selection = models.ForeignKey(Selection)
-    user = models.ForeignKey(User)
-
-    def __str__(self):
-        return self.input_selection
-
 class Selection(models.Model):
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
         return 'Selection'
 
+class ProjectSelector(models.Model):
+    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
+    input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
+    output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.input_dataset + ' - ' + self.input_selection
+
+class Filter(models.Model):
+    project_selectors = models.ManyToManyField(ProjectSelector)
+    name = models.CharField(max_length=200, default="")
+
+    def __str__(self):
+        return self.name
+
+class ProjectTransformer(models.Model):
+    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.input_selection
+
 class Transform(models.Model):
-    project_transformers = models.ManyToMany(ProjectTransformer)
+    project_transformers = models.ManyToManyField(ProjectTransformer)
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
         return self.name
 
 class Analysis(models.Model):
-    input_selection = models.ForeignKey(Selection)
-    user = models.ForeignKey(User)
+    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.input_selection
