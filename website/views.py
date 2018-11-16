@@ -106,10 +106,10 @@ class EditProfile(View):
                 user.first_name = first_name
                 user.last_name = last_name
                 if len(request.FILES) != 0:
-                    if (photo.size <= settings.MAX_FILE_ULOAD):
+                    if (photo.size <= settings.MAX_FILE_UPLOAD):
                         profile.photo = photo
                     else:
-                        messages.warning(request, ('File size is too big.'))
+                        messages.warning(request, ("The maximum file size for profile photos is " + str(settings.MAX_FILE_UPLOAD)))
                         return redirect('website:editProfile')
                 else:
                     profile.photo = profile.photo

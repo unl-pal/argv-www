@@ -1,6 +1,7 @@
 import sys
 import uuid
 import datetime
+import os
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -155,7 +156,7 @@ def removeProfilePhoto(photo):
             try:
                 os.remove(photo.path)
                 return True
-            except Photo.DoesNotExist:
+            except:
                 return False
     return False
 
