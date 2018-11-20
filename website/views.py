@@ -10,6 +10,7 @@ from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .validators import validate_file_size
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -106,11 +107,7 @@ class EditProfile(View):
                 user.first_name = first_name
                 user.last_name = last_name
                 if len(request.FILES) != 0:
-                    if (photo.size <= settings.MAX_FILE_UPLOAD):
-                        profile.photo = photo
-                    else:
-                        messages.warning(request, ("The maximum file size for profile photos is " + str(settings.MAX_FILE_UPLOAD)))
-                        return redirect('website:editProfile')
+                    profile.photo = photo
                 else:
                     profile.photo = profile.photo
                 profile.bio = bio
@@ -118,6 +115,6 @@ class EditProfile(View):
                 user.save()
                 messages.success(request, ('Your profile was successfully updated!'))
                 return redirect('website:editProfile')
-            messages.warning(request, ('Invalid form entry.'))
-            return redirect('website:editProfile')
-        return redirect('website:login')
+            else:
+                messages.warning(request, (profileForm.errors))
+        return render(request, self.template_name, { 'userForm' : userForm, 'profileForm' : profileForm })
