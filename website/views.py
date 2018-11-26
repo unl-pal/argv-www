@@ -24,8 +24,8 @@ class PapersView(ListView):
         return Paper.objects.all()
         
 class PaperDetails(DetailView):
-	template_name="website/paperDetails.html"
-	model = Paper
+    template_name="website/paperDetails.html"
+    model = Paper
 
 class PeopleView(ListView):
     template_name="website/people.html"
