@@ -40,6 +40,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
+    token = models.CharField(max_length=1000, default="", help_text="For generating a GitHub token please take a look at https://github.com/settings/tokens")
+
     NONE = '--'
     DOCTOR = 'Dr.'
     SURNAME_CHOICES = (

@@ -24,4 +24,9 @@ class ProfileForm(forms.ModelForm):
     photo = forms.ImageField(validators=[validate_file_size])
     class Meta:
         model = Profile
-        fields = ['photo', 'bio']
+        fields = ['photo', 'bio', 'token']
+        labels = {
+            'photo' : 'Photo',
+            'bio' : 'Bio',
+            'token' : 'Github Personal Access Token'
+        }
