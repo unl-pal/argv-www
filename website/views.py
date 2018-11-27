@@ -10,7 +10,6 @@ from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
-from .validators import validate_file_size
 
 # Create your views here.
 class IndexView(TemplateView):
