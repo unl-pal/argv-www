@@ -107,7 +107,7 @@ class ProjectSelector(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.input_dataset + ' - ' + self.input_selection
+        return 'ProjectSelector'
 
 class Filter(models.Model):
     project_selectors = models.ManyToManyField(ProjectSelector)

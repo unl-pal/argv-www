@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
-from .models import Profile, Dataset
+from .models import Profile, Dataset, Filter
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
@@ -32,7 +32,18 @@ class ProfileForm(forms.ModelForm):
         }
 
 class DatasetForm(forms.ModelForm):
+    #What is the final model we are posting our results to?
     dataset = forms.ModelChoiceField(queryset=Dataset.objects.all())
     class Meta:
         model = Dataset
         fields = []
+
+class FilterForm(forms.ModelForm):
+    #Generate filters as fieldsets dynamically based on a query to the given selection dataset
+    #Add form - save to database then reroute back to the page with the updated dataset
+    class Meta:
+        model = Filter
+        fields = ['name']
+        labels = {
+            'name' : 'Filter',
+        }
