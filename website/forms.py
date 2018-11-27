@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from .models import Profile
+from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -20,6 +21,7 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
+    photo = forms.ImageField(validators=[validate_file_size])
     class Meta:
         model = Profile
         fields = ['photo', 'bio', 'token']

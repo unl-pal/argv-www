@@ -1,11 +1,16 @@
 import sys
 import uuid
 import datetime
+import os
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
+from PIL import Image
+from django.core.files import File
+from django.conf import settings
+from .validators import validate_file_size
 
 # Create your models here.
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
@@ -33,7 +38,7 @@ class Paper(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to=get_filename, default='defaultuser.png')
+    photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
     token = models.CharField(max_length=1000, default="", help_text="For generating a GitHub token please take a look at https://github.com/settings/tokens")
 
@@ -141,13 +146,19 @@ def createUserProfile(sender, instance, created, **kwargs):
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
 
+@receiver(post_save, sender=Profile)
+def updatePhoto(sender, instance, **kwargs):
+    image = Image.open(instance.photo.file)
+    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
+    image.save(instance.photo.path)
+
 def removeProfilePhoto(photo):
     if os.path.basename(photo.name) != "defaultuser.png":
         if os.path.isfile(photo.path):
             try:
                 os.remove(photo.path)
                 return True
-            except Photo.DoesNotExist:
+            except:
                 return False
     return False
 

@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.conf import settings
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
@@ -22,7 +23,7 @@ class PapersView(ListView):
     context_object_name='allPapers'
     def get_queryset(self):
         return Paper.objects.all()
-        
+
 class PaperDetails(DetailView):
     template_name="website/paperDetails.html"
     model = Paper
@@ -113,6 +114,6 @@ class EditProfile(View):
                 user.save()
                 messages.success(request, ('Your profile was successfully updated!'))
                 return redirect('website:editProfile')
-            messages.warning(request, ('Invalid form entry.'))
-            return redirect('website:editProfile')
-        return redirect('website:login')
+            else:
+                messages.warning(request, (profileForm.errors))
+        return render(request, self.template_name, { 'userForm' : userForm, 'profileForm' : profileForm })
