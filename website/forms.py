@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
-from .models import Profile
+from .models import Profile, Dataset
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
@@ -30,3 +30,9 @@ class ProfileForm(forms.ModelForm):
             'bio' : 'Bio',
             'token' : 'Github Personal Access Token'
         }
+
+class DatasetForm(forms.ModelForm):
+    dataset = forms.ModelChoiceField(queryset=Dataset.objects.all())
+    class Meta:
+        model = Dataset
+        fields = []

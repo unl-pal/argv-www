@@ -1,0 +1,15 @@
+{% extends 'website/layout.html' %}
+{% block title %}Project Selection{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <form class="form-default" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-default" type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
