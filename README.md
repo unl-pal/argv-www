@@ -29,6 +29,8 @@ PAClab development repository using Django framework.
    - `DEBUG=True`
    - `ALLOWED_HOSTS='your-server-name'` or `'localhost,127.0.0.1'` if using django's packaged development server
    - `DATABASE_URL='sqlite:////db.sqlite3'` or url to your database
+   - `EMAIL_USER='gmail-smtp-email-username'`
+   - `EMAIL_PASSWORD='gmail-smtp-email-password'`
 12. Create migration files for database: `python3 manage.py makemigrations website`
 13. Create database tables: `python3 manage.py migrate`
 14. Create an admin user: `python3 manage.py createsuperuser`
