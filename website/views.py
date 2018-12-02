@@ -118,12 +118,20 @@ class EditProfile(View):
                 messages.warning(request, (profileForm.errors))
         return render(request, self.template_name, { 'userForm' : userForm, 'profileForm' : profileForm })
 
+class ProjectSelection(View):
+    template_name = 'website/projectSelection.html'
+    p_form = ProjectSelectionForm
+    f_form = FilterFormset
 
-def project_selection(request):
-    if request.method == 'POST':
-        p_form = ProjectSelectionForm(request.POST)
-        f_form = FilterFormset(request.POST)
-        if p_form.is_valid():
+    def get(self, request):
+        p_form = self.p_form()
+        f_form = self.f_form()
+        return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
+
+    def post(self, request):
+        p_form = self.p_form(request.POST)
+        f_form = self.f_form(request.POST)
+        if p_form.is_valid() and f_form.is_valid():
             p_form.save()
             # for form in f_form:
             #     form.project_selectors = p_form
@@ -132,7 +140,4 @@ def project_selection(request):
             return redirect('website:project_selection')
         else:
             messages.warning(request, ('Invalid Form Entry'))
-    else:
-        p_form = ProjectSelectionForm()
-        f_form = FilterFormset()
-    return render(request, 'website/projectSelection.html', { 'p_form' : p_form, 'f_form' : f_form })
+            return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
