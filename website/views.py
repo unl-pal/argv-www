@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, DatasetForm, FilterForm
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, DatasetForm, FilterFormset
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -121,5 +121,5 @@ class EditProfile(View):
 
 def project_selection(request):
     d_form = DatasetForm()
-    f_form = FilterForm()
+    f_form = FilterFormset()
     return render(request, 'website/projectSelection.html', { 'd_form' : d_form, 'f_form' : f_form })

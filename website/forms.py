@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
+from django.forms import modelformset_factory
 from .models import Profile, Dataset, Filter
 from .validators import validate_file_size
 
@@ -38,12 +39,8 @@ class DatasetForm(forms.ModelForm):
         model = Dataset
         fields = []
 
-class FilterForm(forms.ModelForm):
-    #Generate filters as fieldsets dynamically based on a query to the given selection dataset
-    #Add form - save to database then reroute back to the page with the updated dataset
-    class Meta:
-        model = Filter
-        fields = ['name']
-        labels = {
-            'name' : 'Filter',
-        }
+FilterFormset = modelformset_factory(
+    Filter,
+    fields=['name'],
+    extra=1,
+)
