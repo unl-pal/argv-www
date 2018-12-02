@@ -39,8 +39,13 @@ class DatasetForm(forms.ModelForm):
         model = Dataset
         fields = []
 
+class FilterForm(forms.ModelForm):
+    class Meta:
+        model = Filter
+        fields = ['project_selectors', 'name']
+
 FilterFormset = modelformset_factory(
     Filter,
     fields=['name'],
-    extra=1,
+    extra=0,
 )
