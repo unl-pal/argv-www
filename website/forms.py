@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import modelformset_factory
-from .models import Profile, Dataset, Filter
+from .models import Profile, ProjectSelector, Filter
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
@@ -32,20 +32,13 @@ class ProfileForm(forms.ModelForm):
             'token' : 'Github Personal Access Token'
         }
 
-class DatasetForm(forms.ModelForm):
-    #What is the final model we are posting our results to?
-    dataset = forms.ModelChoiceField(queryset=Dataset.objects.all())
+class ProjectSelectionForm(forms.ModelForm):
     class Meta:
-        model = Dataset
-        fields = []
-
-class FilterForm(forms.ModelForm):
-    class Meta:
-        model = Filter
-        fields = ['project_selectors', 'name']
+        model = ProjectSelector
+        fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
 
 FilterFormset = modelformset_factory(
     Filter,
     fields=['name'],
-    extra=0,
+    extra=1,
 )

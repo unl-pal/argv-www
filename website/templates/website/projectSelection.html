@@ -4,14 +4,19 @@
     <div class="container">
         <div class="panel panel-default">
             <div class="panel-body">
-                <form class="form-default" method="post" enctype="multipart/form-data">
+                <form class="form-default" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ d_form.as_p }}
+                    {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages%}
+                                <li class="{{ message.tags }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {{ p_form.as_p }}
                     {{ f_form.as_p }}
                     <button class="btn btn-default" type="submit">Submit</button>
                 </form>
-                <br>
-                <a href="{% url 'website:add_filter' %}" class="btn btn-default" value="submit">Add Filter</a>
             </div>
         </div>
     </div>

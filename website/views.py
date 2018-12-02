@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, DatasetForm, FilterForm, FilterFormset
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterFormset
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -120,10 +120,19 @@ class EditProfile(View):
 
 
 def project_selection(request):
-    d_form = DatasetForm()
-    f_form = FilterFormset()
-    return render(request, 'website/projectSelection.html', { 'd_form' : d_form, 'f_form' : f_form })
-
-def add_filter(request):
-    f_form = FilterForm()
-    return render(request, 'website/addFilter.html', { 'f_form' : f_form })
+    if request.method == 'POST':
+        p_form = ProjectSelectionForm(request.POST)
+        f_form = FilterFormset(request.POST)
+        if p_form.is_valid():
+            p_form.save()
+            # for form in f_form:
+            #     form.project_selectors = p_form
+            f_form.save()
+            messages.success(request, ('Form saved'))
+            return redirect('website:project_selection')
+        else:
+            messages.warning(request, ('Invalid Form Entry'))
+    else:
+        p_form = ProjectSelectionForm()
+        f_form = FilterFormset()
+    return render(request, 'website/projectSelection.html', { 'p_form' : p_form, 'f_form' : f_form })

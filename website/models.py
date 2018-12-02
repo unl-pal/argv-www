@@ -116,6 +116,7 @@ class Filter(models.Model):
     def __str__(self):
         return self.name
 
+
 class ProjectTransformer(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
