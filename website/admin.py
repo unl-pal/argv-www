@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis
+from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -26,12 +26,27 @@ class ProfileAdmin(admin.ModelAdmin):
     get_email.admin_order_field  = 'user__email'
     get_email.short_description = 'Email Address'
 
+class FilterDetailInline(admin.TabularInline):
+    model = FilterDetail
+    extra = 1
+
+class FilterDetailSelectionInline(admin.TabularInline):
+    model = FilterDetail
+    exclude = ['value', 'val_type']
+    extra = 1
+
+class SelectionAdmin(admin.ModelAdmin):
+    inlines = (FilterDetailSelectionInline,)
+
+class FilterAdmin(admin.ModelAdmin):
+    inlines = (FilterDetailInline,)
+
 # Register your models here.
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
-admin.site.register(ProjectSelector)
-admin.site.register(Filter)
+admin.site.register(ProjectSelector, SelectionAdmin)
+admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Transform)
