@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import modelformset_factory
-from .models import Profile, ProjectSelector, Filter
+from .models import Profile, ProjectSelector, Filter, FilterDetail
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
@@ -37,8 +37,14 @@ class ProjectSelectionForm(forms.ModelForm):
         model = ProjectSelector
         fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
 
+class FilterDetailForm(forms.ModelForm):
+    project_selector = forms.IntegerField(widget=forms.HiddenInput())
+    class Meta:
+        model = FilterDetail
+        fields = ['project_selector', 'pfilter']
+
 FilterFormset = modelformset_factory(
-    Filter,
-    fields=['name'],
+    FilterDetail,
+    fields=['pfilter'],
     extra=1,
 )

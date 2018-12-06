@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
-from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterFormset
+from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterFormset, FilterDetailForm
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -133,9 +133,15 @@ class ProjectSelection(View):
         f_form = self.f_form(request.POST)
         if p_form.is_valid() and f_form.is_valid():
             p_form.save()
-            # for form in f_form:
-            #     form.project_selectors = p_form
-            f_form.save()
+            selector = ProjectSelector.objects.all().last()
+            project_selector = selector.id
+            for form in f_form:
+                pfilter = form.cleaned_data['pfilter']
+                connection = FilterDetail()
+                selector = ProjectSelector.objects.get(pk=project_selector)
+                connection.project_selector = selector
+                connection.pfilter = pfilter
+                connection.save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         else:
