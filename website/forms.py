@@ -33,6 +33,7 @@ class ProfileForm(forms.ModelForm):
         }
 
 class ProjectSelectionForm(forms.ModelForm):
+    pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
         fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
@@ -42,9 +43,3 @@ class FilterDetailForm(forms.ModelForm):
     class Meta:
         model = FilterDetail
         fields = ['project_selector', 'pfilter']
-
-FilterFormset = modelformset_factory(
-    FilterDetail,
-    fields=['pfilter'],
-    extra=1,
-)

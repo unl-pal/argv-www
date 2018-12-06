@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterFormset, FilterDetailForm
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -121,29 +121,23 @@ class EditProfile(View):
 class ProjectSelection(View):
     template_name = 'website/projectSelection.html'
     p_form = ProjectSelectionForm
-    f_form = FilterFormset
 
     def get(self, request):
         p_form = self.p_form()
-        f_form = self.f_form()
-        return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
+        return render(request, self.template_name, { 'p_form' : p_form })
 
     def post(self, request):
         p_form = self.p_form(request.POST)
-        f_form = self.f_form(request.POST)
-        if p_form.is_valid() and f_form.is_valid():
+        if p_form.is_valid():
             p_form.save()
-            selector = ProjectSelector.objects.all().last()
-            project_selector = selector.id
-            for form in f_form:
-                pfilter = form.cleaned_data['pfilter']
+            q_set = p_form.cleaned_data['pfilter']
+            for query in q_set:
                 connection = FilterDetail()
-                selector = ProjectSelector.objects.get(pk=project_selector)
-                connection.project_selector = selector
-                connection.pfilter = pfilter
+                connection.project_selector = ProjectSelector.objects.all().last()
+                connection.pfilter = Filter.objects.get(name=query)
                 connection.save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         else:
             messages.warning(request, ('Invalid Form Entry'))
-            return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
+            return render(request, self.template_name, { 'p_form' : p_form })
