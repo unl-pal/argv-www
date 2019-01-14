@@ -33,13 +33,20 @@ class ProfileForm(forms.ModelForm):
         }
 
 class ProjectSelectionForm(forms.ModelForm):
-    pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
+    # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
         fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
 
-class FilterDetailForm(forms.ModelForm):
-    project_selector = forms.IntegerField(widget=forms.HiddenInput())
-    class Meta:
-        model = FilterDetail
-        fields = ['project_selector', 'pfilter']
+class FilterDetailForm(forms.Form):
+    pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
+    value = forms.CharField(max_length=1000, widget=forms.Textarea)
+    INT = 'Integer'
+    STRING = 'String'
+    LIST = 'List'
+    TYPE_CHOICES = (
+        (INT, 'Integer'),
+        (STRING, 'String'),
+        (LIST, 'List'),
+    )
+    val_type = forms.ChoiceField(choices=TYPE_CHOICES)

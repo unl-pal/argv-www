@@ -121,20 +121,25 @@ class EditProfile(View):
 class ProjectSelection(View):
     template_name = 'website/projectSelection.html'
     p_form = ProjectSelectionForm
+    f_form = FilterDetailForm
 
     def get(self, request):
         p_form = self.p_form()
-        return render(request, self.template_name, { 'p_form' : p_form })
+        f_form = self.f_form()
+        return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
 
     def post(self, request):
         p_form = self.p_form(request.POST)
-        if p_form.is_valid():
+        f_form = self.f_form(request.POST)
+        if p_form.is_valid() and f_form.is_valid():
             p_form.save()
-            q_set = p_form.cleaned_data['pfilter']
+            q_set = f_form.cleaned_data['pfilter']
             for query in q_set:
                 connection = FilterDetail()
                 connection.project_selector = ProjectSelector.objects.all().last()
                 connection.pfilter = Filter.objects.get(name=query)
+                connection.val_type = f_form.cleaned_data['val_type']
+                connection.value = f_form.cleaned_data['value']
                 connection.save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
