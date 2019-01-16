@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
-from django.forms import modelformset_factory
+from django.forms import formset_factory
 from .models import Profile, ProjectSelector, Filter, FilterDetail
 from .validators import validate_file_size
 
@@ -39,7 +39,7 @@ class ProjectSelectionForm(forms.ModelForm):
         fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
 
 class FilterDetailForm(forms.Form):
-    pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
+    pfilter = forms.ModelChoiceField(Filter.objects.all())
     value = forms.CharField(max_length=1000, widget=forms.Textarea)
     INT = 'Integer'
     STRING = 'String'
@@ -50,3 +50,6 @@ class FilterDetailForm(forms.Form):
         (LIST, 'List'),
     )
     val_type = forms.ChoiceField(choices=TYPE_CHOICES)
+
+howmany = Filter.objects.all().count()
+FilterFormSet = formset_factory(FilterDetailForm, extra=howmany)

@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -121,7 +121,7 @@ class EditProfile(View):
 class ProjectSelection(View):
     template_name = 'website/projectSelection.html'
     p_form = ProjectSelectionForm
-    f_form = FilterDetailForm
+    f_form = FilterFormSet
 
     def get(self, request):
         p_form = self.p_form()
@@ -133,15 +133,14 @@ class ProjectSelection(View):
         f_form = self.f_form(request.POST)
         if p_form.is_valid() and f_form.is_valid():
             p_form.save()
-            q_set = f_form.cleaned_data['pfilter']
-            for query in q_set:
+            for form in f_form:
                 connection = FilterDetail()
                 connection.project_selector = ProjectSelector.objects.all().last()
                 connection.pfilter = Filter.objects.get(name=query)
-                connection.val_type = f_form.cleaned_data['val_type']
-                connection.value = f_form.cleaned_data['value']
+                connection.val_type = form.cleaned_data['val_type']
+                connection.value = form.cleaned_data['value']
                 connection.save()
-            messages.success(request, ('Form saved'))
+                messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         else:
             messages.warning(request, ('Invalid Form Entry'))
