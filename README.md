@@ -4,15 +4,6 @@ PAClab development repository using Django framework.
 
 ## This repository contains the frontend website for PACLab.
 
-## Requirements
-- Python3
-- Pip
-- Django==2.0.8
-- dj-database-url==0.5.0
-- python-decouple==3.1
-- Pillow==5.2.0
-- pytz==2018.5
-
 ## Installation
 1. Install python
 2. Install pip
