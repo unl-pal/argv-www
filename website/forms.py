@@ -36,20 +36,11 @@ class ProjectSelectionForm(forms.ModelForm):
     # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
-        fields = ['input_dataset', 'input_selection', 'output_selection', 'user']
+        fields = ['input_dataset', 'input_selection', 'output_selection']
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
-    value = forms.CharField(max_length=1000, widget=forms.Textarea)
-    INT = 'Integer'
-    STRING = 'String'
-    LIST = 'List'
-    TYPE_CHOICES = (
-        (INT, 'Integer'),
-        (STRING, 'String'),
-        (LIST, 'List'),
-    )
-    val_type = forms.ChoiceField(choices=TYPE_CHOICES)
+    value = forms.CharField(max_length=1000, widget=forms.Textarea, required=False)
 
 howmany = Filter.objects.all().count()
 FilterFormSet = formset_factory(FilterDetailForm, extra=howmany)

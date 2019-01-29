@@ -5,6 +5,7 @@ from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
@@ -118,7 +119,7 @@ class EditProfile(View):
                 messages.warning(request, (profileForm.errors))
         return render(request, self.template_name, { 'userForm' : userForm, 'profileForm' : profileForm })
 
-class ProjectSelection(View):
+class ProjectSelection(LoginRequiredMixin, View):
     template_name = 'website/projectSelection.html'
     p_form = ProjectSelectionForm
     f_form = FilterFormSet
@@ -132,15 +133,23 @@ class ProjectSelection(View):
         p_form = self.p_form(request.POST)
         f_form = self.f_form(request.POST)
         if p_form.is_valid() and f_form.is_valid():
-            p_form.save()
+            selector = ProjectSelector()
+            selector.user = request.user
+            selector.input_dataset = p_form.cleaned_data['input_dataset']
+            selector.input_selection = p_form.cleaned_data['input_selection']
+            selector.output_selection = p_form.cleaned_data['output_selection']
+            selector.save()
             for form in f_form:
-                connection = FilterDetail()
-                connection.project_selector = ProjectSelector.objects.all().last()
-                connection.pfilter = Filter.objects.get(name=query)
-                connection.val_type = form.cleaned_data['val_type']
-                connection.value = form.cleaned_data['value']
-                connection.save()
-                messages.success(request, ('Form saved'))
+                try:
+                    connection = FilterDetail()
+                    connection.project_selector = ProjectSelector.objects.all().last()
+                    pk = form.cleaned_data.get('pfilter').id
+                    connection.pfilter = Filter.objects.get(pk=pk)
+                    connection.value = form.cleaned_data['value']
+                    connection.save()
+                except:
+                    pass
+            messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         else:
             messages.warning(request, ('Invalid Form Entry'))

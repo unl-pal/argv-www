@@ -102,24 +102,6 @@ class Selection(models.Model):
 
 class Filter(models.Model):
     name = models.CharField(max_length=200, default="")
-
-    def __str__(self):
-        return self.name
-
-class ProjectSelector(models.Model):
-    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
-    input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
-    output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-
-    def __str__(self):
-        return 'ProjectSelector'
-
-class FilterDetail(models.Model):
-    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
-    pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
-    value = models.TextField(max_length=1000)
     INT = 'Integer'
     STRING = 'String'
     LIST = 'List'
@@ -138,6 +120,37 @@ class FilterDetail(models.Model):
 
     def is_list(self):
         return self.val_type in self.LIST
+
+    def __str__(self):
+        return self.name
+
+class ProjectSelector(models.Model):
+    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
+    input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
+    output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+
+    def __str__(self):
+        return 'ProjectSelector'
+
+class FilterDetail(models.Model):
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
+    pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    value = models.TextField(max_length=1000, default='1')
+
+    def __str__(self):
+        return self.value
+
+    def save(self, **kwargs):
+        if self.pfilter.val_type == 'String' and self.value == '':
+            self.value = 'string'
+        elif self.value == '':
+            self.value = ['red', 'green', 'blue']
+
+        print(self.value)
+
+        super().save()
 
 class ProjectTransformer(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
@@ -207,3 +220,4 @@ def deleteOnChange(sender, instance, **kwargs):
         removeProfilePhoto(oldPhoto)
         return True
     return False
+
