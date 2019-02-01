@@ -1,44 +1,57 @@
-{% extends "website/base.html" %}
-
-{% block container %}
-{% if heading %}
-<h3>{{heading}}</h3>
-{% endif %}
-<form class="form-horizontal" method="POST" action="">
-    {% csrf_token %}
-<div class="row form-row spacer">
-    <div class="col-2">
-        <label>Selection</label>
-    </div>
-    <div class="col-4">
-        <div class="input-group">
-            {{p_form.as_p}}
+{% extends "website/layout.html" %}
+{% block title %}Project Selection{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row"></div>
+    <div class="row">
+        <div class="col-md-12">
+            {% if heading %}
+            <h3>{{heading}}</h3>
+            {% endif %}
+            <form class="form-horizontal" method="POST" action="">
+                {% csrf_token %}
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages%}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>Selection</label>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            {{p_form.as_p}}
+                        </div>
+                    </div>
+                </div>
+                {{ formset.management_form }}
+                {% for form in formset %}
+                <div class="row form-row">
+                    <div class="col-md-2">
+                        <label>Filter</label>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-inline">
+                            {{form.pfilter}}
+                            {{form.value}}
+                            <button class="btn btn-success add-form-row">+</button>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+                {% endfor %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-block btn-primary">Create</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-{{ formset.management_form }}
-{% for form in formset %}
-<div class="row form-row spacer">
-    <div class="col-2">
-        <label>Filter</label>
-    </div>
-    <div class="col-4">
-        <div class="input-group">
-            {{form.pfilter}}
-            {{form.value}}
-            <div class="input-group-append">
-                <button class="btn btn-success add-form-row">+</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-<div class="row spacer">
-    <div class="col-4 offset-2">
-        <button type="submit" class="btn btn-block btn-primary">Create</button>
-    </div>
-</div>
-</form>
 {% endblock %}
 
 {% block custom_js %}

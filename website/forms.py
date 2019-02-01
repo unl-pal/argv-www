@@ -48,8 +48,7 @@ class FilterDetailForm(forms.Form):
         }),
         required=False)
 
-howmany = Filter.objects.all().count()
-FilterFormSet = formset_factory(FilterDetailForm, extra=howmany)
+FilterFormSet = formset_factory(FilterDetailForm)
 
 class BookForm(forms.Form):
     name = forms.CharField(

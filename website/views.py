@@ -119,43 +119,7 @@ class EditProfile(View):
                 messages.warning(request, (profileForm.errors))
         return render(request, self.template_name, { 'userForm' : userForm, 'profileForm' : profileForm })
 
-class ProjectSelection(LoginRequiredMixin, View):
-    template_name = 'website/projectSelection.html'
-    p_form = ProjectSelectionForm
-    f_form = FilterFormSet
-
-    def get(self, request):
-        p_form = self.p_form()
-        f_form = self.f_form()
-        return render(request, self.template_name, { 'p_form' : p_form, 'f_form' : f_form })
-
-    def post(self, request):
-        p_form = self.p_form(request.POST)
-        f_form = self.f_form(request.POST)
-        if p_form.is_valid() and f_form.is_valid():
-            selector = ProjectSelector()
-            selector.user = request.user
-            selector.input_dataset = p_form.cleaned_data['input_dataset']
-            selector.input_selection = p_form.cleaned_data['input_selection']
-            selector.output_selection = p_form.cleaned_data['output_selection']
-            selector.save()
-            for form in f_form:
-                try:
-                    connection = FilterDetail()
-                    connection.project_selector = ProjectSelector.objects.all().last()
-                    pk = form.cleaned_data.get('pfilter').id
-                    connection.pfilter = Filter.objects.get(pk=pk)
-                    connection.value = form.cleaned_data['value']
-                    connection.save()
-                except:
-                    pass
-            messages.success(request, ('Form saved'))
-            return redirect('website:project_selection')
-        else:
-            messages.warning(request, ('Invalid Form Entry'))
-            return render(request, self.template_name, { 'p_form' : p_form })
-
-def create_book_normal(request):
+def project_selection(request):
     template_name = 'website/create_normal.html'
     heading_message = 'Project Selection'
     if request.method == 'GET':
@@ -185,8 +149,8 @@ def create_book_normal(request):
                     except:
                         pass
                     # FilterDetail(pfilter=pfilter, value=value).save()
-                messages.success(request, ('Form saved'))
-            return redirect('website:create_book_normal')
+            messages.success(request, ('Form saved'))
+            return redirect('website:project_selection')
 
     return render(request, template_name, {
         'p_form' : p_form,
