@@ -155,23 +155,41 @@ class ProjectSelection(LoginRequiredMixin, View):
             messages.warning(request, ('Invalid Form Entry'))
             return render(request, self.template_name, { 'p_form' : p_form })
 
-
 def create_book_normal(request):
     template_name = 'website/create_normal.html'
-    heading_message = 'Formset Demo'
+    heading_message = 'Project Selection'
     if request.method == 'GET':
-        formset = BookFormset(request.GET or None)
+        p_form = ProjectSelectionForm(request.GET or None)
+        formset = FilterFormSet(request.GET or None)
     elif request.method == 'POST':
-        formset = BookFormset(request.POST)
-        if formset.is_valid():
+        p_form = ProjectSelectionForm(request.POST)
+        formset = FilterFormSet(request.POST)
+        if p_form.is_valid() and formset.is_valid():
+            selector = ProjectSelector()
+            selector.user = request.user
+            selector.input_dataset = p_form.cleaned_data['input_dataset']
+            selector.input_selection = p_form.cleaned_data['input_selection']
+            selector.output_selection = p_form.cleaned_data['output_selection']
+            selector.save()
             for form in formset:
-                name = form.cleaned_data.get('name')
-                # save book instance
-                if name:
-                    Book(name=name).save()
-            return redirect('store:book_list')
+                pfilter = form.cleaned_data.get('pfilter')
+                value = form.cleaned_data.get('value')
+                if value and pfilter:
+                    try:
+                        connection = FilterDetail()
+                        connection.project_selector = ProjectSelector.objects.all().last()
+                        pk = form.cleaned_data.get('pfilter').id
+                        connection.pfilter = Filter.objects.get(pk=pk)
+                        connection.value = form.cleaned_data['value']
+                        connection.save()
+                    except:
+                        pass
+                    # FilterDetail(pfilter=pfilter, value=value).save()
+                messages.success(request, ('Form saved'))
+            return redirect('website:create_book_normal')
 
     return render(request, template_name, {
+        'p_form' : p_form,
         'formset': formset,
         'heading': heading_message,
     })

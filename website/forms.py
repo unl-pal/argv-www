@@ -40,7 +40,13 @@ class ProjectSelectionForm(forms.ModelForm):
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
-    value = forms.CharField(max_length=1000, widget=forms.Textarea, required=False)
+    value = forms.CharField(
+        max_length=1000,
+        widget=forms.TextInput(attrs={
+            'class' : 'form-control',
+            'placeholder' : 'Enter value'
+        }),
+        required=False)
 
 howmany = Filter.objects.all().count()
 FilterFormSet = formset_factory(FilterDetailForm, extra=howmany)
