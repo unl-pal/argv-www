@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, BookFormset
 
 # Create your views here.
 class IndexView(TemplateView):
@@ -154,3 +154,24 @@ class ProjectSelection(LoginRequiredMixin, View):
         else:
             messages.warning(request, ('Invalid Form Entry'))
             return render(request, self.template_name, { 'p_form' : p_form })
+
+
+def create_book_normal(request):
+    template_name = 'website/create_normal.html'
+    heading_message = 'Formset Demo'
+    if request.method == 'GET':
+        formset = BookFormset(request.GET or None)
+    elif request.method == 'POST':
+        formset = BookFormset(request.POST)
+        if formset.is_valid():
+            for form in formset:
+                name = form.cleaned_data.get('name')
+                # save book instance
+                if name:
+                    Book(name=name).save()
+            return redirect('store:book_list')
+
+    return render(request, template_name, {
+        'formset': formset,
+        'heading': heading_message,
+    })
