@@ -14,8 +14,15 @@
                         </ul>
                     {% endif %}
                     {{ p_form.as_p }}
-                    {{ f_form.as_p }}
-                    <button class="btn btn-default" type="submit">Submit</button>
+                    {% for form in f_form %}
+                        {{ form.pfilter }}
+                        {{ form.value }}
+                        <span class="input-group-append">
+                            <button class="btn btn-success add-form-row">+</button>
+                        </span>
+                    {% endfor %}
+                    <br><br>
+                    <button class="btn btn-default" style="display:block;" type="submit">Submit</button>
                 </form>
             </div>
         </div>
