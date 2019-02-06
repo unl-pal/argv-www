@@ -220,11 +220,3 @@ def deleteOnChange(sender, instance, **kwargs):
         removeProfilePhoto(oldPhoto)
         return True
     return False
-
-class Book(models.Model):
-
-    name = models.CharField(max_length=255)
-    isbn_number = models.CharField(max_length=13)
-
-    def __str__(self):
-        return self.name

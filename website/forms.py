@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import formset_factory
-from .models import Profile, ProjectSelector, Filter, FilterDetail, Book
+from .models import Profile, ProjectSelector, Filter, FilterDetail
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
@@ -48,14 +48,8 @@ class FilterDetailForm(forms.Form):
         }),
         required=False)
 
-FilterFormSet = formset_factory(FilterDetailForm)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].widget.attrs['placeholder'] = 'Hello World'
 
-class BookForm(forms.Form):
-    name = forms.CharField(
-        label='Book Name',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter Book Name here'
-        })
-    )
-BookFormset = formset_factory(BookForm)
+FilterFormSet = formset_factory(FilterDetailForm)

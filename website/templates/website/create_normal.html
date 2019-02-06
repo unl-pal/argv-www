@@ -109,6 +109,12 @@ $(document).on('click', '.remove-form-row', function(e){
     deleteForm('form', $(this));
     return false;
 });
+$('select').change(function (){
+    console.log("Hello World!");
+    var text = $("option:selected", this).text();
+    console.log(text);
+    $(this).nextAll('input').first().val("asdf");
+});
 
 </script>
 {% endblock %}
