@@ -137,3 +137,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True)
 # These need to be set in the .env file
 EMAIL_HOST_USER = config('EMAIL_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
+
+# Login Required Redirect URLs
+LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
+LOGIN_URL = config('LOGIN_URL', default='website:login')
