@@ -87,7 +87,7 @@ def profile(request):
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
-            messages.success(request, ('Account successfully update'))
+            messages.success(request, ('Profile successfully updated'))
             return redirect('website:editProfile')
         messages.warning(request, ('Invalid form entry'))
     else:    
