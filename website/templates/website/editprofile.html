@@ -14,12 +14,8 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                    {% for field in userForm %}
-                        <label>{{ field.label_tag }}</label><p>{{ field }}</p>
-                    {% endfor %}
-                    {% for field in profileForm %}
-                        <label>{{ field.label_tag }}</label><p>{{ field }}</p>
-                    {% endfor %}
+                    {{ userForm.as_p }}
+                    {{ profileForm.as_p }}
                     <button type="submit" class="btn btn-default">Submit</button>
                 </form>
             </div>
