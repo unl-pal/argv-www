@@ -134,9 +134,9 @@ def project_selection(request):
         'heading': heading_message,
     })
 
-
 def data_default(request):
     text = request.GET.get('text', None)
     pfilter = Filter.objects.get(name=text)
     data = pfilter.val_type
-    return JsonResponse({ 'data' : data })
+    default = pfilter.default_val
+    return JsonResponse({ 'data' : data, 'default' : default })

@@ -50,8 +50,4 @@ class FilterDetailForm(forms.Form):
         }),
         required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['value'].widget.attrs['placeholder'] = 'Hello World'
-
 FilterFormSet = formset_factory(FilterDetailForm)

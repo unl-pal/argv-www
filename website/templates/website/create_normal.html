@@ -121,17 +121,18 @@ $('select').change(function (){
         },
         success: function (data) {
             var values = $.map(data, function(value, key) { return value });
+            console.log(values);
             var val_type = values[0];
-            console.log(val_type);
+            var default_val = values[1];
             if(val_type==="String") {
                 console.log("I'm here");
-                $(current_input).nextAll('input').first().val("asdf");
+                $(current_input).nextAll('input').first().val(default_val);
             }
             else if(val_type==="Integer") {
-                $(current_input).nextAll('input').first().val("1");
+                $(current_input).nextAll('input').first().val(default_val);
             }
             else {
-                $(current_input).nextAll('input').first().val("red, green, blue");
+                $(current_input).nextAll('input').first().val(default_val);
             }
         }
     });
