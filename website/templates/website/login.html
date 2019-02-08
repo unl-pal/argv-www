@@ -21,7 +21,7 @@
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% include 'website/form.html' %}
-                    <button type="submit" class="btn btn-default">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
                 <p><a href="{% url 'website:password_reset' %}">Forgot Password?</a></p>
             </div>
