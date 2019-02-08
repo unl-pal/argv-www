@@ -7,7 +7,7 @@ app_name = 'website'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
-    path('funding', views.FundingView.as_view(), name='funding'),
+    path('funding/', views.FundingView.as_view(), name='funding'),
     path('papers/', views.PapersView.as_view(), name='papers'),
     path('papers/<pk>/', views.PaperDetails.as_view(), name='paperDetails'),
     path('people/', views.PeopleView.as_view(), name='people'),
