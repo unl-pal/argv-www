@@ -30,3 +30,4 @@ class ProfileForm(forms.ModelForm):
             'bio' : 'Bio',
             'token' : 'Github Personal Access Token'
         }
+        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
