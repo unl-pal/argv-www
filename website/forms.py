@@ -14,11 +14,10 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email']
 
-class UserFormLogin(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    class Meta:
-        model = User
-        fields = ['username', 'password']
+class UserFormLogin(forms.Form):
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username', 'autofocus': 'autofocus'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    fields = ['username', 'password']
 
 class UserFormRegister(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)

@@ -65,13 +65,14 @@ class LoginView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return redirect('website:index')
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
 def logoutView(request):
