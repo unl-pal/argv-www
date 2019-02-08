@@ -38,7 +38,7 @@ class ProjectSelectionForm(forms.ModelForm):
     # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
-        fields = ['input_dataset', 'input_selection', 'output_selection']
+        fields = ['input_dataset']
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())

@@ -99,7 +99,7 @@ class Selection(models.Model):
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
-        return 'Selection'
+        return 'self.name'
 
 class Filter(models.Model):
     name = models.CharField(max_length=200, default="")
@@ -127,8 +127,8 @@ class Filter(models.Model):
 
 class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
-    input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
-    output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
+    # input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
+    # output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
 
