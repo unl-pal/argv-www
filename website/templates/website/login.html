@@ -20,7 +20,9 @@
             <div class="panel-body">
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {% include 'website/form.html' %}
+                    {% for field in form %}
+                        <label>{{ field.label_tag }}</label><p>{{ field }}</p>
+                    {% endfor %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
                 <p><a href="{% url 'website:password_reset' %}">Forgot Password?</a></p>
