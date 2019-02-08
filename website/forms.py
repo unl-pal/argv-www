@@ -4,6 +4,12 @@ from .models import Profile
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
@@ -16,12 +22,20 @@ class UserFormLogin(forms.ModelForm):
 
 class UserFormRegister(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super(UserFormRegister, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
     photo = forms.ImageField(validators=[validate_file_size])
+
     class Meta:
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
