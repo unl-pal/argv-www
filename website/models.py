@@ -12,7 +12,6 @@ from django.core.files import File
 from django.conf import settings
 from .validators import validate_file_size
 
-# Create your models here.
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
 # checking filenames.  For some reason, files with spaces in their names would work correctly.  This function adds a _1 to the end of each 
 # filename.

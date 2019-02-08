@@ -26,7 +26,6 @@ class ProfileAdmin(admin.ModelAdmin):
     get_email.admin_order_field  = 'user__email'
     get_email.short_description = 'Email Address'
 
-# Register your models here.
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)

@@ -11,7 +11,6 @@ from django.conf import settings
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
-# Create your views here.
 class IndexView(TemplateView):
     template_name="website/index.html"
 
