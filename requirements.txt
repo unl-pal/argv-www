@@ -1,5 +1,6 @@
 dj-database-url==0.5.0
 Django>=2.0.10
 python-decouple==3.1
+django-widget-tweaks==1.4.3
 Pillow==5.2.0
 pytz==2018.5
