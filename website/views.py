@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
@@ -110,8 +110,6 @@ def project_selection(request):
             selector = ProjectSelector()
             selector.user = request.user
             selector.input_dataset = p_form.cleaned_data['input_dataset']
-            selector.input_selection = p_form.cleaned_data['input_selection']
-            selector.output_selection = p_form.cleaned_data['output_selection']
             selector.save()
             for form in formset:
                 pfilter = form.cleaned_data.get('pfilter')
@@ -135,3 +133,10 @@ def project_selection(request):
         'formset': formset,
         'heading': heading_message,
     })
+
+
+def data_default(request):
+    text = request.GET.get('text', None)
+    pfilter = Filter.objects.get(name=text)
+    data = pfilter.val_type
+    return JsonResponse({ 'data' : data })

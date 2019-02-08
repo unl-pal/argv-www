@@ -112,6 +112,7 @@ class Filter(models.Model):
         (LIST, 'List'),
     )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
+    default_val = models.CharField(max_length=100, default='Enter value here')
 
     def is_int(self):
         return self.val_type in self.INT
@@ -126,7 +127,7 @@ class Filter(models.Model):
         return self.name
 
 class ProjectSelector(models.Model):
-    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
+    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     # input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
     # output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)

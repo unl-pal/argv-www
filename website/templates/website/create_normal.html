@@ -55,7 +55,7 @@
 {% endblock %}
 
 {% block custom_js %}
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
 function updateElementIndex(el, prefix, ndx) {
     var id_regex = new RegExp('(' + prefix + '-\\d+)');
@@ -113,7 +113,28 @@ $('select').change(function (){
     console.log("Hello World!");
     var text = $("option:selected", this).text();
     console.log(text);
-    $(this).nextAll('input').first().val("asdf");
+    current_input = this;
+    $.ajax({
+        url: '/ajax/data_default/',
+        data: {
+            'text': text
+        },
+        success: function (data) {
+            var values = $.map(data, function(value, key) { return value });
+            var val_type = values[0];
+            console.log(val_type);
+            if(val_type==="String") {
+                console.log("I'm here");
+                $(current_input).nextAll('input').first().val("asdf");
+            }
+            else if(val_type==="Integer") {
+                $(current_input).nextAll('input').first().val("1");
+            }
+            else {
+                $(current_input).nextAll('input').first().val("red, green, blue");
+            }
+        }
+    });
 });
 
 </script>
