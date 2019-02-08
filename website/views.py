@@ -78,6 +78,7 @@ class LoginView(View):
 
 def logoutView(request):
     logout(request)
+    messages.success(request, 'You have successfully logged out.')
     return redirect('website:index')
 
 @login_required
@@ -88,9 +89,9 @@ def profile(request):
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
-            messages.success(request, ('Account successfully update'))
-            return redirect('website:editProfile')
-        messages.warning(request, ('Invalid form entry'))
+            messages.success(request, 'Profile successfully updated')
+        else:
+            messages.warning(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)

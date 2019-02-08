@@ -25,12 +25,14 @@ class ProfileForm(forms.ModelForm):
     photo = forms.ImageField(validators=[validate_file_size])
     class Meta:
         model = Profile
-        fields = ['photo', 'bio', 'token']
+        fields = ['photo', 'bio', 'token', 'sharetoken']
         labels = {
             'photo' : 'Photo',
             'bio' : 'Bio',
-            'token' : 'Github Personal Access Token'
+            'token' : 'Github Personal Access Token',
+            'sharetoken' : 'Allow using token for system jobs'
         }
+        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
 
 class ProjectSelectionForm(forms.ModelForm):
     # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())

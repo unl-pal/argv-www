@@ -40,7 +40,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
-    token = models.CharField(max_length=1000, default="", help_text="For generating a GitHub token please take a look at https://github.com/settings/tokens")
+    token = models.CharField(max_length=40, default="", help_text="Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>.")
+    sharetoken = models.BooleanField(default=False, help_text="Note: the token is never shared/visible to other users!")
 
     NONE = '--'
     DOCTOR = 'Dr.'
