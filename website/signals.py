@@ -18,9 +18,16 @@ def saveUserProfile(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Profile)
 def updatePhoto(sender, instance, **kwargs):
+    x = instance.cleaned_data.get('x')
+    y = instance.cleaned_data.get('y')
+    w = instance.cleaned_data.get('width')
+    h = instance.cleaned_data.get('height')
+    print(x, y, w, h)
+
     image = Image.open(instance.photo.file)
-    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
-    image.save(instance.photo.path)
+    cropped_image = image.crop((x, y, w + x, h + y))
+    resized_image = cropped_image.resize((settings.THUMBNAIL_SIZE, settings.THUMBNAIL_SIZE), Image.ANTIALIAS)
+    resized_image.save(instance.photo.path)
 
 def removeProfilePhoto(photo):
     if os.path.basename(photo.name) != "defaultuser.png":

@@ -94,4 +94,4 @@ def profile(request):
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm })
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })

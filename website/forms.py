@@ -33,6 +33,10 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
+    x = forms.FloatField(widget=forms.HiddenInput())
+    y = forms.FloatField(widget=forms.HiddenInput())
+    width = forms.FloatField(widget=forms.HiddenInput())
+    height = forms.FloatField(widget=forms.HiddenInput())
     photo = forms.ImageField(validators=[validate_file_size])
 
     class Meta:

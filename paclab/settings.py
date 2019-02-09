@@ -129,7 +129,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 MAX_FILE_UPLOAD = 4 * 1024 * 1024
-THUMBNAIL_SIZE = (500, 500)
+THUMBNAIL_SIZE = (200, 200)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')

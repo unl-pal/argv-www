@@ -9,12 +9,10 @@
 
     <!--Bootstrap-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="{% static 'website/cropper.min.css' %}" rel="stylesheet">
 
     <!--CSS Override-->
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
-    <script type="{% static 'static/javascript.js' %}"></script>
 </head>
 <header>
     <nav class="navbar navbar-default">
@@ -65,6 +63,12 @@
 </header>
 <body>
 {% block body%}{% endblock %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="{% static 'website/cropper.min.js' %}"></script>
+<script src="{% static 'website/jquery-cropper.min.js' %}"></script>
+<script src="{% static 'website/javascript.js' %}"></script>
+{% block script %}{% endblock %}
 <footer class="footer">
     <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
     This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
