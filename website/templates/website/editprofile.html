@@ -23,7 +23,7 @@
         var canvasData;
         $("#modalCrop").on("shown.bs.modal", function () {
             $image.cropper({
-                viewMode: 1,
+                viewMode: 2,
                 aspectRatio: 1/1,
                 minCropBoxWidth: {{ min_width }},
                 minCropBoxHeight: {{ min_height }},
@@ -32,6 +32,7 @@
                     $image.cropper("setCropBoxData", cropBoxData);
                 }
             });
+            $image.cropper("setDragMode", "move");
         }).on("hide.bs.modal", function () {
             if ($image.saving === false) {
                 $("#id_photo").val("");
@@ -44,6 +45,10 @@
             cropBoxData = $image.cropper("getCropBoxData");
             canvasData = $image.cropper("getCanvasData");
             $image.cropper("destroy");
+        });
+
+        $(".js-move").click(function () {
+            $image.cropper("setDragMode", "move");
         });
 
         $(".js-zoom-in").click(function () {
@@ -108,6 +113,9 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group pull-left" role="group">
+                            <button type="button" class="btn btn-default js-move">
+                                <span class="glyphicon glyphicon-move"></span>
+                            </button>
                             <button type="button" class="btn btn-default js-zoom-in">
                                 <span class="glyphicon glyphicon-zoom-in"></span>
                             </button>
