@@ -54,6 +54,14 @@
             $("#id_width").val(cropData["width"]);
             //$("#formUpload").submit();
         });
+
+        $(".js-crop-cancel").click(function () {
+            $("#id_photo").val("");
+            $("#id_x").val("");
+            $("#id_y").val("");
+            $("#id_height").val("");
+            $("#id_width").val("");
+        });
     });
 </script>
 {% endblock %}
@@ -93,7 +101,7 @@
                                 <span class="glyphicon glyphicon-zoom-out"></span>
                             </button>
                         </div>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Nevermind</button>
+                        <button type="button" class="btn btn-default js-crop-cancel" data-dismiss="modal">Nevermind</button>
                         <button type="button" class="btn btn-primary js-crop-and-upload" data-dismiss="modal">Crop Photo</button>
                     </div>
                 </div>
