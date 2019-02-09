@@ -35,16 +35,6 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png')
     bio = models.TextField(max_length=1000, blank=True)
-    
-    # Cropping
-
-    x = models.FloatField(default=0)
-    y = models.FloatField(default=0)
-    width = models.FloatField(default=0)
-    height = models.FloatField(default=0)
-
-    #Choice Fields
-
     NONE = '--'
     DOCTOR = 'Dr.'
     SURNAME_CHOICES = (
@@ -83,8 +73,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.first_name
-
-    #Permission
 
     class Meta:
         permissions = (

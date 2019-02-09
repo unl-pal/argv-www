@@ -23,8 +23,3 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['photo', 'bio']
-
-class CropForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['x', 'y', 'width', 'height']

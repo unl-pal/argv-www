@@ -2,21 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Layout{% endblock %}</title>
     {% load staticfiles %}
 
     <!--Bootstrap-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
-    <!--Jcrop-->
-    <link rel="stylesheet" type="text/css" href="{% static 'website/jquery.Jcrop.css' %}">
-    <!--jQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <!--Bootstrap jQuery-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!--Jcrop jQuery-->
-    <script type="{% static 'website/jquery.Jcrop.min.js' %}"></script>
 
     <!--CSS Override-->
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
@@ -72,7 +64,7 @@
 <body>
 {% block body%}{% endblock %}
 <footer class="footer">
-    <p>Copyright © 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
+    <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
     This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
     Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.</p>
 </footer>
