@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django import forms
+from PIL import Image
 from .models import Profile
 from .validators import validate_file_size
 
@@ -33,10 +35,10 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
-    x = forms.FloatField(widget=forms.HiddenInput())
-    y = forms.FloatField(widget=forms.HiddenInput())
-    width = forms.FloatField(widget=forms.HiddenInput())
-    height = forms.FloatField(widget=forms.HiddenInput())
+    x = forms.FloatField(required=False, widget=forms.HiddenInput())
+    y = forms.FloatField(required=False, widget=forms.HiddenInput())
+    width = forms.FloatField(required=False, widget=forms.HiddenInput())
+    height = forms.FloatField(required=False, widget=forms.HiddenInput())
     photo = forms.ImageField(validators=[validate_file_size])
 
     class Meta:
@@ -49,3 +51,19 @@ class ProfileForm(forms.ModelForm):
             'sharetoken' : 'Allow using token for system jobs'
         }
         widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+
+    def save(self):
+        profile = super(ProfileForm, self).save()
+
+        x = self.cleaned_data.get('x')
+        y = self.cleaned_data.get('y')
+        w = self.cleaned_data.get('width')
+        h = self.cleaned_data.get('height')
+
+        if x and y and w and h:
+            image = Image.open(profile.photo)
+            cropped_image = image.crop((x, y, w + x, h + y))
+            resized_image = cropped_image.resize(settings.THUMBNAIL_SIZE, Image.LANCZOS)
+            resized_image.save(profile.photo.path)
+
+        return profile

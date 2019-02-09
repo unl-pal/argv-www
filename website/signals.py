@@ -3,7 +3,6 @@ import os
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
-from PIL import Image
 from django.conf import settings
 from .models import Profile
 
@@ -15,19 +14,6 @@ def createUserProfile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
-
-@receiver(post_save, sender=Profile)
-def updatePhoto(sender, instance, **kwargs):
-    x = instance.cleaned_data.get('x')
-    y = instance.cleaned_data.get('y')
-    w = instance.cleaned_data.get('width')
-    h = instance.cleaned_data.get('height')
-    print(x, y, w, h)
-
-    image = Image.open(instance.photo.file)
-    cropped_image = image.crop((x, y, w + x, h + y))
-    resized_image = cropped_image.resize((settings.THUMBNAIL_SIZE, settings.THUMBNAIL_SIZE), Image.ANTIALIAS)
-    resized_image.save(instance.photo.path)
 
 def removeProfilePhoto(photo):
     if os.path.basename(photo.name) != "defaultuser.png":
