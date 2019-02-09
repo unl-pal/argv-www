@@ -25,3 +25,7 @@ body {
 .top-buffer {
     margin-top:20px;
 }
+
+.cropper-container {
+    max-width: 100%;
+}
