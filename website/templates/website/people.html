@@ -6,50 +6,17 @@
     <div class="container-fluid">
         {% for person in allPeople %}
             {% if person.is_staff and person.is_active and person.profile.isAdmin %}
-                <div class="row">
-                    <div class="col-xs-2">
-                        <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
-                    </div>
-                    <div class="col-xs-8">
-                        <h2>{% if person.profile.isDoctor %}{{ person.profile.surname }} {% endif %}{{ person.first_name }} {{ person.last_name }}</h2>
-                        <h4>Contact: {{ person.email }}</h4>
-                    </div>
-                    <div class="col-xs-8">
-                        <p>{{ person.profile.bio }}</p>
-                    </div>
-                </div><br><br>
+            {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
             {% if person.is_staff and person.is_active and person.profile.isModerator %}
-                <div class="row">
-                    <div class="col-xs-2">
-                        <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
-                    </div>
-                    <div class="col-xs-8">
-                        <h2>{% if person.profile.isDoctor %}{{ person.profile.surname }} {% endif %}{{ person.first_name }} {{ person.last_name }}</h2>
-                        <h4>Contact: {{ person.email }}</h4>
-                    </div>
-                    <div class="col-xs-8">
-                        <p>{{ person.profile.bio }}</p>
-                    </div>
-                </div><br><br>
+            {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
             {% if person.is_staff and person.is_active and person.profile.isRetired %}
-                <div class="row">
-                    <div class="col-xs-2">
-                        <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
-                    </div>
-                    <div class="col-xs-8">
-                        <h2>{% if person.profile.isDoctor %}{{ person.profile.surname }} {% endif %}{{ person.first_name }} {{ person.last_name }}</h2>
-                        <h4>Contact: {{ person.email }}</h4>
-                    </div>
-                    <div class="col-xs-8">
-                        <p>{{ person.profile.bio }}</p>
-                    </div>
-                </div><br><br>
+            {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
     </div>
