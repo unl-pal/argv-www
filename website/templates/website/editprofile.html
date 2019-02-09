@@ -18,6 +18,7 @@
 
         /* SCRIPTS TO HANDLE THE CROPPER BOX */
         var $image = $("#image");
+        $image.saving = false;
         var cropBoxData;
         var canvasData;
         $("#modalCrop").on("shown.bs.modal", function () {
@@ -31,6 +32,14 @@
                     $image.cropper("setCropBoxData", cropBoxData);
                 }
             });
+        }).on("hide.bs.modal", function () {
+            if ($image.saving === false) {
+                $("#id_photo").val("");
+                $("#id_x").val("");
+                $("#id_y").val("");
+                $("#id_height").val("");
+                $("#id_width").val("");
+            }
         }).on("hidden.bs.modal", function () {
             cropBoxData = $image.cropper("getCropBoxData");
             canvasData = $image.cropper("getCanvasData");
@@ -47,20 +56,25 @@
 
         /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
         $(".js-crop-and-upload").click(function () {
+            $image.saving = true;
+            $("#modalCrop").modal('hide');
             var cropData = $image.cropper("getData");
             $("#id_x").val(cropData["x"]);
             $("#id_y").val(cropData["y"]);
             $("#id_height").val(cropData["height"]);
             $("#id_width").val(cropData["width"]);
-            //$("#formUpload").submit();
+            $image.saving = false;
         });
 
         $(".js-crop-cancel").click(function () {
-            $("#id_photo").val("");
-            $("#id_x").val("");
-            $("#id_y").val("");
-            $("#id_height").val("");
-            $("#id_width").val("");
+            $("#modalCrop").modal('hide');
+        });
+
+        $("#id_photo").click(function () {
+                $("#id_x").val("");
+                $("#id_y").val("");
+                $("#id_height").val("");
+                $("#id_width").val("");
         });
     });
 </script>
@@ -101,8 +115,8 @@
                                 <span class="glyphicon glyphicon-zoom-out"></span>
                             </button>
                         </div>
-                        <button type="button" class="btn btn-default js-crop-cancel" data-dismiss="modal">Nevermind</button>
-                        <button type="button" class="btn btn-primary js-crop-and-upload" data-dismiss="modal">Crop Photo</button>
+                        <button type="button" class="btn btn-default js-crop-cancel">Nevermind</button>
+                        <button type="button" class="btn btn-primary js-crop-and-upload">Crop Photo</button>
                     </div>
                 </div>
             </div>
