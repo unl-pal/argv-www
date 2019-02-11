@@ -35,11 +35,14 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
+    class PhotoInput(forms.widgets.ClearableFileInput):
+        template_name = 'website/photoinput.html'
+
     x = forms.FloatField(required=False, widget=forms.HiddenInput())
     y = forms.FloatField(required=False, widget=forms.HiddenInput())
     width = forms.FloatField(required=False, widget=forms.HiddenInput())
     height = forms.FloatField(required=False, widget=forms.HiddenInput())
-    photo = forms.ImageField(validators=[validate_file_size])
+    photo = forms.ImageField(validators=[validate_file_size], widget=PhotoInput())
 
     class Meta:
         model = Profile
@@ -50,7 +53,9 @@ class ProfileForm(forms.ModelForm):
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
-        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+        }
 
     def save(self):
         profile = super(ProfileForm, self).save()
