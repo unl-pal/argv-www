@@ -4,7 +4,7 @@
 {% block script %}
 <script type="text/javascript">
     $(function () {
-        /* SCRIPT TO OPEN THE MODAL WITH THE PREVIEW */
+        /* open the modal with the preview */
         $("#id_photo").change(function () {
             if (this.files && this.files[0]) {
                 var reader = new FileReader();
@@ -16,25 +16,22 @@
             }
         });
 
-        /* SCRIPTS TO HANDLE THE CROPPER BOX */
+        /* handle the cropper box */
         var $image = $("#image");
-        $image.saving = false;
-        var cropBoxData;
-        var canvasData;
+        var saving = false;
         $("#modalCrop").on("shown.bs.modal", function () {
             $image.cropper({
                 viewMode: 2,
+                rotatable: false,
                 aspectRatio: 1/1,
                 minCropBoxWidth: {{ min_width }},
                 minCropBoxHeight: {{ min_height }},
                 ready: function () {
-                    $image.cropper("setCanvasData", canvasData);
-                    $image.cropper("setCropBoxData", cropBoxData);
+                    $image.cropper("setDragMode", "move");
                 }
             });
-            $image.cropper("setDragMode", "move");
         }).on("hide.bs.modal", function () {
-            if ($image.saving === false) {
+            if (saving === false) {
                 $("#id_photo").val("");
                 $("#id_x").val("");
                 $("#id_y").val("");
@@ -42,15 +39,10 @@
                 $("#id_width").val("");
             }
         }).on("hidden.bs.modal", function () {
-            cropBoxData = $image.cropper("getCropBoxData");
-            canvasData = $image.cropper("getCanvasData");
             $image.cropper("destroy");
         });
 
-        $(".js-move").click(function () {
-            $image.cropper("setDragMode", "move");
-        });
-
+        /* buttons */
         $(".js-zoom-in").click(function () {
             $image.cropper("zoom", 0.1);
         });
@@ -59,27 +51,29 @@
             $image.cropper("zoom", -0.1);
         });
 
-        /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
+        $(".js-crop-cancel").click(function () {
+            $("#modalCrop").modal('hide');
+        });
+
+        /* save the data in the form */
         $(".js-crop-and-upload").click(function () {
-            $image.saving = true;
+            saving = true;
             $("#modalCrop").modal('hide');
             var cropData = $image.cropper("getData");
             $("#id_x").val(cropData["x"]);
             $("#id_y").val(cropData["y"]);
             $("#id_height").val(cropData["height"]);
             $("#id_width").val(cropData["width"]);
-            $image.saving = false;
+            saving = false;
         });
 
-        $(".js-crop-cancel").click(function () {
-            $("#modalCrop").modal('hide');
-        });
-
+        /* reset the data whenever a new file is selected */
         $("#id_photo").click(function () {
-                $("#id_x").val("");
-                $("#id_y").val("");
-                $("#id_height").val("");
-                $("#id_width").val("");
+            $("#id_photo").val("");
+            $("#id_x").val("");
+            $("#id_y").val("");
+            $("#id_height").val("");
+            $("#id_width").val("");
         });
     });
 </script>
@@ -99,7 +93,7 @@
         </div>
 
         <!-- MODAL TO CROP THE IMAGE -->
-        <div class="modal fade" id="modalCrop">
+        <div tabindex="-1" class="modal fade" id="modalCrop">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -113,9 +107,6 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group pull-left" role="group">
-                            <button type="button" class="btn btn-default js-move">
-                                <span class="glyphicon glyphicon-move"></span>
-                            </button>
                             <button type="button" class="btn btn-default js-zoom-in">
                                 <span class="glyphicon glyphicon-zoom-in"></span>
                             </button>
