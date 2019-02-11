@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
     <script type="{% static 'static/javascript.js' %}"></script>
 </head>
+<body>
 <header>
     <nav class="navbar navbar-default">
         <!--Main Buttons-->
@@ -44,6 +45,11 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
+                {% if user.is_staff %}
+                    <li>
+                        <a href="{% url 'admin:index' %}">Admin</a>
+                    </li>
+                {% endif %}
                 {% if not user.is_authenticated %}
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
@@ -64,7 +70,6 @@
         </div>
     </nav>
 </header>
-<body>
 {% block body%}{% endblock %}
 <footer class="footer">
     <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
