@@ -4,7 +4,8 @@ import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from .validators import validate_file_size
+from django.utils.safestring import mark_safe
+from .validators import validate_file_size, validate_gh_token
 
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
 # checking filenames.  For some reason, files with spaces in their names would work correctly.  This function adds a _1 to the end of each 
@@ -33,7 +34,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
-    token = models.CharField(max_length=40, default="", help_text="Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>.")
+    token = models.CharField(max_length=40, default="", validators=[validate_gh_token], help_text=mark_safe("Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>."))
     sharetoken = models.BooleanField(default=False, help_text="Note: the token is never shared/visible to other users!")
 
     NONE = '--'
