@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 
 class IndexView(TemplateView):
     template_name="website/index.html"
@@ -44,17 +44,11 @@ class RegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user.set_password(password)
-            user.save()
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('website:index')
-            return render(request, self.template_name, { 'form' : form })
+            form.save()
+            messages.success(request, 'Form saved!')
+            return redirect('website:login')
+        messages.warning(request, 'Invalid form entry')
+        return render(request, self.template_name, { 'form' : form })
 
 class LoginView(View):
     form_class = UserFormLogin
@@ -84,18 +78,32 @@ def logoutView(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        userForm = UserForm(request.POST, instance=request.user)
+        userForm = UserFormRegister(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
             messages.success(request, 'Profile successfully updated')
+            return redirect('website:editProfile')
         else:
             messages.warning(request, 'Invalid form entry')
     else:    
-        userForm = UserForm(instance=request.user)
+        userForm = UserFormRegister(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
     return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm })
+
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        form = UserPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Password updated!')
+            return redirect('website:index')
+        messages.warning(request, 'Invalid form entry')
+    else:
+        form = UserPasswordForm(request.user)
+    return render(request, 'website/password_change.html', { 'form' : form })
 
 def project_selection(request):
     template_name = 'website/create_normal.html'

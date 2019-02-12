@@ -58,6 +58,7 @@
                             <li><a href="{% url 'website:editProfile' %}">Profile</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:project_selection' %}">Project Selection</a></li>
+                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
