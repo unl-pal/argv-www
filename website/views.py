@@ -127,7 +127,7 @@ def project_selection(request):
                     # FilterDetail(pfilter=pfilter, value=value).save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
-
+        messages.warning(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,

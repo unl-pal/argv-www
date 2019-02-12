@@ -12,13 +12,11 @@
     <!--Bootstrap-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
 
     <!--CSS Override-->
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
-    <script type="{% static 'static/javascript.js' %}"></script>
 </head>
 <body>
 {% hijack_notification %}
@@ -49,18 +47,21 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
-                {% if user.is_staff %}
-                    <li>
-                        <a href="{% url 'admin:index' %}">Admin</a>
-                    </li>
-                {% endif %}
                 {% if not user.is_authenticated %}
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
                     </li>
                 {% else %}
-                    <li class="{% block profileactive %}{% endblock %}">
-                        <a href="{% url 'website:editProfile' %}">Profile</a>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Account <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'website:editProfile' %}">Profile</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{% url 'website:project_selection' %}">Project Selection</a></li>
+                            {% if user.is_staff %}
+                                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                            {% endif %}
+                        </ul>
                     </li>
                 {% endif %}
                 <li class="{% block loginactive %}{% endblock %}">
@@ -80,8 +81,9 @@
     This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
     Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.</p>
 </footer>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
 {% block custom_js %}{% endblock %}
+<script type="{% static 'static/javascript.js' %}"></script>
 </body>
 </html>

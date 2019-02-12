@@ -61,6 +61,6 @@ class FilterDetailForm(forms.Form):
             'class' : 'form-control',
             'placeholder' : 'Enter value'
         }),
-        required=False)
+        required=True)
 
 FilterFormSet = formset_factory(FilterDetailForm)
