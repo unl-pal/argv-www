@@ -131,3 +131,16 @@ class Analysis(models.Model):
 
     def __str__(self):
         return self.input_selection
+
+class UserAuthAuditEntry(models.Model):
+    action = models.CharField(max_length=16)
+    ip = models.GenericIPAddressField(null=True)
+    datetime = models.DateTimeField(default=datetime.datetime.today)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+    username = models.CharField(max_length=256, null=True)
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return '{0} - {1} - {2}'.format(self.action, self.username, self.ip)

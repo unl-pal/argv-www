@@ -2,10 +2,11 @@ import os
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from PIL import Image
 from django.conf import settings
-from .models import Profile
+from .models import Profile, UserAuthAuditEntry
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
@@ -54,3 +55,17 @@ def deleteOnChange(sender, instance, **kwargs):
         removeProfilePhoto(oldPhoto)
         return True
     return False
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='logged_in', ip=ip, user=user)
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='logged_out', ip=ip, user=user)
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, credentials, request, **kwargs):
+    UserAuthAuditEntry.objects.create(action='invalid_login', username=credentials.get('username', None))

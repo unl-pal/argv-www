@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis
+from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, UserAuthAuditEntry
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -26,6 +26,19 @@ class ProfileAdmin(admin.ModelAdmin):
     get_email.admin_order_field  = 'user__email'
     get_email.short_description = 'Email Address'
 
+class UserAuthAuditEntryAdmin(admin.ModelAdmin):
+    list_display = ['action', 'datetime', 'user', 'username', 'ip', ]
+    list_filter = ['action', ]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
@@ -35,3 +48,4 @@ admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Transform)
 admin.site.register(Analysis)
+admin.site.register(UserAuthAuditEntry, UserAuthAuditEntryAdmin)
