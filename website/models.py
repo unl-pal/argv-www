@@ -137,10 +137,10 @@ class UserAuthAuditEntry(models.Model):
     action = models.CharField(max_length=16)
     ip = models.GenericIPAddressField(null=True)
     datetime = models.DateTimeField(default=timezone.now)
-    user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     attempted = models.CharField(max_length=256, null=True)
-    hijacker  = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name='hijacker')
-    hijacked  = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name='hijacked')
+    hijacker  = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='hijacker')
+    hijacked  = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='hijacked')
 
     def __unicode__(self):
         return self.__str__()
