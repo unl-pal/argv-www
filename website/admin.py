@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail
+from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -35,6 +35,19 @@ class SelectionAdmin(admin.ModelAdmin):
     inlines = (FilterDetailSelectionInline,)
 
 # Register your models here.
+class UserAuthAuditEntryAdmin(admin.ModelAdmin):
+    list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
+    list_filter = ['action', 'hijacker', 'hijacked', ]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
@@ -44,3 +57,4 @@ admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Transform)
 admin.site.register(Analysis)
+admin.site.register(UserAuthAuditEntry, UserAuthAuditEntryAdmin)

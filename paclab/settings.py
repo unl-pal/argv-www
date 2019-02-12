@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+    'hijack',
+    'compat',
+    'hijack_admin',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +145,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
 LOGIN_URL = config('LOGIN_URL', default='website:login')
+
+# enable Hijack admin page
+HIJACK_ALLOW_GET_REQUESTS = True
+HIJACK_USE_BOOTSTRAP = True

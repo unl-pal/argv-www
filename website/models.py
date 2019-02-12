@@ -1,18 +1,12 @@
-import sys
 import uuid
 import datetime
 import os
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, post_delete, pre_save
-from django.dispatch import receiver
-from PIL import Image
-from django.core.files import File
-from django.conf import settings
-from .validators import validate_file_size
+from django.utils.safestring import mark_safe
+from .validators import validate_file_size, validate_gh_token
 
-# Create your models here.
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
 # checking filenames.  For some reason, files with spaces in their names would work correctly.  This function adds a _1 to the end of each 
 # filename.
@@ -40,7 +34,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
-    token = models.CharField(max_length=40, default="", help_text="Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>.")
+    token = models.CharField(max_length=40, default="", validators=[validate_gh_token], help_text=mark_safe("Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>."))
     sharetoken = models.BooleanField(default=False, help_text="Note: the token is never shared/visible to other users!")
 
     NONE = '--'
@@ -175,50 +169,17 @@ class Analysis(models.Model):
     def __str__(self):
         return self.input_selection
 
-@receiver(post_save, sender=User)
-def createUserProfile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+class UserAuthAuditEntry(models.Model):
+    action = models.CharField(max_length=16)
+    ip = models.GenericIPAddressField(null=True)
+    datetime = models.DateTimeField(default=datetime.datetime.today)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True)
+    attempted = models.CharField(max_length=256, null=True)
+    hijacker  = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name='hijacker')
+    hijacked  = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name='hijacked')
 
-@receiver(post_save, sender=User)
-def saveUserProfile(sender, instance, **kwargs):
-    instance.profile.save()
+    def __unicode__(self):
+        return self.__str__()
 
-@receiver(post_save, sender=Profile)
-def updatePhoto(sender, instance, **kwargs):
-    image = Image.open(instance.photo.file)
-    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
-    image.save(instance.photo.path)
-
-def removeProfilePhoto(photo):
-    if os.path.basename(photo.name) != "defaultuser.png":
-        if os.path.isfile(photo.path):
-            try:
-                os.remove(photo.path)
-                return True
-            except:
-                return False
-    return False
-
-@receiver(post_delete, sender=Profile)
-def deleteOnDelete(sender, instance, **kwargs):
-    if instance.photo:
-        removeProfilePhoto(instance.photo)
-        return True
-    return False
-
-@receiver(pre_save, sender=Profile)
-def deleteOnChange(sender, instance, **kwargs):
-    if not instance.pk:
-        return False
-
-    try:
-        oldPhoto = Profile.objects.get(pk=instance.pk).photo
-    except Profile.DoesNotExist:
-        return False
-
-    newPhoto = instance.photo
-    if not newPhoto == oldPhoto:
-        removeProfilePhoto(oldPhoto)
-        return True
-    return False
+    def __str__(self):
+        return '{0} - {1} - {2}'.format(self.action, self.username, self.ip)

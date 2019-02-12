@@ -5,24 +5,37 @@ from .models import Profile, ProjectSelector, Filter, FilterDetail
 from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
 
-class UserFormLogin(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    class Meta:
-        model = User
-        fields = ['username', 'password']
+class UserFormLogin(forms.Form):
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username', 'autofocus': 'autofocus'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    fields = ['username', 'password']
 
 class UserFormRegister(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super(UserFormRegister, self).__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['email'].required = True
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
     photo = forms.ImageField(validators=[validate_file_size])
+
     class Meta:
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
