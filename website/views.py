@@ -8,8 +8,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .tokens import account_activation_token
 
 class IndexView(TemplateView):
     template_name="website/index.html"
@@ -44,16 +50,36 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user.set_password(password)
+            user.is_active = False
             user.save()
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('website:index')
-            return render(request, self.template_name, { 'form' : form })
+            current_site = get_current_site(request)
+            message = render_to_string('website/account_activation_email.html', {
+                'user' : user,
+                'domain' : current_site.domain,
+                'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                'token' : account_activation_token.make_token(user),
+            })
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage('Activate your account on PAClab', message, to=[to_email])
+            email.send()
+            messages.info(request, 'Please check and confirm your email to complete registration.')
+            return redirect('website:index')
+        return render(request, self.template_name, { 'form' : form })
+
+def activate_account(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and  account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        messages.success(request, 'Your email is confirmed and account activated!')
+    else:
+        messages.error(request, 'Invalid activation link!')
+    return redirect('website:index')
 
 class LoginView(View):
     form_class = UserFormLogin

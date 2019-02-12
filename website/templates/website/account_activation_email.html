@@ -1,0 +1,7 @@
+{% autoescape off %}
+Hi {{ user.username }},
+
+Please click the following link to finalize your PAClab registration:
+
+http://{{ domain }}{% url 'website:activate_account' uidb64=uid token=token %}
+{% endautoescape %}
