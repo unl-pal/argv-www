@@ -27,8 +27,8 @@ class ProfileAdmin(admin.ModelAdmin):
     get_email.short_description = 'Email Address'
 
 class UserAuthAuditEntryAdmin(admin.ModelAdmin):
-    list_display = ['action', 'datetime', 'user', 'username', 'ip', ]
-    list_filter = ['action', ]
+    list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
+    list_filter = ['action', 'hijacker', 'hijacked', ]
 
     def has_add_permission(self, request, obj=None):
         return False
