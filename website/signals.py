@@ -68,4 +68,5 @@ def user_logged_out_callback(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def user_login_failed_callback(sender, credentials, request, **kwargs):
-    UserAuthAuditEntry.objects.create(action='invalid_login', username=credentials.get('username', None))
+    ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, username=credentials.get('username', None))
