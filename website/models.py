@@ -146,4 +146,4 @@ class UserAuthAuditEntry(models.Model):
         return self.__str__()
 
     def __str__(self):
-        return '{0} - {1} - {2}'.format(self.action, self.username, self.ip)
+        return '{0} - {1}/{2}/{3} - {4}/{5}/{6}'.format(self.action, self.datetime, self.ip, self.user, self.attempted, self.hijacker, self.hijacked)
