@@ -136,16 +136,6 @@ class FilterDetail(models.Model):
     def __str__(self):
         return self.value
 
-    def save(self, **kwargs):
-        if self.pfilter.val_type == 'String' and self.value == '':
-            self.value = 'string'
-        elif self.value == '':
-            self.value = ['red', 'green', 'blue']
-
-        print(self.value)
-
-        super().save()
-
 class ProjectTransformer(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
