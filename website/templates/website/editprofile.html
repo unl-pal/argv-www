@@ -14,8 +14,6 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                    {{ userForm.as_p }}
-                    {{ profileForm.as_p }}
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=userForm %}
                     {% include 'website/form.html' with form=profileForm %}
