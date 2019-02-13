@@ -48,7 +48,6 @@ class ProfileForm(forms.ModelForm):
         widgets = { 'token': forms.TextInput(attrs={'size': 40})}
 
 class ProjectSelectionForm(forms.ModelForm):
-    # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
         fields = ['input_dataset']
