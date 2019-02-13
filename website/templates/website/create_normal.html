@@ -110,9 +110,7 @@ $(document).on('click', '.remove-form-row', function(e){
     return false;
 });
 $('select').change(function (){
-    console.log("Hello World!");
     var text = $("option:selected", this).text();
-    console.log(text);
     current_input = this;
     $.ajax({
         url: '/ajax/data_default/',
@@ -121,11 +119,9 @@ $('select').change(function (){
         },
         success: function (data) {
             var values = $.map(data, function(value, key) { return value });
-            console.log(values);
             var val_type = values[0];
             var default_val = values[1];
             if(val_type==="String") {
-                console.log("I'm here");
                 $(current_input).nextAll('input').first().val(default_val);
             }
             else if(val_type==="Integer") {
