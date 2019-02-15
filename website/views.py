@@ -124,7 +124,6 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-                    # FilterDetail(pfilter=pfilter, value=value).save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         messages.warning(request, ('Invalid form entry'))
