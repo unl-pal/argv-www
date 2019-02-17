@@ -44,6 +44,7 @@
                     $image.cropper("setDragMode", "move");
                 }
             });
+            $('.js-crop-and-upload').focus()
         }).on("hide.bs.modal", function () {
             if (saving === false) {
                 resetPhoto();
