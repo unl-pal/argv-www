@@ -1,3 +1,5 @@
+{% load staticfiles %}
+{% load hijack_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,12 +10,15 @@
     {% load staticfiles %}
 
     <!--Bootstrap-->
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.css" integrity="sha256-/KLAk4A9xEOKGyr4umt11boYQJtP40gBLT+WrfWImuY=" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
 
     <!--CSS Override-->
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
 </head>
+<body>
+{% hijack_notification %}
 <header>
     <nav class="navbar navbar-default">
         <!--Main Buttons-->
@@ -23,7 +28,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'website:index' %}"> PACLab </a>
+            <a class="navbar-brand" href="{% url 'website:index' %}"> PAClab </a>
         </div>
 
         <!--Navbar Links-->
@@ -41,6 +46,11 @@
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
+                {% if user.is_staff %}
+                    <li>
+                        <a href="{% url 'admin:index' %}">Admin</a>
+                    </li>
+                {% endif %}
                 {% if not user.is_authenticated %}
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
@@ -61,17 +71,18 @@
         </div>
     </nav>
 </header>
-<body>
 {% block body%}{% endblock %}
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.js" integrity="sha256-QT8oUxSZbywEwAPBgej6iNFH1ephgQV3q2pzjIso5pk=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'website/javascript.js' %}"></script>
 {% block script %}{% endblock %}
 <footer class="footer">
-    <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
-    This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
-    Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.</p>
+    <p class="text-muted">
+        Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
+        This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
+        Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+    </p>
 </footer>
 </body>
 </html>

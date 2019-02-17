@@ -2,7 +2,7 @@
 
 PAClab development repository using Django framework.
 
-## This repository contains the frontend website for PACLab.
+## This repository contains the frontend website for PAClab.
 
 ## Requirements
 - Python3

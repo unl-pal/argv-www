@@ -5,6 +5,7 @@ import os
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from .validators import validate_file_size, validate_gh_token
 
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
@@ -131,3 +132,18 @@ class Analysis(models.Model):
 
     def __str__(self):
         return self.input_selection
+
+class UserAuthAuditEntry(models.Model):
+    action = models.CharField(max_length=16)
+    ip = models.GenericIPAddressField(null=True)
+    datetime = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    attempted = models.CharField(max_length=256, null=True)
+    hijacker  = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='hijacker')
+    hijacked  = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='hijacked')
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return '{0} - {1}/{2}/{3} - {4}/{5}/{6}'.format(self.action, self.datetime, self.ip, self.user, self.attempted, self.hijacker, self.hijacked)

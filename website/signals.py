@@ -2,9 +2,11 @@ import os
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from django.conf import settings
-from .models import Profile
+from .models import Profile, UserAuthAuditEntry
+from hijack.signals import hijack_started, hijack_ended
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
@@ -47,3 +49,32 @@ def deleteOnChange(sender, instance, **kwargs):
         removeProfilePhoto(oldPhoto)
         return True
     return False
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='logged_in', ip=ip, user=user)
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='logged_out', ip=ip, user=user)
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, credentials, request, **kwargs):
+    ip = None
+    if request is not None:
+        ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
+
+@receiver(hijack_started)
+def print_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
+    hijacker = User.objects.get(id=hijacker_id)
+    hijacked = User.objects.get(id=hijacked_id)
+    UserAuthAuditEntry.objects.create(action='hijack_start', hijacker=hijacker, hijacked=hijacked)
+
+@receiver(hijack_ended)
+def print_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
+    hijacker = User.objects.get(id=hijacker_id)
+    hijacked = User.objects.get(id=hijacked_id)
+    UserAuthAuditEntry.objects.create(action='hijack_end', hijacker=hijacker, hijacked=hijacked)
