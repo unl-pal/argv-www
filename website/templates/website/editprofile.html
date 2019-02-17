@@ -28,10 +28,10 @@
             $("#id_photo_preview").attr("src", originalPhotoUrl);
             $("#id_photo_initial_text").text("Currently:");
             $("#id_photo").val("");
-            $("#id_x").val("");
-            $("#id_y").val("");
-            $("#id_height").val("");
-            $("#id_width").val("");
+            $("#id_crop_x").val("");
+            $("#id_crop_y").val("");
+            $("#id_crop_h").val("");
+            $("#id_crop_w").val("");
         }
 
         /* handle the cropper box */
@@ -79,10 +79,10 @@
             var url = $image.cropper("getCroppedCanvas").toDataURL('image/jpeg');
             $("#id_photo_preview").attr("src", url);
             $("#id_photo_initial_text").text("New:");
-            $("#id_x").val(cropData["x"]);
-            $("#id_y").val(cropData["y"]);
-            $("#id_height").val(cropData["height"]);
-            $("#id_width").val(cropData["width"]);
+            $("#id_crop_x").val(cropData["x"]);
+            $("#id_crop_y").val(cropData["y"]);
+            $("#id_crop_h").val(cropData["height"]);
+            $("#id_crop_w").val(cropData["width"]);
             saving = false;
         });
 
@@ -101,6 +101,10 @@
             <div class="panel-body">
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+                    <input type="hidden" name="crop_x" id="id_crop_x"/>
+                    <input type="hidden" name="crop_y" id="id_crop_y"/>
+                    <input type="hidden" name="crop_w" id="id_crop_w"/>
+                    <input type="hidden" name="crop_h" id="id_crop_h"/>
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=userForm %}
                     {% include 'website/form.html' with form=profileForm %}
