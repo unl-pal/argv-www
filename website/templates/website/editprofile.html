@@ -2,6 +2,8 @@
 {% block title %}Edit Profile{% endblock %}
 {% block profileactive %}active{% endblock %}
 {% block script %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script type="text/javascript">
     $(function () {
         /* open the modal with the preview */
@@ -48,6 +50,7 @@
             }
         }).on("hidden.bs.modal", function () {
             $image.cropper("destroy");
+            $(".modal-draggable .modal-dialog").css({left: "0px", top: "0px"});
         });
 
         /* buttons */
@@ -82,6 +85,8 @@
         $("#id_photo").click(function () {
             resetPhoto();
         });
+
+        $(".modal-draggable .modal-dialog").draggable({ handle: ".modal-header" });
     });
 </script>
 {% endblock %}
@@ -100,7 +105,7 @@
         </div>
 
         <!-- MODAL TO CROP THE IMAGE -->
-        <div tabindex="-1" class="modal fade" id="modalCrop">
+        <div tabindex="-1" class="modal modal-draggable fade" role="dialog" id="modalCrop">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
