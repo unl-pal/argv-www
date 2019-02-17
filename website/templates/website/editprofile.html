@@ -16,6 +16,18 @@
             }
         });
 
+        var originalPhotoUrl = $("#id_photo_preview").attr("src");
+
+        function resetPhoto() {
+            $("#id_photo_preview").attr("src", originalPhotoUrl);
+            $("#id_photo_initial_text").text("Currently:");
+            $("#id_photo").val("");
+            $("#id_x").val("");
+            $("#id_y").val("");
+            $("#id_height").val("");
+            $("#id_width").val("");
+        }
+
         /* handle the cropper box */
         var $image = $("#image");
         var saving = false;
@@ -32,11 +44,7 @@
             });
         }).on("hide.bs.modal", function () {
             if (saving === false) {
-                $("#id_photo").val("");
-                $("#id_x").val("");
-                $("#id_y").val("");
-                $("#id_height").val("");
-                $("#id_width").val("");
+                resetPhoto();
             }
         }).on("hidden.bs.modal", function () {
             $image.cropper("destroy");
@@ -60,6 +68,9 @@
             saving = true;
             $("#modalCrop").modal('hide');
             var cropData = $image.cropper("getData");
+            var url = $image.cropper("getCroppedCanvas").toDataURL('image/jpeg');
+            $("#id_photo_preview").attr("src", url);
+            $("#id_photo_initial_text").text("New:");
             $("#id_x").val(cropData["x"]);
             $("#id_y").val(cropData["y"]);
             $("#id_height").val(cropData["height"]);
@@ -69,11 +80,7 @@
 
         /* reset the data whenever a new file is selected */
         $("#id_photo").click(function () {
-            $("#id_photo").val("");
-            $("#id_x").val("");
-            $("#id_y").val("");
-            $("#id_height").val("");
-            $("#id_width").val("");
+            resetPhoto();
         });
     });
 </script>
