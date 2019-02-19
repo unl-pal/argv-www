@@ -5,7 +5,9 @@
     <div class="row"></div>
     <div class="row">
         <div class="col-md-12">
-            <h3>Project Selection</h3>
+            {% if heading %}
+            <h3>{{heading}}</h3>
+            {% endif %}
             <form class="form-horizontal" method="POST" action="">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}

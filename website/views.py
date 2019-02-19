@@ -98,6 +98,7 @@ def profile(request):
 
 def project_selection(request):
     template_name = 'website/create_normal.html'
+    heading_message = 'Project Selection'
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None)
         formset = FilterFormSet(request.GET or None)
@@ -128,6 +129,7 @@ def project_selection(request):
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
+        'heading': heading_message,
     })
 
 def data_default(request):
