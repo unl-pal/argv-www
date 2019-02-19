@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from PIL import Image
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
@@ -88,10 +89,28 @@ def profile(request):
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
+
+            if profileForm.cleaned_data['photo']:
+                image = Image.open(request.user.profile.photo)
+
+                try:
+                    x = float(request.POST.get('crop_x', 0))
+                    y = float(request.POST.get('crop_y', 0))
+                    w = float(request.POST.get('crop_w', 0))
+                    h = float(request.POST.get('crop_h', 0))
+                    if x and y and w and h:
+                        image = image.crop((x, y, w + x, h + y))
+                except:
+                    pass
+
+                image = image.resize(settings.THUMBNAIL_SIZE, Image.LANCZOS)
+                image.save(request.user.profile.photo.path)
+
             messages.success(request, 'Profile successfully updated')
+            return redirect('website:editProfile')
         else:
             messages.warning(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm })
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })

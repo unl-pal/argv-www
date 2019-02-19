@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django import forms
 from .models import Profile
-from .validators import validate_file_size
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -33,15 +32,18 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
-    photo = forms.ImageField(validators=[validate_file_size])
-
     class Meta:
+        class PhotoInput(forms.widgets.ClearableFileInput):
+            template_name = 'website/photoinput.html'
+
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
         labels = {
-            'photo' : 'Photo',
-            'bio' : 'Bio',
+            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
-        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
+        }
