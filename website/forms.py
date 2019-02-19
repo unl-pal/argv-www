@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django import forms
 from django.forms import formset_factory
-from .models import Profile, ProjectSelector, Filter, FilterDetail
+from .models import Profile, ProjectSelector, FilterDetail, Filter
 from .validators import validate_file_size
 
 class UserForm(UserCreationForm):
@@ -53,7 +53,6 @@ class ProfileForm(forms.ModelForm):
         widgets = { 'token': forms.TextInput(attrs={'size': 40})}
 
 class ProjectSelectionForm(forms.ModelForm):
-    # pfilter = forms.ModelMultipleChoiceField(Filter.objects.all())
     class Meta:
         model = ProjectSelector
         fields = ['input_dataset']
@@ -63,7 +62,6 @@ class FilterDetailForm(forms.Form):
     value = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
-            'class' : 'form-control',
             'placeholder' : 'Enter value'
         }),
         required=True)

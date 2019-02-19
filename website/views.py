@@ -5,7 +5,6 @@ from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
@@ -132,7 +131,6 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-                    # FilterDetail(pfilter=pfilter, value=value).save()
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
         messages.warning(request, ('Invalid form entry'))

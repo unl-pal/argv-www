@@ -34,7 +34,6 @@ class FilterDetailSelectionInline(admin.TabularInline):
 class SelectionAdmin(admin.ModelAdmin):
     inlines = (FilterDetailSelectionInline,)
 
-# Register your models here.
 class UserAuthAuditEntryAdmin(admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
     list_filter = ['action', 'hijacker', 'hijacked', ]
