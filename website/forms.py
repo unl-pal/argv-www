@@ -44,7 +44,10 @@ class ProfileForm(forms.ModelForm):
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
-        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
+        }
 
 class ProjectSelectionForm(forms.ModelForm):
     class Meta:
@@ -61,7 +64,3 @@ class FilterDetailForm(forms.Form):
         required=True)
 
 FilterFormSet = formset_factory(FilterDetailForm)
-        widgets = {
-            'token': forms.TextInput(attrs={'size': 40}),
-            'photo': PhotoInput(),
-        }
