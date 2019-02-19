@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import formset_factory
-from .models import Profile, ProjectSelector, FilterDetail, Filter
-from .validators import validate_file_size
-from .models import Profile
+from .models import Profile, ProjectSelector, Filter
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
