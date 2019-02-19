@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
-from .models import Profile
+from django.forms import formset_factory
+from .models import Profile, ProjectSelector, Filter
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -47,3 +48,19 @@ class ProfileForm(forms.ModelForm):
             'token': forms.TextInput(attrs={'size': 40}),
             'photo': PhotoInput(),
         }
+
+class ProjectSelectionForm(forms.ModelForm):
+    class Meta:
+        model = ProjectSelector
+        fields = ['input_dataset']
+
+class FilterDetailForm(forms.Form):
+    pfilter = forms.ModelChoiceField(Filter.objects.all())
+    value = forms.CharField(
+        max_length=1000,
+        widget=forms.TextInput(attrs={
+            'placeholder' : 'Enter value'
+        }),
+        required=True)
+
+FilterFormSet = formset_factory(FilterDetailForm)

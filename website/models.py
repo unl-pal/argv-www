@@ -94,23 +94,48 @@ class Selection(models.Model):
     name = models.CharField(max_length=200, default="")
 
     def __str__(self):
-        return 'Selection'
-
-class ProjectSelector(models.Model):
-    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=True, null=True)
-    input_selection = models.ForeignKey(Selection, related_name="input_selection", on_delete=models.PROTECT, blank=True, null=True)
-    output_selection = models.ForeignKey(Selection, related_name="output_selection", on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.input_dataset + ' - ' + self.input_selection
+        return self.name
 
 class Filter(models.Model):
-    project_selectors = models.ManyToManyField(ProjectSelector)
     name = models.CharField(max_length=200, default="")
+    INT = 'Integer'
+    STRING = 'String'
+    LIST = 'List'
+    TYPE_CHOICES = (
+        (INT, 'Integer'),
+        (STRING, 'String'),
+        (LIST, 'List'),
+    )
+    val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
+    default_val = models.CharField(max_length=100, default='Enter value here')
+
+    def is_int(self):
+        return self.val_type in self.INT
+
+    def is_string(self):
+        return self.val_type in self.STRING
+
+    def is_list(self):
+        return self.val_type in self.LIST
 
     def __str__(self):
         return self.name
+
+class ProjectSelector(models.Model):
+    input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+
+    def __str__(self):
+        return 'ProjectSelector'
+
+class FilterDetail(models.Model):
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
+    pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    value = models.TextField(max_length=1000, default='1')
+
+    def __str__(self):
+        return self.value
 
 class ProjectTransformer(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
