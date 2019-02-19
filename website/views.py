@@ -107,6 +107,7 @@ def profile(request):
                 image.save(request.user.profile.photo.path)
 
             messages.success(request, 'Profile successfully updated')
+            return redirect('website:editProfile')
         else:
             messages.warning(request, 'Invalid form entry')
     else:    
