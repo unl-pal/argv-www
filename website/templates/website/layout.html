@@ -50,26 +50,24 @@
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
                     </li>
+                    <li class="{% block loginactive %}{% endblock %}">
+                        <a href="{% url 'website:login' %}">Login</a>
+                    </li>
                 {% else %}
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">Account <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img class="img-rounded" src="{{ user.profile.photo.url }}" width="25" height="25" /> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'website:editProfile' %}">Profile</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:project_selection' %}">Project Selection</a></li>
+                            <li><a href="{% url 'website:editProfile' %}">Your profile</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{% url 'website:project_selection' %}">New project selection</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="{% url 'website:logout' %}">Sign out</a></li>
                         </ul>
                     </li>
                 {% endif %}
-                <li class="{% block loginactive %}{% endblock %}">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'website:logout' %}">Logout</a>
-                    {% else %}
-                        <a href="{% url 'website:login' %}">Login</a>
-                    {% endif %}
-                </li>
             </ul>
         </div>
     </nav>
