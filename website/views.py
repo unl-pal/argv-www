@@ -51,7 +51,7 @@ class RegisterView(View):
             password = form.cleaned_data['password']
             user.set_password(password)
             user.save()
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
@@ -71,7 +71,7 @@ class LoginView(View):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)

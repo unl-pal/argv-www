@@ -62,8 +62,10 @@ def user_logged_out_callback(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def user_login_failed_callback(sender, credentials, request, **kwargs):
-    ip = request.META.get('REMOTE_ADDR')
-    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, username=credentials.get('username', None))
+    ip = None
+    if request is not None:
+        ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
 
 @receiver(hijack_started)
 def print_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
