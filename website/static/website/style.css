@@ -2,25 +2,24 @@
     border-radius: 0;
 }
 
-html, body {
-    height: 100%;
+html {
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-    display: flex;
-    flex-flow: column;
+    margin-bottom: 15px;
 }
 
 .footer {
-    margin-top: auto;
+    position: absolute;
+    bottom: 0;
     width: 100%;
-    line-height: 1em;
+    height: 65px;
+    line-height: 15px;
     padding: 0.5em;
+    padding-bottom: 0;
     background-color: #f5f5f5;
-}
-
-.footer .text-muted {
-    margin-bottom: 0;
 }
 
 .top-buffer {

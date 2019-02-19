@@ -2,7 +2,7 @@
 {% block title %}People{% endblock %}
 {% block peopleactive %}active{% endblock %}
 {% block body %}
-    <div class="container">
+    <div class="container-fluid">
         {% for person in allPeople %}
             {% if person.is_staff and person.is_active and person.profile.isAdmin %}
             {% include 'website/person.html' %}
