@@ -3,6 +3,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Profile, ProjectSelector, FilterDetail, Filter
 from .validators import validate_file_size
+from .models import Profile
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -34,14 +35,14 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
-    photo = forms.ImageField(validators=[validate_file_size])
-
     class Meta:
+        class PhotoInput(forms.widgets.ClearableFileInput):
+            template_name = 'website/photoinput.html'
+
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
         labels = {
-            'photo' : 'Photo',
-            'bio' : 'Bio',
+            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
@@ -62,3 +63,7 @@ class FilterDetailForm(forms.Form):
         required=True)
 
 FilterFormSet = formset_factory(FilterDetailForm)
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
+        }

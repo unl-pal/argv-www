@@ -11,11 +11,11 @@
 
     <!--Bootstrap-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
-
     <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
 
     <!--CSS Override-->
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
+{% block style %}{% endblock %}
 </head>
 <body>
 {% hijack_notification %}
@@ -75,6 +75,10 @@
     </nav>
 </header>
 {% block body%}{% endblock %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'website/javascript.js' %}"></script>
+{% block script %}{% endblock %}
 <footer class="footer">
     <p>Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
     This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
