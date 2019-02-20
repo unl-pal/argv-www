@@ -7,28 +7,30 @@
         <p>
             If you have used PAClab in a research paper, please <a href="{% url 'website:people' %}">contact us</a> and let us know so we can include the publication in this list!
         </p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Date</th>
-                    <th>Venue</th>
-                    <th>URL</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for paper in allPapers %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>{{ paper.title }}</td>
-                        <td>{{ paper.author }}</td>
-                        <td>{{ paper.date }}</td>
-                        <td>{{ paper.publish }}</td>
-                        <td><a href="{{ paper.link }}" target="_blank">{{ paper.link }}</a></td>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>URL</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    {% for paper in allPapers %}
+                        <tr>
+                            <td>{{ paper.title }}</td>
+                            <td>{{ paper.author }}</td>
+                            <td>{{ paper.date }}</td>
+                            <td>{{ paper.publish }}</td>
+                            <td><a href="{{ paper.link }}" target="_blank">{{ paper.link }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
