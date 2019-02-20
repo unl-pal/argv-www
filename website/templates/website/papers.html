@@ -1,31 +1,36 @@
 {% extends 'website/layout.html' %}
-{% block title %}{{ paper }}{% endblock %}
+{% block title %}Papers{% endblock %}
 {% block papersactive %}active{% endblock %}
 {% block body %}
     <div class="container-fluid">
-        <h1>Papers</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Date</th>
-                    <th>Venue</th>
-                    <th>URL</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for paper in allPapers %}
+        <h1>Publications related to PAClab</h1>
+        <p>
+            If you have used PAClab in a research paper, please <a href="{% url 'website:people' %}">contact us</a> and let us know so we can include the publication in this list!
+        </p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>{{ paper.title }}</td>
-                        <td>{{ paper.author }}</td>
-                        <td>{{ paper.date }}</td>
-                        <td>{{ paper.publish }}</td>
-                        <td><a href="{{ paper.link }}" target="_blank">{{ paper.link }}</a></td>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>URL</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+
+                <tbody>
+                    {% for paper in allPapers %}
+                        <tr>
+                            <td>{{ paper.title }}</td>
+                            <td>{{ paper.author }}</td>
+                            <td>{{ paper.date }}</td>
+                            <td>{{ paper.publish }}</td>
+                            <td><a href="{{ paper.link }}" target="_blank">{{ paper.link }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

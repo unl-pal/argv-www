@@ -2,8 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django import forms
 from django.forms import formset_factory
-from .models import Profile, ProjectSelector, FilterDetail, Filter
-from .validators import validate_file_size
+from .models import Profile, ProjectSelector, Filter
 
 class UserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -39,18 +38,21 @@ class UserFormRegister(UserCreationForm):
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
 
 class ProfileForm(forms.ModelForm):
-    photo = forms.ImageField(validators=[validate_file_size])
-
     class Meta:
+        class PhotoInput(forms.widgets.ClearableFileInput):
+            template_name = 'website/photoinput.html'
+
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
         labels = {
-            'photo' : 'Photo',
-            'bio' : 'Bio',
+            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
-        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
+        }
 
 class ProjectSelectionForm(forms.ModelForm):
     class Meta:

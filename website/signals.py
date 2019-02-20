@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
-from PIL import Image
 from django.conf import settings
 from .models import Profile, UserAuthAuditEntry
 from hijack.signals import hijack_started, hijack_ended
@@ -17,12 +16,6 @@ def createUserProfile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
-
-@receiver(post_save, sender=Profile)
-def updatePhoto(sender, instance, **kwargs):
-    image = Image.open(instance.photo.file)
-    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
-    image.save(instance.photo.path)
 
 def removeProfilePhoto(photo):
     if os.path.basename(photo.name) != "defaultuser.png":
@@ -69,8 +62,10 @@ def user_logged_out_callback(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def user_login_failed_callback(sender, credentials, request, **kwargs):
-    ip = request.META.get('REMOTE_ADDR')
-    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, username=credentials.get('username', None))
+    ip = None
+    if request is not None:
+        ip = request.META.get('REMOTE_ADDR')
+    UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
 
 @receiver(hijack_started)
 def print_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
