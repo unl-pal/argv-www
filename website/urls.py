@@ -1,13 +1,14 @@
 from django.urls import path
 from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 from . import views
 
 app_name = 'website'
 
 urlpatterns = [
-    path('', views.IndexView.as_view(), name='index'),
-    path('funding/', views.FundingView.as_view(), name='funding'),
+    path('', TemplateView.as_view(template_name='website/index.html'), name='index'),
+    path('funding/', TemplateView.as_view(template_name='website/funding.html'), name='funding'),
     path('papers/', views.PapersView.as_view(), name='papers'),
     path('people/', views.PeopleView.as_view(), name='people'),
     path('login/', views.LoginView.as_view(), name='login'),

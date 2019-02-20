@@ -17,16 +17,16 @@ User._meta.get_field('email')._unique = True
 def get_filename(instance, filename):
     filename, ext = os.path.splitext(filename)
     filename = str(uuid.uuid4())
-    filename.replace("-", "")
+    filename.replace('-', '')
     filename += ext
     return '{0}/{1}'.format(instance.user.id, filename)
 
 class Paper(models.Model):
-    author = models.CharField(max_length=250, default="")
-    title = models.CharField(max_length=250, default="")
+    author = models.CharField(max_length=250, default='')
+    title = models.CharField(max_length=250, default='')
     date = models.DateField(default=datetime.date.today)
-    publish = models.CharField(max_length=250, default="")
-    link = models.CharField(max_length=1000, default="")
+    publish = models.CharField(max_length=250, default='')
+    link = models.CharField(max_length=1000, default='')
 
     class Meta:
         ordering = ['-date']
@@ -38,8 +38,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.ImageField(upload_to=get_filename, default='defaultuser.png', validators=[validate_file_size])
     bio = models.TextField(max_length=1000, blank=True)
-    token = models.CharField(max_length=40, default="", validators=[validate_gh_token], help_text=mark_safe("Be sure to first <a href=\"https://github.com/settings/tokens\">generate a GitHub personal access token</a>."))
-    sharetoken = models.BooleanField(default=False, help_text="Note: the token is never shared/visible to other users!")
+    token = models.CharField(max_length=40, default='', validators=[validate_gh_token], help_text=mark_safe('Be sure to first <a href="https://github.com/settings/tokens">generate a GitHub personal access token</a>.'))
+    sharetoken = models.BooleanField(default=False, help_text='Note: the token is never shared/visible to other users!')
 
     NONE = '--'
     DOCTOR = 'Dr.'
@@ -82,25 +82,25 @@ class Profile(models.Model):
 
     class Meta:
         permissions = (
-            ("Admin", "A faculty member working on the project."),
-            ("Moderator", "An assistant currently working on the project."),
-            ("Retired", "Previous researchers on project."),
+            ('Admin', 'A faculty member working on the project.'),
+            ('Moderator', 'An assistant currently working on the project.'),
+            ('Retired', 'Previous researchers on project.'),
         )
 
 class Dataset(models.Model):
-    name = models.CharField(max_length=200, default="")
+    name = models.CharField(max_length=200, default='')
 
     def __str__(self):
         return self.name
 
 class Selection(models.Model):
-    name = models.CharField(max_length=200, default="")
+    name = models.CharField(max_length=200, default='')
 
     def __str__(self):
         return self.name
 
 class Filter(models.Model):
-    name = models.CharField(max_length=200, default="")
+    name = models.CharField(max_length=200, default='')
     INT = 'Integer'
     STRING = 'String'
     LIST = 'List'
@@ -149,7 +149,7 @@ class ProjectTransformer(models.Model):
 
 class Transform(models.Model):
     project_transformers = models.ManyToManyField(ProjectTransformer)
-    name = models.CharField(max_length=200, default="")
+    name = models.CharField(max_length=200, default='')
 
     def __str__(self):
         return self.name
