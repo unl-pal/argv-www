@@ -8,6 +8,9 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone
 from .validators import validate_file_size, validate_gh_token
 
+# This line checks for duplicate email addresses when submiting forms that register/update email addresses
+User._meta.get_field('email')._unique = True
+
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
 # checking filenames.  For some reason, files with spaces in their names would work correctly.  This function adds a _1 to the end of each 
 # filename.
