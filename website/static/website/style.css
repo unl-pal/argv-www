@@ -51,3 +51,12 @@ body {
 .cropper-container {
     max-width: 100%;
 }
+
+.profile-dropdown .dropdown-toggle {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.profile-dropdown .img-responsive {
+    display: inline;
+}
