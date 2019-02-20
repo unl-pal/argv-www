@@ -76,7 +76,7 @@ def logoutView(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        userForm = UserFormRegister(request.POST, instance=request.user)
+        userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
@@ -103,7 +103,7 @@ def profile(request):
         else:
             messages.warning(request, 'Invalid form entry')
     else:    
-        userForm = UserFormRegister(instance=request.user)
+        userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
     return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
 

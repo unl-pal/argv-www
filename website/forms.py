@@ -4,7 +4,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Profile, ProjectSelector, Filter
 
-class UserForm(UserCreationForm):
+class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['first_name'].required = True
