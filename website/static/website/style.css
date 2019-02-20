@@ -26,3 +26,37 @@ body {
 .top-buffer {
     margin-top:20px;
 }
+
+/* for dragging modal dialogs */
+.modal.fade.ui-draggable-dragging {
+    -moz-transition: none;
+    -o-transition: none;
+    -webkit-transition: none;
+    transition: none;
+}
+
+.modal-draggable .modal-header:hover {
+    cursor: move;
+}
+
+.modal-draggable .modal-backdrop {
+    position: fixed;
+}
+
+.modal-draggable {
+    overflow: hidden ! important;
+}
+
+/* for the profile photo cropper */
+.cropper-container {
+    max-width: 100%;
+}
+
+.profile-dropdown .dropdown-toggle {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.profile-dropdown .img-responsive {
+    display: inline;
+}

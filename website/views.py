@@ -1,6 +1,6 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, DetailView, View
+from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -13,35 +13,26 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from PIL import Image
 from .tokens import account_activation_token
 
-class IndexView(TemplateView):
-    template_name="website/index.html"
-
-class FundingView(TemplateView):
-    template_name="website/funding.html"
-
 class PapersView(ListView):
-    template_name="website/papers.html"
+    template_name='website/papers.html'
     context_object_name='allPapers'
     def get_queryset(self):
         return Paper.objects.all()
 
-class PaperDetails(DetailView):
-    template_name="website/paperDetails.html"
-    model = Paper
-
 class PeopleView(ListView):
-    template_name="website/people.html"
+    template_name='website/people.html'
     context_object_name = 'allPeople'
     def get_queryset(self):
         return User.objects.all().order_by('last_name')
 
 class RegisterView(View):
     form_class = UserFormRegister
-    template_name = "website/login.html"
+    template_name = 'website/login.html'
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, { 'form' : form })
@@ -83,7 +74,7 @@ def activate_account(request, uidb64, token):
 
 class LoginView(View):
     form_class = UserFormLogin
-    template_name = "website/login.html"
+    template_name = 'website/login.html'
 
     def get(self, request):
         form = self.form_class(None)
@@ -114,10 +105,71 @@ def profile(request):
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
+
+            if profileForm.cleaned_data['photo']:
+                image = Image.open(request.user.profile.photo)
+
+                try:
+                    x = float(request.POST.get('crop_x', 0))
+                    y = float(request.POST.get('crop_y', 0))
+                    w = float(request.POST.get('crop_w', 0))
+                    h = float(request.POST.get('crop_h', 0))
+                    if x and y and w and h:
+                        image = image.crop((x, y, w + x, h + y))
+                except:
+                    pass
+
+                image = image.resize(settings.THUMBNAIL_SIZE, Image.LANCZOS)
+                image.save(request.user.profile.photo.path)
+
             messages.success(request, 'Profile successfully updated')
+            return redirect('website:editProfile')
         else:
             messages.warning(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm })
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
+
+def project_selection(request):
+    template_name = 'website/create_normal.html'
+    heading_message = 'Project Selection'
+    if request.method == 'GET':
+        p_form = ProjectSelectionForm(request.GET or None)
+        formset = FilterFormSet(request.GET or None)
+    elif request.method == 'POST':
+        p_form = ProjectSelectionForm(request.POST)
+        formset = FilterFormSet(request.POST)
+        if p_form.is_valid() and formset.is_valid():
+            selector = ProjectSelector()
+            selector.user = request.user
+            selector.input_dataset = p_form.cleaned_data['input_dataset']
+            selector.save()
+            for form in formset:
+                pfilter = form.cleaned_data.get('pfilter')
+                value = form.cleaned_data.get('value')
+                if value and pfilter:
+                    try:
+                        connection = FilterDetail()
+                        connection.project_selector = ProjectSelector.objects.all().last()
+                        pk = form.cleaned_data.get('pfilter').id
+                        connection.pfilter = Filter.objects.get(pk=pk)
+                        connection.value = form.cleaned_data['value']
+                        connection.save()
+                    except:
+                        pass
+            messages.success(request, ('Form saved'))
+            return redirect('website:project_selection')
+        messages.warning(request, ('Invalid form entry'))
+    return render(request, template_name, {
+        'p_form' : p_form,
+        'formset': formset,
+        'heading': heading_message,
+    })
+
+def data_default(request):
+    text = request.GET.get('text', None)
+    pfilter = Filter.objects.get(name=text)
+    data = pfilter.val_type
+    default = pfilter.default_val
+    return JsonResponse({ 'data' : data, 'default' : default })

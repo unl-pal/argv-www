@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, UserAuthAuditEntry
+from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -26,6 +26,14 @@ class ProfileAdmin(admin.ModelAdmin):
     get_email.admin_order_field  = 'user__email'
     get_email.short_description = 'Email Address'
 
+class FilterDetailSelectionInline(admin.TabularInline):
+    model = FilterDetail
+    exclude = ['value', 'val_type']
+    extra = 1
+
+class SelectionAdmin(admin.ModelAdmin):
+    inlines = (FilterDetailSelectionInline,)
+
 class UserAuthAuditEntryAdmin(admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
     list_filter = ['action', 'hijacker', 'hijacked', ]
@@ -42,7 +50,7 @@ class UserAuthAuditEntryAdmin(admin.ModelAdmin):
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
-admin.site.register(ProjectSelector)
+admin.site.register(ProjectSelector, SelectionAdmin)
 admin.site.register(Filter)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)

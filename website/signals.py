@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
-from PIL import Image
 from django.conf import settings
 from .models import Profile, UserAuthAuditEntry
 from hijack.signals import hijack_started, hijack_ended
@@ -18,14 +17,8 @@ def createUserProfile(sender, instance, created, **kwargs):
 def saveUserProfile(sender, instance, **kwargs):
     instance.profile.save()
 
-@receiver(post_save, sender=Profile)
-def updatePhoto(sender, instance, **kwargs):
-    image = Image.open(instance.photo.file)
-    image.thumbnail(settings.THUMBNAIL_SIZE, Image.ANTIALIAS)
-    image.save(instance.photo.path)
-
 def removeProfilePhoto(photo):
-    if os.path.basename(photo.name) != "defaultuser.png":
+    if os.path.basename(photo.name) != 'defaultuser.png':
         if os.path.isfile(photo.path):
             try:
                 os.remove(photo.path)

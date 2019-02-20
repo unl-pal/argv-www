@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
-from .models import Profile
-from .validators import validate_file_size
+from django.forms import formset_factory
+from .models import Profile, ProjectSelector, Filter
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -33,15 +33,34 @@ class UserFormRegister(forms.ModelForm):
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
-    photo = forms.ImageField(validators=[validate_file_size])
-
     class Meta:
+        class PhotoInput(forms.widgets.ClearableFileInput):
+            template_name = 'website/photoinput.html'
+
         model = Profile
         fields = ['photo', 'bio', 'token', 'sharetoken']
         labels = {
-            'photo' : 'Photo',
-            'bio' : 'Bio',
+            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
-        widgets = { 'token': forms.TextInput(attrs={'size': 40})}
+        widgets = {
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
+        }
+
+class ProjectSelectionForm(forms.ModelForm):
+    class Meta:
+        model = ProjectSelector
+        fields = ['input_dataset']
+
+class FilterDetailForm(forms.Form):
+    pfilter = forms.ModelChoiceField(Filter.objects.all())
+    value = forms.CharField(
+        max_length=1000,
+        widget=forms.TextInput(attrs={
+            'placeholder' : 'Enter value'
+        }),
+        required=True)
+
+FilterFormSet = formset_factory(FilterDetailForm)

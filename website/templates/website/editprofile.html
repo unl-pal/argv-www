@@ -1,17 +1,144 @@
 {% extends 'website/layout.html' %}
 {% block title %}Edit Profile{% endblock %}
 {% block profileactive %}active{% endblock %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.css" integrity="sha256-/KLAk4A9xEOKGyr4umt11boYQJtP40gBLT+WrfWImuY=" crossorigin="anonymous" />
+{% endblock %}
+{% block script %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.js" integrity="sha256-QT8oUxSZbywEwAPBgej6iNFH1ephgQV3q2pzjIso5pk=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $(function () {
+        /* open the modal with the preview */
+        $("#id_photo").change(function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#image").attr("src", e.target.result);
+                    $("#modalCrop").modal("show");
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        var originalPhotoUrl = $("#id_photo_preview").attr("src");
+
+        function resetPhoto() {
+            $("#id_photo_preview").attr("src", originalPhotoUrl);
+            $("#id_photo_initial_text").text("Currently:");
+            $("#id_photo").val("");
+            $("#id_crop_x").val("");
+            $("#id_crop_y").val("");
+            $("#id_crop_h").val("");
+            $("#id_crop_w").val("");
+        }
+
+        /* handle the cropper box */
+        var $image = $("#image");
+        var saving = false;
+        $("#modalCrop").on("shown.bs.modal", function () {
+            $image.cropper({
+                viewMode: 2,
+                rotatable: false,
+                aspectRatio: 1/1,
+                minCropBoxWidth: {{ min_width }},
+                minCropBoxHeight: {{ min_height }},
+                ready: function () {
+                    $image.cropper("setDragMode", "move");
+                }
+            });
+            $('.js-crop-and-upload').focus()
+        }).on("hide.bs.modal", function () {
+            if (saving === false) {
+                resetPhoto();
+            }
+        }).on("hidden.bs.modal", function () {
+            $image.cropper("destroy");
+            $(".modal-draggable .modal-dialog").css({left: "0px", top: "0px"});
+        });
+
+        /* buttons */
+        $(".js-zoom-in").click(function () {
+            $image.cropper("zoom", 0.1);
+        });
+
+        $(".js-zoom-out").click(function () {
+            $image.cropper("zoom", -0.1);
+        });
+
+        $(".js-crop-cancel").click(function () {
+            $("#modalCrop").modal('hide');
+        });
+
+        /* save the data in the form */
+        $(".js-crop-and-upload").click(function () {
+            saving = true;
+            $("#modalCrop").modal('hide');
+            var cropData = $image.cropper("getData");
+            var url = $image.cropper("getCroppedCanvas").toDataURL('image/jpeg');
+            $("#id_photo_preview").attr("src", url);
+            $("#id_photo_initial_text").text("New:");
+            $("#id_crop_x").val(cropData["x"]);
+            $("#id_crop_y").val(cropData["y"]);
+            $("#id_crop_h").val(cropData["height"]);
+            $("#id_crop_w").val(cropData["width"]);
+            saving = false;
+        });
+
+        /* reset the data whenever a new file is selected */
+        $("#id_photo").click(function () {
+            resetPhoto();
+        });
+
+        $(".modal-draggable .modal-dialog").draggable({ handle: ".modal-header" });
+    });
+</script>
+{% endblock %}
 {% block body %}
     <div class="container-fluid">
         <div class="panel panel-default">
             <div class="panel-body">
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+                    <input type="hidden" name="crop_x" id="id_crop_x"/>
+                    <input type="hidden" name="crop_y" id="id_crop_y"/>
+                    <input type="hidden" name="crop_w" id="id_crop_w"/>
+                    <input type="hidden" name="crop_h" id="id_crop_h"/>
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=userForm %}
                     {% include 'website/form.html' with form=profileForm %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
+            </div>
+        </div>
+
+        <!-- MODAL TO CROP THE IMAGE -->
+        <div tabindex="-1" class="modal modal-draggable fade" role="dialog" id="modalCrop">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Crop the photo</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <img src="" id="image" style="max-width: 100%;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group pull-left" role="group">
+                            <button type="button" class="btn btn-default js-zoom-in">
+                                <span class="glyphicon glyphicon-zoom-in"></span>
+                            </button>
+                            <button type="button" class="btn btn-default js-zoom-out">
+                                <span class="glyphicon glyphicon-zoom-out"></span>
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-default js-crop-cancel">Nevermind</button>
+                        <button type="button" class="btn btn-primary js-crop-and-upload">Crop Photo</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
