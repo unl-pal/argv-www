@@ -57,6 +57,8 @@
                     <li class="dropdown profile-dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
+                            <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
+                            <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:editProfile' %}">Your profile</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
