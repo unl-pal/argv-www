@@ -26,10 +26,6 @@ class PapersView(ListView):
     def get_queryset(self):
         return Paper.objects.all()
 
-class PaperDetails(DetailView):
-    template_name="website/paperDetails.html"
-    model = Paper
-
 class PeopleView(ListView):
     template_name="website/people.html"
     context_object_name = 'allPeople'
