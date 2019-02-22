@@ -36,9 +36,10 @@ class RegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             messages.success(request, 'Form saved!')
-            return redirect('website:login')
+            login(request, user)
+            return redirect('website:index')
         messages.warning(request, 'Invalid form entry')
         return render(request, self.template_name, { 'form' : form })
 

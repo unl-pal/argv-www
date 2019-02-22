@@ -56,9 +56,8 @@
                         <ul class="dropdown-menu">
                             <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:project_selection' %}">Project Selection</a></li>
-                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             <li><a href="{% url 'website:editProfile' %}">Your profile</a></li>
+                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
