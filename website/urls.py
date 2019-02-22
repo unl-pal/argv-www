@@ -15,6 +15,7 @@ urlpatterns = [
     path('logout/', views.logoutView, name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
     path('editprofile/', views.profile, name='editProfile'),
+    path('password/change/', views.password_change, name='password_change'),
     path('ajax/data_default/', views.data_default, name='data_default'),
     path('project/selection/', views.project_selection, name='project_selection'),
     path('password/reset/', auth_views.PasswordResetView.as_view(email_template_name='website/reset/password_reset_email.html', success_url=reverse_lazy('website:password_reset_done'), template_name='website/reset/passwordReset.html'), name='password_reset'),
