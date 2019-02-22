@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, DetailView, View
+from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -14,27 +14,21 @@ from PIL import Image
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 
-class IndexView(TemplateView):
-    template_name="website/index.html"
-
-class FundingView(TemplateView):
-    template_name="website/funding.html"
-
 class PapersView(ListView):
-    template_name="website/papers.html"
+    template_name='website/papers.html'
     context_object_name='allPapers'
     def get_queryset(self):
         return Paper.objects.all()
 
 class PeopleView(ListView):
-    template_name="website/people.html"
+    template_name='website/people.html'
     context_object_name = 'allPeople'
     def get_queryset(self):
         return User.objects.all().order_by('last_name')
 
 class RegisterView(View):
     form_class = UserFormRegister
-    template_name = "website/login.html"
+    template_name = 'website/login.html'
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, { 'form' : form })
@@ -50,7 +44,7 @@ class RegisterView(View):
 
 class LoginView(View):
     form_class = UserFormLogin
-    template_name = "website/login.html"
+    template_name = 'website/login.html'
 
     def get(self, request):
         form = self.form_class(None)
