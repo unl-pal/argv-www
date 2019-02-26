@@ -111,7 +111,7 @@ class Filter(models.Model):
     )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
-    keyword = models.CharField(max_length=10, default='command');
+    keyword = models.CharField(max_length=10, default='command')
 
     def is_int(self):
         return self.val_type in self.INT
@@ -129,6 +129,10 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+
+    # Sharing
+    is_sharable = models.BooleanField(default=False)
+    shared_with = models.ManyToManyField(User, related_name='shared_with')
 
     def __str__(self):
         return 'ProjectSelector'
