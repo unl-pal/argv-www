@@ -3,7 +3,7 @@
 {% block projectsactive %}active{% endblock %}
 {% block body %}
     <div class="container-fluid">
-        <h1>Projects created by Rebs</h1>
+        <h1>Projects created by {{ request.user.first_name }} {{ request.user.last_name }}</h1>
         <p>
             Accusamus doloremque sed tempore officia reiciendis ipsum in tenetur numquam modi ut, quo atque inventore eveniet est neque necessitatibus doloribus cum iste eligendi.
         </p>
