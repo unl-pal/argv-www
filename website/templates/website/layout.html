@@ -17,7 +17,7 @@
     {% block style %}{% endblock %}
 </head>
 <body>
-{% if USE_HIJACK %}
+{% if USE_HIJACK == True %}
 {% include 'website/hijackNotificaiton.html'%}
 {% endif %}
 <header>
