@@ -111,6 +111,7 @@ class Filter(models.Model):
     )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
+    keyword = models.CharField(max_length=10, default='command');
 
     def is_int(self):
         return self.val_type in self.INT
