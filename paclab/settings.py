@@ -17,7 +17,6 @@ import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -29,22 +28,36 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-
 # Application definition
 
-INSTALLED_APPS = [
-    'website.apps.WebsiteConfig',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'widget_tweaks',
-    'hijack',
-    'compat',
-    'hijack_admin',
-]
+# Set this setting to true in your env file if you would like to use the hijack app
+USE_HIJACK = config('USE_HIJACK', default=False)
+
+if USE_HIJACK == True:
+    INSTALLED_APPS = [
+        'website.apps.WebsiteConfig',
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'widget_tweaks',
+        'hijack',
+        'compat',
+        'hijack_admin',
+    ]
+else:
+    INSTALLED_APPS = [
+        'website.apps.WebsiteConfig',
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'widget_tweaks',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,6 +85,7 @@ TEMPLATES = [
                 'website.context_processors.adminConstant',
                 'website.context_processors.moderatorConstant',
                 'website.context_processors.retiredConstant',
+                'website.context_processors.hijackConstant',
             ],
         },
     },
