@@ -157,3 +157,11 @@ def data_default(request):
     data = pfilter.val_type
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
+
+def cookie_test(request):
+    request.session.set_test_cookie()
+    if request.session.test_cookie_worked():
+        request.session.delete_test_cookie()
+        return HttpResponse('Cookie set correctly.')
+    else:
+        return HttpResponse('Cookie was not set correctly')
