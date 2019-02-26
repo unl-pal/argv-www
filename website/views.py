@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
@@ -63,13 +64,13 @@ class LoginView(View):
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
-class ProjectListView(ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     template_name='website/projects.html'
     context_object_name='projects'
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user)
 
-class ProjectDetailView(DetailView):
+class ProjectDetailView(LoginRequiredMixin, DetailView):
     template_name='website/projectsDetail.html'
     context_object_name='project'
     model = ProjectSelector
