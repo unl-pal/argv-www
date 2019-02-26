@@ -1,0 +1,17 @@
+{% extends 'website/layout.html' %}
+{% block title %}Privacy Agreement{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% include 'website/messages.html' %}
+                <p>{% lorem 9 b random %}</p>
+                <form class="form form-default" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include 'website/form.html' with form=form %}
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

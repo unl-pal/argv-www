@@ -12,7 +12,7 @@ from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, PrivacyAgreementForm
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -158,10 +158,18 @@ def data_default(request):
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
 
-def cookie_test(request):
-    request.session.set_test_cookie()
-    if request.session.test_cookie_worked():
-        request.session.delete_test_cookie()
-        return HttpResponse('Cookie set correctly.')
+def privacy_agreement(request):
+    if request.method == 'POST':
+        form = PrivacyAgreementForm(request.POST)
+        if form.is_valid():
+            request.session['has_agreed'] = True
+            messages.success(request, ('Thank you!'))
+            return redirect('website:index')
+        messages.warning(request, ('Invalid form entry'))
     else:
-        return HttpResponse('Cookie was not set correctly')
+        if request.session['has_agreed']:
+            messages.success(request, ('You have already agreed to terms and conditions'))
+        else:
+            messages.warning(request, ('You have not agreed to terms and conditions'))    
+        form = PrivacyAgreementForm()
+    return render(request, 'website/privacy_agreement.html', { 'form' : form })
