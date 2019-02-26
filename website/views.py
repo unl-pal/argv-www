@@ -69,6 +69,11 @@ class ProjectListView(ListView):
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user)
 
+class ProjectDetailView(DetailView):
+    template_name='website/projectsDetail.html'
+    context_object_name='project'
+    model = ProjectSelector
+
 def logoutView(request):
     logout(request)
     messages.success(request, 'You have successfully logged out.')

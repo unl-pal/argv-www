@@ -1,0 +1,16 @@
+{% extends 'website/layout.html' %}
+{% block title %}Project Detail{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="thumbnail">
+            <h1 style="padding-left: 2%;">{{ project.name }}</h1>
+            <h2 style="padding-left: 2%;"><strong>Project Name: </strong><i>{{ project.input_dataset }}</i></h2>
+            {% for filter in project.pfilter.all %}
+                <p style="padding-left: 2%;"><strong>Filter Name: </strong>{{ filter.name }}</p>
+                <p style="padding-left: 2%;"><strong>Filter Data Type: </strong>{{ filter.val_type }}</p>
+                <p style="padding-left: 2%;"><strong>Filter Default Value: </strong>{{ filter.default_val }}</p>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

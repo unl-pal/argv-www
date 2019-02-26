@@ -19,7 +19,7 @@
                 <tbody>
                     {% for project in projects %}
                         <tr>
-                            <td>{{ project.name }}</td>
+                            <td><a href="{% url 'website:project_detail' pk=project.id %}">{{ project.name }}</a></td>
                             <td>{{ project.input_dataset }}</td>
                         </tr>
                     {% endfor %}
