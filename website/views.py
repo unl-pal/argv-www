@@ -63,6 +63,12 @@ class LoginView(View):
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
+class ProjectListView(ListView):
+    template_name='website/projects.html'
+    context_object_name='projects'
+    def get_queryset(self):
+        return ProjectSelector.objects.all().filter(user=self.request.user)
+
 def logoutView(request):
     logout(request)
     messages.success(request, 'You have successfully logged out.')
@@ -126,6 +132,7 @@ def project_selection(request):
         formset = FilterFormSet(request.POST)
         if p_form.is_valid() and formset.is_valid():
             selector = ProjectSelector()
+            selector.name = p_form.cleaned_data['name']
             selector.user = request.user
             selector.input_dataset = p_form.cleaned_data['input_dataset']
             selector.save()

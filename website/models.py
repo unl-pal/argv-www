@@ -125,12 +125,13 @@ class Filter(models.Model):
         return self.name
 
 class ProjectSelector(models.Model):
+    name = models.CharField(max_length=25, default='')
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
 
     def __str__(self):
-        return 'ProjectSelector'
+        return self.name
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)

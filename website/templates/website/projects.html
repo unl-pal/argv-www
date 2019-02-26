@@ -1,0 +1,30 @@
+{% extends 'website/layout.html' %}
+{% block title %}Projects{% endblock %}
+{% block projectsactive %}active{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <h1>Projects created by Rebs</h1>
+        <p>
+            Accusamus doloremque sed tempore officia reiciendis ipsum in tenetur numquam modi ut, quo atque inventore eveniet est neque necessitatibus doloribus cum iste eligendi.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Project Name:</th>
+                        <th>Input Dataset</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for project in projects %}
+                        <tr>
+                            <td>{{ project.name }}</td>
+                            <td>{{ project.input_dataset }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
