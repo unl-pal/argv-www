@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.conf import settings
+from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
@@ -64,7 +65,7 @@ class LoginView(View):
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
-class ProjectListView(LoginRequiredMixin, ListView):
+class ProjectListView(EmailRequiredMixin, ListView):
     template_name='website/projects.html'
     context_object_name='projects'
     def get_queryset(self):
