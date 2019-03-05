@@ -30,33 +30,28 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # Application definition
 
+INSTALLED_APPS = [
+    'website.apps.WebsiteConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'widget_tweaks',
+]
+
 # Set this setting to true in your env file if you would like to use the hijack app
 USE_HIJACK = config('USE_HIJACK', default=False)
 
+HIJACK_ALLOW_GET_REQUESTS = True # enable Hijack admin page
+HIJACK_USE_BOOTSTRAP = True
+
 if USE_HIJACK == True:
-    INSTALLED_APPS = [
-        'website.apps.WebsiteConfig',
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'widget_tweaks',
+    INSTALLED_APPS += [
         'hijack',
         'compat',
         'hijack_admin',
-    ]
-else:
-    INSTALLED_APPS = [
-        'website.apps.WebsiteConfig',
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'widget_tweaks',
     ]
 
 MIDDLEWARE = [
@@ -85,7 +80,7 @@ TEMPLATES = [
                 'website.context_processors.adminConstant',
                 'website.context_processors.moderatorConstant',
                 'website.context_processors.retiredConstant',
-                'website.context_processors.hijackConstant',
+                'website.context_processors.useHijack',
             ],
         },
     },
@@ -160,10 +155,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
 LOGIN_URL = config('LOGIN_URL', default='website:login')
-
-# enable Hijack admin page
-HIJACK_ALLOW_GET_REQUESTS = True
-HIJACK_USE_BOOTSTRAP = True
 
 # configure messages for Bootstrap
 from django.contrib import messages
