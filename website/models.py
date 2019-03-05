@@ -134,10 +134,9 @@ class ProjectSelector(models.Model):
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     created = models.DateField(auto_now_add=True)
 
-    def get_hash(self):
-        slug = str(uuid.uuid4())
-        slug = slug.replace('-', '')
-        return slug
+    def gen_slug(self):
+        self.slug = str(uuid.uuid4())
+        self.slug = self.slug.replace('-', '')
 
     def __str__(self):
         return self.slug

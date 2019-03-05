@@ -148,7 +148,7 @@ def project_selection(request):
         formset = FilterFormSet(request.POST)
         if p_form.is_valid() and formset.is_valid():
             selector = ProjectSelector()
-            selector.slug = selector.get_hash()
+            selector.gen_slug()
             selector.user = request.user
             selector.input_dataset = p_form.cleaned_data['input_dataset']
             selector.save()
