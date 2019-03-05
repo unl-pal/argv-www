@@ -11,16 +11,24 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Project Name:</th>
-                        <th>Input Dataset:</th>
+                        <th>Project Hash:</th>
+                        <th>Created:</th>
+                        <th>Filters:</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for project in projects %}
                         <tr>
-                            <td><a href="{% url 'website:project_detail' pk=project.id %}">{{ project.name }}</a></td>
-                            <td>{{ project.input_dataset }}</td>
+                            <td><a href="{% url 'website:project_detail' pk=project.id %}">{{ project.hash_val }}</a></td>
+                            <td>{{ project.created }}</td>
+                            <td>
+                                <p>
+                                    {% for filter in project.filterdetail_set.all %}
+                                        {{ filter }}, 
+                                    {% endfor %}
+                                </p>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
