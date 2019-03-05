@@ -72,8 +72,8 @@ class ProjectListView(EmailRequiredMixin, ListView):
         return ProjectSelector.objects.all().filter(user=self.request.user)
 
 class ProjectDetailView(LoginRequiredMixin, DetailView):
-    template_name='website/projectsDetail.html'
-    context_object_name='project'
+    template_name = 'website/projectsDetail.html'
+    context_object_name = 'project'
     model = ProjectSelector
 
 def logoutView(request):
@@ -139,7 +139,7 @@ def project_selection(request):
         formset = FilterFormSet(request.POST)
         if p_form.is_valid() and formset.is_valid():
             selector = ProjectSelector()
-            selector.hash_val = selector.get_hash()
+            selector.slug = selector.get_hash()
             selector.user = request.user
             selector.input_dataset = p_form.cleaned_data['input_dataset']
             selector.save()
