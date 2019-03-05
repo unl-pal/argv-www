@@ -1,7 +1,4 @@
 {% load staticfiles %}
-{% if USE_HIJACK == True %}
-{% include 'website/hijackTags.html' %}
-{% endif %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,7 +17,7 @@
 </head>
 <body>
 {% if USE_HIJACK == True %}
-{% include 'website/hijackNotificaiton.html'%}
+{% include 'website/hijackNotification.html'%}
 {% endif %}
 <header>
     <nav class="navbar navbar-default">
