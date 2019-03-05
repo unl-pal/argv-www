@@ -1,5 +1,7 @@
 {% load staticfiles %}
-{% load hijack_tags %}
+{% if USE_HIJACK == True %}
+{% include 'website/hijackTags.html' %}
+{% endif %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,12 +12,16 @@
 
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" integrity="sha384-Nlo8b0yiGl7Dn+BgLn4mxhIIBU6We7aeeiulNCjHdUv/eKHx59s3anfSUjExbDxn" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
+    {% if USE_HIJACK == True %}
+        <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
+    {% endif %}
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
     {% block style %}{% endblock %}
 </head>
 <body>
-{% hijack_notification %}
+{% if USE_HIJACK == True %}
+{% include 'website/hijackNotificaiton.html'%}
+{% endif %}
 <header>
     <nav class="navbar navbar-default">
         <!--Main Buttons-->
