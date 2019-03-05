@@ -136,6 +136,7 @@ class ProjectSelector(models.Model):
 
     def get_hash(self):
         hash_val = str(uuid.uuid4())
+        hash_val = hash_val.replace('-', '')
         return hash_val
 
     def __str__(self):
