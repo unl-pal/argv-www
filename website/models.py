@@ -128,13 +128,18 @@ class Filter(models.Model):
         return self.name
 
 class ProjectSelector(models.Model):
-    name = models.CharField(max_length=25, default='')
+    hash_val = models.CharField(max_length=25, default='')
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+    created = models.DateField(auto_now_add=True)
+
+    def get_hash(self):
+        hash_val = str(uuid.uuid4())
+        return hash_val
 
     def __str__(self):
-        return self.name
+        return self.hash_val
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
