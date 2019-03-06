@@ -72,7 +72,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user)
 
-class ProjectDetailView(LoginRequiredMixin, DetailView):
+class ProjectDetailView(DetailView):
     template_name = 'website/projectsDetail.html'
     context_object_name = 'project'
     model = ProjectSelector
