@@ -133,6 +133,7 @@ class ProjectSelector(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     created = models.DateField(auto_now_add=True)
+    parent = models.CharField(max_length=255, default='')
 
     def gen_slug(self):
         self.slug = str(uuid.uuid4())
