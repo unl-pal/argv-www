@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
@@ -86,6 +88,20 @@ def project_detail(request, slug):
     else:
         form = EmailForm()
     return render(request, 'website/projectsDetail.html', { 'project' : model, 'form' : form })
+
+def ajax_search(request):
+    if request.is_ajax():
+        q = request.GET.get('term', '').capitalize()
+        search_qs = User.objects.filter(email__startswith=q)
+        results = []
+        print(q)
+        for r in search_qs:
+            results.append(r.email)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
 
 def logoutView(request):
     logout(request)

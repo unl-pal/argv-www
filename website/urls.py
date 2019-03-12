@@ -17,6 +17,7 @@ urlpatterns = [
     path('editprofile/', views.profile, name='editProfile'),
     path('password/change/', views.password_change, name='password_change'),
     path('ajax/data_default/', views.data_default, name='data_default'),
+    path('ajax/search/', views.ajax_search, name='ajax_search'),
     path('project/selection/', views.project_selection, name='project_selection'),
     path('project/list/', views.ProjectListView.as_view(), name='project_list'),
     path('project/detail/<slug>/', views.project_detail, name='project_detail'),
