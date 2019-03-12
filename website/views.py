@@ -83,7 +83,7 @@ def project_detail(request, slug):
         form = EmailForm(request.POST)
         user = str(request.user.username)
         url = request.META['HTTP_HOST'] + '/project/detail/' + slug
-        message = user + ' has shared a project with you at' + url
+        message = user + ' has shared a project with you at ' + url
         if form.is_valid():
             send_to = form.cleaned_data['email']
             send_mail(
