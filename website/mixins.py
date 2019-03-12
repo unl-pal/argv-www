@@ -6,11 +6,11 @@ from .models import Profile
 class EmailRequiredMixin(LoginRequiredMixin):
     """Verify that the current user has an active email."""
     def dispatch(self, request, *args, **kwargs):
-        try:
+        if request.user.is_authenticated:
             if not request.user.profile.active_email:
                 messages.warning(request, ('Your email account has not been activated.'))
                 # Change to redirect to verification email page
-                return redirect('website:login')
-        except:
+                return self.handle_no_permission()
+        else:
             return redirect('website:login')
         return super().dispatch(request, *args, **kwargs)
