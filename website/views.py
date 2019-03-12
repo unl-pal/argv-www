@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
@@ -13,7 +13,7 @@ from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, EmailForm
 from .validators import validate_gh_token
 
 class PapersView(ListView):
@@ -71,10 +71,21 @@ class ProjectListView(EmailRequiredMixin, ListView):
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user)
 
-class ProjectDetailView(DetailView):
-    template_name = 'website/projectsDetail.html'
-    context_object_name = 'project'
-    model = ProjectSelector
+def project_detail(request, slug):
+    try:
+        model = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            # Do something
+            messages.success(request, ('Success!'))
+        else:
+            messages.warning(request, ('Invalid form entry'))
+    else:
+        form = EmailForm()
+    return render(request, 'website/projectsDetail.html', { 'project' : model, 'form' : form })
 
 def logoutView(request):
     logout(request)

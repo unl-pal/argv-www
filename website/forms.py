@@ -59,6 +59,9 @@ class ProjectSelectionForm(forms.ModelForm):
         model = ProjectSelector
         fields = ['input_dataset']
 
+class EmailForm(forms.Form):
+    email = forms.EmailField()
+
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
     value = forms.CharField(

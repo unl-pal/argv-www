@@ -2,6 +2,7 @@
 {% block title %}Project Detail{% endblock %}
 {% block body %}
     <div class="container">
+        {% include 'website/messages.html' %}
         <div class="thumbnail">
             <h1 style="padding-left: 2%;">{{ project.slug }}</h1>
             <h2 style="padding-left: 2%;"><strong>Project Name: </strong><i>{{ project.input_dataset }}</i></h2>
@@ -11,6 +12,12 @@
                 <p style="padding-left: 2%;"><strong>Filter Default Value: </strong>{{ filter.default_val }}</p>
                 <br>
             {% endfor %}
+            <h3>Sharing</h3>
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'website/form.html' with form=form %}
+                <button class="btn btn-success">Submit</button>
+            </form>
         </div>
     </div>
 {% endblock %}
