@@ -93,8 +93,6 @@ def project_detail(request, slug):
                 [send_to],
                 fail_silently = True,
             )
-            print(url)
-            print(message)
             messages.success(request, ('Success!'))
         else:
             messages.warning(request, ('Invalid form entry'))
