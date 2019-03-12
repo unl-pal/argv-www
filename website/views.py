@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from django.core.mail import send_mail
 from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
@@ -80,8 +81,20 @@ def project_detail(request, slug):
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
+        user = str(request.user.username)
+        url = request.META['HTTP_HOST'] + '/project/detail/' + slug
+        message = user + ' has shared a project with you at' + url
         if form.is_valid():
-            # Do something
+            send_to = form.cleaned_data['email']
+            send_mail(
+                'Shared Project',
+                message,
+                request.user.email,
+                [send_to],
+                fail_silently = True,
+            )
+            print(url)
+            print(message)
             messages.success(request, ('Success!'))
         else:
             messages.warning(request, ('Invalid form entry'))
