@@ -28,7 +28,7 @@ class PeopleView(ListView):
 
 class RegisterView(View):
     form_class = UserFormRegister
-    template_name = 'website/login.html'
+    template_name = 'website/register.html'
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, { 'form' : form })
