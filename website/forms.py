@@ -72,10 +72,3 @@ class FilterDetailForm(forms.Form):
         required=True)
 
 FilterFormSet = formset_factory(FilterDetailForm)
-
-class PrivacyAgreementForm(forms.Form):
-    has_agreed = forms.BooleanField()
-
-    def __init__(self, *args, **kwargs):
-        super(PrivacyAgreementForm, self).__init__(*args, **kwargs)
-        self.fields['has_agreed'].label = 'Agree to Terms'
