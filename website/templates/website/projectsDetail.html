@@ -13,6 +13,7 @@
                 <br>
             {% endfor %}
             <h3>Sharing</h3>
+            <p>Start typing the name of a valid registered email address</p>
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% include 'website/form.html' with form=form %}
@@ -24,16 +25,8 @@
 
     {% block script %}
     <script>
-        $(document).ready(function(){
-            $('input').autocomplete({
-                source: '/ajax/search',
-                minLength: 1,
-                open: function(){
-                    setTimeout(function(){
-                        $('.ui-autocomplete').css('z-index',99);
-                    }, 0);
-                }
-            });
+        $('input:eq(1)').tagsInput({
+            autocomplete_url: 'http://127.0.0.1:8000/ajax/search'
         });
     </script>
     {% endblock %}
