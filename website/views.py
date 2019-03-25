@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
 from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
@@ -83,16 +85,16 @@ def project_detail(request, slug):
         form = EmailForm(request.POST)
         user = str(request.user.username)
         url = request.META['HTTP_HOST'] + '/project/detail/' + slug
-        message = user + ' has shared a project with you at ' + url
+        variables = { 'user' : user, 'url' : url }
+        msg_html = get_template('website/project_selection_email.html')
         if form.is_valid():
             send_to = form.cleaned_data['email']
-            send_mail(
-                'Shared Project',
-                message,
-                request.user.email,
-                [send_to],
-                fail_silently = True,
-            )
+            subject, from_email, to = 'Shared Project', request.user.email, send_to
+            text_content = 'A project has been shared with you!'
+            html_content = msg_html.render(variables)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [send_to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
             messages.success(request, ('Success!'))
         else:
             messages.warning(request, ('Invalid form entry'))
