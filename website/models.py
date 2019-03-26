@@ -138,7 +138,6 @@ class ProjectSelector(models.Model):
     def save(self, **kwargs):
         self.gen_slug()
         super().save()
-        print(self.slug)
 
     def gen_slug(self):
         self.slug = str(uuid.uuid4())
