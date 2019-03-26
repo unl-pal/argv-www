@@ -88,11 +88,10 @@ def project_detail(request, slug):
         variables = { 'user' : user, 'url' : url }
         msg_html = get_template('website/project_selection_email.html')
         if form.is_valid():
-            send_to = form.cleaned_data['email']
-            subject, from_email, to = 'Shared Project', request.user.email, send_to
+            subject, from_email, to = 'Shared Project', request.user.email, form.cleaned_data['email'].split(',')
             text_content = 'A project has been shared with you!'
             html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [send_to])
+            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
             msg.attach_alternative(html_content, "text/html")
             msg.send()
             messages.success(request, ('Success!'))
@@ -107,7 +106,6 @@ def ajax_search(request):
         q = request.GET.get('term', '').capitalize()
         search_qs = User.objects.filter(email__startswith=q)
         results = []
-        print(q)
         for r in search_qs:
             results.append(r.email)
         data = json.dumps(results)

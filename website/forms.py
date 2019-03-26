@@ -60,7 +60,7 @@ class ProjectSelectionForm(forms.ModelForm):
         fields = ['input_dataset']
 
 class EmailForm(forms.Form):
-    email = forms.EmailField()
+    email = forms.CharField()
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
