@@ -135,6 +135,11 @@ class ProjectSelector(models.Model):
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='')
 
+    def save(self, **kwargs):
+        self.gen_slug()
+        super().save()
+        print(self.slug)
+
     def gen_slug(self):
         self.slug = str(uuid.uuid4())
         self.slug = self.slug.replace('-', '')
