@@ -12,5 +12,5 @@ class EmailRequiredMixin(LoginRequiredMixin):
                 # Change to redirect to verification email page
                 return self.handle_no_permission()
         else:
-            return self.handle_no_permission()
+            return redirect('website:login')
         return super().dispatch(request, *args, **kwargs)
