@@ -202,7 +202,7 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-            messages.success(request, ('Form saved'))
+            messages.success(request, ('Project selection created successfully'))
             return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
         messages.warning(request, ('Invalid form entry'))
     return render(request, template_name, {
