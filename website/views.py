@@ -1,6 +1,7 @@
 import json
 
 from django.http import HttpResponse, JsonResponse, Http404
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
@@ -202,7 +203,7 @@ def project_selection(request):
                     except:
                         pass
             messages.success(request, ('Form saved'))
-            return redirect('website:project_selection')
+            return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
         messages.warning(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
