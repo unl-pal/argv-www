@@ -136,12 +136,15 @@ class ProjectSelector(models.Model):
     parent = models.CharField(max_length=255, default='')
 
     def save(self, **kwargs):
-        self.gen_slug()
-        super().save()
+        # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
+        super().save(**kwargs)
+        self.slug = self.gen_slug()
+        super().save(**kwargs)
 
     def gen_slug(self):
-        self.slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
-        self.slug = self.slug.replace('-','')
+        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        slug = slug.replace('-','')
+        return slug
 
     def __str__(self):
         return self.slug
