@@ -24,6 +24,8 @@
     {% endblock %}
 
     {% block script %}
+    {% load staticfiles %}
+    <script src="{% static 'website/jquery.tagsinput.js' %}"></script>
     <script>
         $('input:eq(1)').tagsInput({
             autocomplete_url: 'http://127.0.0.1:8000/ajax/search'
