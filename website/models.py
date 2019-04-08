@@ -141,10 +141,35 @@ class ProjectSelector(models.Model):
         self.slug = self.gen_slug()
         super().save(**kwargs)
 
+    """ Generates a unique slug to be used for sharing
+
+        Arguments: none, returns string(slug)
+        Creates a unique id to be used for project sharing.
+        Uses primary key to generate unique key.
+        Checks for collisions using check_collision(slug).
+        Does not return until unique slug is generated.    
+    """
     def gen_slug(self):
-        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
-        slug = slug.replace('-','')
+        collision = True
+        while collision == True:
+            slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+            slug = slug.replace('-','')
+            collision = self.check_collision(slug)
         return slug
+    
+    """ Checks to ensure a given slug does not exist in the database
+    
+        Arguments: string (a slug)
+        Returns: Boolean (yes = collision ocurred, no = collision did not occur, end loop and proceed)
+        Attempts to query database with passed in slug.  If slug exists in database, the attempt will succeed and 
+        return true.  If the attempt does not succeed, the slug does not exist in the database and will return false.
+    """
+    def check_collision(self, slug):
+        try:
+            ProjectSelector.objects.get(slug=slug)
+            return True
+        except:
+            return False
 
     def __str__(self):
         return self.slug
