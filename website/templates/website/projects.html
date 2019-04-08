@@ -32,8 +32,7 @@
                             </td>
                             <td>
                                 <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>
-                                <a href="#" class="btn btn-warning">Update</a>
-                                <a href="#" class="btn btn-danger">Delete</a>
+                                <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
                     {% endfor %}

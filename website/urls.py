@@ -21,6 +21,7 @@ urlpatterns = [
     path('project/selection/', views.project_selection, name='project_selection'),
     path('project/list/', views.ProjectListView.as_view(), name='project_list'),
     path('project/detail/<slug>/', views.project_detail, name='project_detail'),
+    path('project/delete/<slug>/', views.project_delete, name='project_delete'),
     path('password/reset/', auth_views.PasswordResetView.as_view(email_template_name='website/reset/password_reset_email.html', success_url=reverse_lazy('website:password_reset_done'), template_name='website/reset/passwordReset.html'), name='password_reset'),
     path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='website/reset/passwordResetDone.html'), name='password_reset_done'),
     path('password/reset/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(success_url=reverse_lazy('website:password_reset_complete'), template_name='website/reset/passwordResetConfirm.html'), name='password_reset_confirm'),

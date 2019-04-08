@@ -102,6 +102,23 @@ def project_detail(request, slug):
         form = EmailForm()
     return render(request, 'website/projectsDetail.html', { 'project' : model, 'form' : form })
 
+def project_delete(request, slug):
+    try:
+        model = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+    if request.method == 'POST':
+        if request.user == model.user or request.user.is_superuser:
+            if request.user.profile.active_email:
+                model.delete()
+                messages.info(request, ('You have deleted this project selector'))
+                return redirect('website:project_list')
+            else:
+                messages.warning(request, ('Please activate your email before performing this task'))
+        else:
+            messages.warning(request, ('You are not the owner of this selector and cannot perform this task'))
+    return render(request, 'website/delete.html')
+
 def ajax_search(request):
     if request.is_ajax():
         q = request.GET.get('term', '').capitalize()
