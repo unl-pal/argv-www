@@ -140,8 +140,8 @@ class ProjectSelector(models.Model):
         super().save()
 
     def gen_slug(self):
-        self.slug = str(uuid.uuid4())
-        self.slug = self.slug.replace('-', '')
+        self.slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        self.slug = self.slug.replace('-','')
 
     def __str__(self):
         return self.slug
