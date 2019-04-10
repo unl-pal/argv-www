@@ -75,12 +75,14 @@ class ProjectListView(EmailRequiredMixin, ListView):
     template_name='website/projects.html'
     context_object_name='projects'
     def get_queryset(self):
-        return ProjectSelector.objects.all().filter(user=self.request.user)
+        return ProjectSelector.objects.all().filter(user=self.request.user, is_alive=True)
 
 def project_detail(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
     except:
+        raise Http404
+    if model.is_alive == False:
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
@@ -111,6 +113,8 @@ def project_delete(request, slug):
         if request.user == model.user or request.user.is_superuser:
             if request.user.profile.active_email:
                 model.delete()
+                model.is_alive = False
+                model.save()
                 messages.info(request, ('You have deleted this project selector'))
                 return redirect('website:project_list')
             else:
