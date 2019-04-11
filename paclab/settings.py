@@ -17,7 +17,6 @@ import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-
 
 # Application definition
 
@@ -41,10 +39,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'hijack',
-    'compat',
-    'hijack_admin',
 ]
+
+# Set this setting to true in your env file if you would like to use the hijack app
+USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
+
+HIJACK_ALLOW_GET_REQUESTS = True # enable Hijack admin page
+HIJACK_USE_BOOTSTRAP = True
+
+if USE_HIJACK == True:
+    INSTALLED_APPS += [
+        'hijack',
+        'compat',
+        'hijack_admin',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,6 +80,7 @@ TEMPLATES = [
                 'website.context_processors.adminConstant',
                 'website.context_processors.moderatorConstant',
                 'website.context_processors.retiredConstant',
+                'website.context_processors.useHijack',
             ],
         },
     },
@@ -146,10 +155,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
 LOGIN_URL = config('LOGIN_URL', default='website:login')
-
-# enable Hijack admin page
-HIJACK_ALLOW_GET_REQUESTS = True
-HIJACK_USE_BOOTSTRAP = True
 
 # configure messages for Bootstrap
 from django.contrib import messages

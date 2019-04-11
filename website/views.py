@@ -13,6 +13,7 @@ from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, 
 from PIL import Image
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .validators import validate_gh_token
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -116,6 +117,14 @@ def password_change(request):
     return render(request, 'website/password_change.html', { 'form' : form })
 
 def project_selection(request):
+    try:
+        validate_gh_token(request.user.profile.token)
+    except:
+        request.user.profile.token = ''
+        request.user.profile.save()
+        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
+        return redirect('website:editProfile')
+
     template_name = 'website/create_normal.html'
     heading_message = 'Project Selection'
     if request.method == 'GET':
