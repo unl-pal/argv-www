@@ -8,84 +8,38 @@
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% include 'website/form.html' with form=form %}
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#agreementModal">View Privacy Agreement</button>
+                    <button type="button" class="btn-as-link" data-toggle="modal" data-target="#agreementModal">View Terms & Privacy Agreement</button>
                     <br><br>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                <div id="agreementModal" class="modal fade" role="dialog">
-                    <div class="modal-dialog">
-                
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Terms of Use and Privacy Agreement</h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="header gutter"><h1>Terms and Conditions of Use</h1>
-                                <p class="lastmod">
-                                    Last modified: March 15, 2019<br>
-                                    Original Version from BOA - Mining Ultra-Large-Scale Software Repositories
-                                </p>
+                    <div id="agreementModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                    
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Terms of Use and Privacy Agreement</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="header gutter"><h1>Terms of Use & Privacy Policy</h1>
+                                    <p class="lastmod">
+                                        Last modified: March 15, 2019<br>
+                                        Original Version from BOA - Mining Ultra-Large-Scale Software Repositories
+                                    </p>
+    
+                                    {% include 'website/agreement/terms.html' %}
 
-                                <!-- User Acknowledgement & Acceptance of Terms -->
-                                {% include 'website/agreement/user_acknowledgement.html' %}
-
-                                <!-- Description of Services -->
-                                {% include 'website/agreement/services.html' %}
-
-                                <!-- Data & Privacy -->
-                                {% include 'website/agreement/privacy.html' %}
-
-                                <!-- Site Conduct -->
-                                {% include 'website/agreement/conduct.html' %}
-
-                                <!-- Third Parties -->
-                                {% include 'website/agreement/third_parties.html' %}
-
-                                <!-- Copyright Information -->
-                                {% include 'website/agreement/copyright.html' %}
-
-                                <!-- Unauthorized Use -->
-                                {% include 'website/agreement/unauth.html' %}
-
-                                <!-- Include Warranty Disclaimer -->
-                                {% include 'website/agreement/disclaimer.html' %}
-
-                                <!-- Limitation of Liability -->
-                                {% include 'website/agreement/liability.html' %}
-
-                                <!-- Indemnification -->
-                                {% include 'website/agreement/indemnification.html' %}
-
-                                <!-- Security & Password -->
-                                {% include 'website/agreement/security.html' %}
-
-                                <!-- International Use -->
-                                {% include 'website/agreement/international.html' %}
-
-                                <!-- Termination of Use -->
-                                {% include 'website/agreement/termination.html' %}
-
-                                <!-- Governing Law -->
-                                {% include 'website/agreement/law.html' %}
-
-                                <!-- Notices -->
-                                {% include 'website/agreement/notices.html' %}
-
-                                <!-- Final Agreement -->
-                                {% include 'website/agreement/final.html' %}
-
-                                <!-- Miscellaneous -->
-                                {% include 'website/agreement/misc.html' %}
+                                    {% include 'website/agreement/privacy.html' %}
+                                    
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            </div>
+                    
                         </div>
-                
-                    </div>
                 </div>
                 <br>
                 <p><a href="{% url 'website:password_reset' %}">Forgot Password?</a></p>
