@@ -1,13 +1,14 @@
 {% extends 'website/layout.html' %}
 {% block title %}Register{% endblock %}
 {% block registeractive %}active{% endblock %}
+{% load crispy_forms_tags %}
 {% block body %}
     <div class="container-fluid">
         <div class="panel panel-default">
             <div class="panel-body">
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {% include 'website/form.html' with form=form %}
+                    {{ form|crispy }}
                     <button type="button" class="btn-as-link" data-toggle="modal" data-target="#agreementModal">View Terms & Privacy Agreement</button>
                     <br><br>
                     <button type="submit" class="btn btn-primary">Submit</button>
