@@ -74,3 +74,8 @@ body {
     border-bottom: 1px solid #444; 
     cursor: pointer;
 }
+
+.modal-body {
+    max-height: calc(100vh - 212px);
+    overflow-y: auto;
+}
