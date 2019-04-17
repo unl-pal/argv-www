@@ -27,7 +27,7 @@
                     <p class="text-muted">* indicates required field</p>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                    <div id="termsModal" class="modal fade" role="dialog">
+                    <div tabindex="-1" id="termsModal" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-lg">                    
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -49,7 +49,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="privacyModal" class="modal fade" role="dialog">
+                    <div tabindex="-1" id="privacyModal" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-lg">                    
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -76,4 +76,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+<script>
+    $("#termsModal").on("shown.bs.modal", function () {                                                              
+        $('.btn-default').focus()                                                                            
+    });
+    $("#privacyModal").on("shown.bs.modal", function () {                                                              
+        $('.btn-default').focus()                                                                            
+    });
+</script>
 {% endblock %}
