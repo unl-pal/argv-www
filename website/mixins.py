@@ -14,7 +14,7 @@ class EmailRequiredMixin(LoginRequiredMixin):
                 messages.warning(request, ('Your email account has not been activated.'))
                 # Change to redirect to verification email page
                 self.permission_denied_message = 'You do not have an active email account and cannot acess this page.'
-                return self.handle_no_permission()
+                return redirect('website:index')
         else:
             self.permission_denied_message = 'Please login to access this page.'
             return redirect('website:login')
