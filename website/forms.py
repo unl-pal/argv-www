@@ -26,9 +26,6 @@ class UserPasswordForm(PasswordChangeForm):
         fields = '__all__'
 
 class UserFormRegister(UserCreationForm):
-    privacy_agreement = forms.BooleanField(label='I agree to the privacy agreement ')
-    age_confirmation = forms.BooleanField(label='I am at least 13 years old ')
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].required = True

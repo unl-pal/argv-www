@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'crispy_forms',
 ]
 
 # Set this setting to true in your env file if you would like to use the hijack app
@@ -156,8 +155,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
 LOGIN_URL = config('LOGIN_URL', default='website:login')
-
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # configure messages for Bootstrap
 from django.contrib import messages
