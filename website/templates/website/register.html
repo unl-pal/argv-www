@@ -10,16 +10,16 @@
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=form %}
                     <div class="form-group">
-                        <label for="termsAgreement"><button type="button" class="btn-as-link" data-toggle="modal" data-target="#termsModal">I agree to this tool's terms of use</button></label>
                         <input type="checkbox" name="termsAgreement" required>
+                        <label for="termsAgreement">I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#termsModal">Terms of Use Policy</button></label>
                     </div>
                     <div class="form-group">
-                        <label for="privacyAgreement"><button type="button" class="btn-as-link" data-toggle="modal" data-target="#privacyModal">I agree to this tool's privacy policy</button></label>
                         <input type="checkbox" name="privacyAgreement" required>
+                        <label for="privacyAgreement">I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#privacyModal">Privacy Policy</button></label>
                     </div>
                     <div class="form-group">
-                        <label for="ageConfirmation">I am 13 years or older</label>
                         <input type="checkbox" name="ageConfirmation" required>
+                        <label for="ageConfirmation">I am 13 years or older</label>
                     </div>
                     <div class="form-group">
 
