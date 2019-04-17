@@ -112,7 +112,6 @@ def project_delete(request, slug):
     if request.method == 'POST':
         if request.user == model.user or request.user.is_superuser:
             if request.user.profile.active_email:
-                model.delete()
                 model.is_alive = False
                 model.save()
                 messages.info(request, ('You have deleted this project selector'))
