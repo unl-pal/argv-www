@@ -41,7 +41,7 @@ class RegisterView(View):
             messages.success(request, 'Form saved!')
             login(request, user)
             return redirect('website:index')
-        messages.warning(request, 'Invalid form entry')
+        messages.error(request, 'Invalid form entry')
         return render(request, self.template_name, { 'form' : form })
 
 class LoginView(View):
@@ -97,7 +97,7 @@ def profile(request):
             messages.success(request, 'Profile successfully updated')
             return redirect('website:editProfile')
         else:
-            messages.warning(request, 'Invalid form entry')
+            messages.error(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
@@ -111,7 +111,7 @@ def password_change(request):
             form.save()
             messages.success(request, 'Password updated!')
             return redirect('website:index')
-        messages.warning(request, 'Invalid form entry')
+        messages.error(request, 'Invalid form entry')
     else:
         form = UserPasswordForm(request.user)
     return render(request, 'website/password_change.html', { 'form' : form })
@@ -153,7 +153,7 @@ def project_selection(request):
                         pass
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
-        messages.warning(request, ('Invalid form entry'))
+        messages.error(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
