@@ -40,6 +40,9 @@ class Profile(models.Model):
     bio = models.TextField(max_length=1000, blank=True)
     token = models.CharField(max_length=40, default='', validators=[validate_gh_token], help_text=mark_safe('Be sure to first <a href="https://github.com/settings/tokens">generate a GitHub personal access token</a>.'))
     sharetoken = models.BooleanField(default=False, help_text='Note: the token is never shared/visible to other users!')
+    privacy_agreement = models.BooleanField(default=True)
+    terms_agreement = models.BooleanField(default=True)
+    age_confirmation = models.BooleanField(default=True)
 
     NONE = '--'
     DOCTOR = 'Dr.'
