@@ -38,6 +38,10 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
+            user.profile.privacy_agreement = True
+            user.profile.terms_agreement = True
+            user.profile.age_confirmation = True
+            user.profile.save()
             messages.success(request, 'Form saved!')
             login(request, user)
             return redirect('website:index')
