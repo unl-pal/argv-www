@@ -1,8 +1,8 @@
-import subprocess
+from shutil import copyfile
 
+from django.core import management
 from django.core.management.base import BaseCommand
-from website.models import ProjectSelector, Filter, FilterDetail, Dataset
-from django.conf import settings
+from backend.models import Backend
 
 class Command(BaseCommand):
     help = 'Installs specified backend'
@@ -12,10 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         backend_name = kwargs['backend_name']
-        try:
-            app_config = backend_name + '.apps.' + backend_name.capitalize() + 'Config'
-            if app_config not in settings.INSTALLED_APPS:
-                settings.INSTALLED_APPS.append(config)
-            subprocess.run(['python','manage.py','loaddata', backend_name])
-        except:
-            print("The specified backend " + backend_name + " does not exist.")
+        source = './' + backend_name.lower() + '/fixtures/install.json'
+        dest = './backend/fixtures/' + backend_name.lower() + '_install.json'
+        copyfile(source, dest)
+        management.call_command('loaddata', backend_name.lower() + '_install')

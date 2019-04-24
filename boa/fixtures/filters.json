@@ -1,0 +1,11 @@
+[
+    {
+        "model": "backend.supportedfilter",
+        "pk": 1,
+        "fields": {
+            "name": "File Type",
+            "val_type": "String",
+            "value": ".py"
+        }
+    }
+]
