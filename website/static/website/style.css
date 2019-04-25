@@ -60,3 +60,9 @@ body {
 .profile-dropdown .img-responsive {
     display: inline;
 }
+
+input[type="checkbox"] {
+    display: inline-block;
+    width: auto;
+    height: auto;
+}
