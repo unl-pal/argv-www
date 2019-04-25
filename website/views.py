@@ -41,7 +41,6 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False
             user.save()
             current_site = get_current_site(request)
             message = render_to_string('website/account_activation_email.html', {
@@ -105,6 +104,18 @@ def profile(request):
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
+            if 'email' in userForm.changed_data:
+                user = request.user
+                current_site = get_current_site(request)
+                message = render_to_string('website/account_activation_email.html', {
+                    'user' : user,
+                    'domain' : current_site.domain,
+                    'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                    'token' : account_activation_token.make_token(user),
+                })
+                to_email = userForm.cleaned_data.get('email')
+                email = EmailMessage('Please reconfirm your email address', message, to=[to_email])
+                email.send()
             userForm.save()
             profileForm.save()
 
