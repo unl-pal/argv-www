@@ -1,0 +1,20 @@
+[
+    {
+        "model": "website.filter",
+        "pk": 1,
+        "fields": {
+            "name": "FileType",
+            "val_type": "String",
+            "default_val": ".py"
+        }
+    },
+    {
+        "model": "website.filter",
+        "pk": 2,
+        "fields": {
+            "name": "Language",
+            "val_type": "String",
+            "default_val": "python"
+        }
+    }
+]
