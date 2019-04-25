@@ -89,6 +89,8 @@ class LoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    if not user.profile.active_email:
+                        messages.warning(request, ('Your email account is not active!  Please activate your email from your profile page.'))
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
