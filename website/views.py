@@ -186,3 +186,17 @@ def data_default(request):
     data = pfilter.val_type
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
+
+def activate_email(request):
+    user = request.user
+    current_site = get_current_site(request)
+    message = render_to_string('website/account_activation_email.html', {
+        'user' : user,
+        'domain' : current_site.domain,
+        'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+        'token' : account_activation_token.make_token(user),
+    })
+    to_email = user.email
+    email = EmailMessage('Please reconfirm your email address', message, to=[to_email])
+    email.send()
+    return redirect('website:editProfile')

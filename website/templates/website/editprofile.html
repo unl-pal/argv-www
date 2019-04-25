@@ -108,6 +108,8 @@
                     {% include 'website/form.html' with form=profileForm %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
+                <hr>
+                <small class="text-muted">Need to activate your email? <a href="{% url 'website:activate_email' %}">Activate email</a></small>
             </div>
         </div>
 

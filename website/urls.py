@@ -16,6 +16,7 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', views.activate_account, name='activate_account'),
     path('editprofile/', views.profile, name='editProfile'),
+    path('activate/email/', views.activate_email, name='activate_email'),
     path('ajax/data_default/', views.data_default, name='data_default'),
     path('project/selection/', views.project_selection, name='project_selection'),
     path('password/reset/', auth_views.PasswordResetView.as_view(email_template_name='website/reset/password_reset_email.html', success_url=reverse_lazy('website:password_reset_done'), template_name='website/reset/passwordReset.html'), name='password_reset'),
