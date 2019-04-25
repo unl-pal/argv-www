@@ -199,4 +199,7 @@ def activate_email(request):
     to_email = user.email
     email = EmailMessage('Please reconfirm your email address', message, to=[to_email])
     email.send()
-    return redirect('website:editProfile')
+    return redirect('website:activate_email_confirm')
+
+def activate_email_confirm(request):
+    return render(request, 'website/activate_email_confirm.html')
