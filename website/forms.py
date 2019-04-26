@@ -43,15 +43,22 @@ class ProfileForm(forms.ModelForm):
             template_name = 'website/photoinput.html'
 
         model = Profile
-        fields = ['photo', 'bio', 'token', 'sharetoken']
+        fields = ['photo', 'token', 'sharetoken']
         labels = {
-            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
         widgets = {
             'token': forms.TextInput(attrs={'size': 40}),
             'photo': PhotoInput(),
+        }
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio']
+        labels = {
+            'bio' : 'Biography'
         }
 
 class ProjectSelectionForm(forms.ModelForm):
