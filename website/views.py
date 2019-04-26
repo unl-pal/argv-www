@@ -42,7 +42,7 @@ class RegisterView(View):
             user.profile.terms_agreement = True
             user.profile.age_confirmation = True
             user.profile.save()
-            messages.success(request, 'Form saved!')
+            messages.success(request, 'Account created! You can now login!')
             login(request, user)
             return redirect('website:index')
         messages.error(request, 'Invalid form entry')
