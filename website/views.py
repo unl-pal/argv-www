@@ -38,6 +38,8 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
+            user.profile.token = form.cleaned_data['token']
+            user.profile.save()
             messages.success(request, 'Form saved!')
             login(request, user)
             return redirect('website:index')
@@ -75,7 +77,7 @@ def profile(request):
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         adminForm = AdminProfileForm(request.POST, instance=request.user.profile)
-        if userForm.is_valid() and profileForm.is_valid():
+        if userForm.is_valid() and profileForm.is_valid() and adminForm.is_valid():
             userForm.save()
             profileForm.save()
             adminForm.save()
