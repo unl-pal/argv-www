@@ -10,7 +10,7 @@ from django.db import transaction
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
@@ -46,7 +46,7 @@ class RegisterView(View):
             message = render_to_string('website/account_activation_email.html', {
                 'user' : user,
                 'domain' : current_site.domain,
-                'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
                 'token' : account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
@@ -58,7 +58,7 @@ class RegisterView(View):
 
 def activate_account(request, uidb64, token):
     try:
-        uid = urlsafe_base64_decode(uidb64).decode()
+        uid = urlsafe_base64_decode(uidb64)
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
@@ -110,7 +110,7 @@ def profile(request):
                 message = render_to_string('website/account_activation_email.html', {
                     'user' : user,
                     'domain' : current_site.domain,
-                    'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                    'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
                     'token' : account_activation_token.make_token(user),
                 })
                 to_email = userForm.cleaned_data.get('email')
@@ -193,7 +193,7 @@ def activate_email(request):
     message = render_to_string('website/account_activation_email.html', {
         'user' : user,
         'domain' : current_site.domain,
-        'uid' : urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+        'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
         'token' : account_activation_token.make_token(user),
     })
     to_email = user.email
