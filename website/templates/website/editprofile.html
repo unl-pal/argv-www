@@ -95,7 +95,10 @@
 {% endblock %}
 {% block body %}
     <div class="container-fluid">
-        <div class="panel panel-default">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Editing profile for {{ user.username }}</h3>
+            </div>
             <div class="panel-body">
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
@@ -106,6 +109,9 @@
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=userForm %}
                     {% include 'website/form.html' with form=profileForm %}
+                    {% if user.profile.staffStatus == 'Admin' %}
+                        {% include 'website/form.html' with form=adminForm %}
+                    {% endif %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>

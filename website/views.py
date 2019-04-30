@@ -16,7 +16,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, AdminProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, EmailForm
@@ -45,10 +45,12 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
+            user.profile.token = form.cleaned_data['token']
+            user.profile.save()
             messages.success(request, 'Form saved!')
             login(request, user)
             return redirect('website:index')
-        messages.warning(request, 'Invalid form entry')
+        messages.error(request, 'Invalid form entry')
         return render(request, self.template_name, { 'form' : form })
 
 class LoginView(View):
@@ -145,9 +147,11 @@ def profile(request):
     if request.method == 'POST':
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
-        if userForm.is_valid() and profileForm.is_valid():
+        adminForm = AdminProfileForm(request.POST, instance=request.user.profile)
+        if userForm.is_valid() and profileForm.is_valid() and adminForm.is_valid():
             userForm.save()
             profileForm.save()
+            adminForm.save()
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
@@ -168,11 +172,12 @@ def profile(request):
             messages.success(request, 'Profile successfully updated')
             return redirect('website:editProfile')
         else:
-            messages.warning(request, 'Invalid form entry')
+            messages.error(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
+        adminForm = AdminProfileForm(instance=request.user.profile)
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE, 'adminForm' : adminForm })
 
 @login_required
 def password_change(request):
@@ -182,7 +187,7 @@ def password_change(request):
             form.save()
             messages.success(request, 'Password updated!')
             return redirect('website:index')
-        messages.warning(request, 'Invalid form entry')
+        messages.error(request, 'Invalid form entry')
     else:
         form = UserPasswordForm(request.user)
     return render(request, 'website/password_change.html', { 'form' : form })
@@ -224,7 +229,7 @@ def project_selection(request):
                         pass
             messages.success(request, ('Project selection created successfully'))
             return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
-        messages.warning(request, ('Invalid form entry'))
+        messages.error(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
