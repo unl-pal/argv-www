@@ -5,13 +5,7 @@ PAClab development repository using Django framework.
 ## This repository contains the frontend website for PAClab.
 
 ## Requirements
-- Python3
-- Pip
-- Django==2.0.8
-- dj-database-url==0.5.0
-- python-decouple==3.1
-- Pillow==5.2.0
-- pytz==2018.5
+See [requirements.txt](requirements.txt) for official list.
 
 ## Installation
 1. Install python
@@ -28,7 +22,7 @@ PAClab development repository using Django framework.
    - `SECRET_KEY='your-secret-key-from-previous-step'`
    - `DEBUG=True`
    - `ALLOWED_HOSTS='your-server-name'` or `'localhost,127.0.0.1'` if using django's packaged development server
-   - `DATABASE_URL='sqlite:////db.sqlite3'` or url to your database
+   - `DATABASE_URL='sqlite:////path/to/db.sqlite3'` or url to your database
    - `EMAIL_USER='gmail-smtp-email-username'`
    - `EMAIL_PASSWORD='gmail-smtp-email-password'`
 12. Create migration files for database: `python3 manage.py makemigrations website`

@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django import forms
 from django.forms import formset_factory
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, ProjectSelector, Filter
+from .validators import validate_gh_token
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -20,16 +22,23 @@ class UserFormLogin(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     fields = ['username', 'password']
 
+class UserPasswordForm(PasswordChangeForm):
+    class Meta:
+        model = User
+        fields = '__all__'
+
 class UserFormRegister(UserCreationForm):
+    token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text='GitHub Access Token', required=True)
+
     def __init__(self, *args, **kwargs):
-        super(UserFormRegister, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = True
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
-        self.fields['email'].required = True
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -37,15 +46,22 @@ class ProfileForm(forms.ModelForm):
             template_name = 'website/photoinput.html'
 
         model = Profile
-        fields = ['photo', 'bio', 'token', 'sharetoken']
+        fields = ['photo', 'token', 'sharetoken']
         labels = {
-            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
         widgets = {
             'token': forms.TextInput(attrs={'size': 40}),
             'photo': PhotoInput(),
+        }
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio']
+        labels = {
+            'bio' : 'Biography'
         }
 
 class ProjectSelectionForm(forms.ModelForm):

@@ -14,9 +14,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, AdminProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .tokens import account_activation_token
+from .models import Paper, Profile
+from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .validators import validate_gh_token
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -121,13 +124,35 @@ def profile(request):
             messages.success(request, 'Profile successfully updated')
             return redirect('website:editProfile')
         else:
-            messages.warning(request, 'Invalid form entry')
+            messages.error(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
+        adminForm = AdminProfileForm(instance=request.user.profile)
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE, 'adminForm' : adminForm })
+
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        form = UserPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Password updated!')
+            return redirect('website:index')
+        messages.error(request, 'Invalid form entry')
+    else:
+        form = UserPasswordForm(request.user)
+    return render(request, 'website/password_change.html', { 'form' : form })
 
 def project_selection(request):
+    try:
+        validate_gh_token(request.user.profile.token)
+    except:
+        request.user.profile.token = ''
+        request.user.profile.save()
+        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
+        return redirect('website:editProfile')
+
     template_name = 'website/create_normal.html'
     heading_message = 'Project Selection'
     if request.method == 'GET':
@@ -156,7 +181,7 @@ def project_selection(request):
                         pass
             messages.success(request, ('Form saved'))
             return redirect('website:project_selection')
-        messages.warning(request, ('Invalid form entry'))
+        messages.error(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,

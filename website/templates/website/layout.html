@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load hijack_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,12 +9,16 @@
 
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" integrity="sha384-Nlo8b0yiGl7Dn+BgLn4mxhIIBU6We7aeeiulNCjHdUv/eKHx59s3anfSUjExbDxn" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
+    {% if USE_HIJACK == True %}
+        <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
+    {% endif %}
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
     {% block style %}{% endblock %}
 </head>
 <body>
-{% hijack_notification %}
+{% if USE_HIJACK == True %}
+{% include 'website/hijackNotification.html'%}
+{% endif %}
 <header>
     <nav class="navbar navbar-default">
         <!--Main Buttons-->
@@ -57,6 +60,7 @@
                             <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:editProfile' %}">Your profile</a></li>
+                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
@@ -79,10 +83,17 @@
 {% block script %}{% endblock %}
 <footer class="footer">
     <p class="text-muted">
-        Copyright &copy; 2018, Boise State University and Bowling Green State University. All rights reserved.<br/>
-        This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS-18-23357, CNS-18-23294.<br/>
+        Copyright &copy; 2018&ndash;2019, Boise State University and Bowling Green State University. All rights reserved.<br/>
+        This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS&ndash;18&ndash;23357, CNS&ndash;18&ndash;23294.<br/>
         Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
     </p>
 </footer>
+<div id="CookiesBanner" class="alert alert-info cookiebanner" style="display: none;">
+    <h4>Cookies Disclaimer</h4>
+    <p>
+        <a class="btn btn-primary pull-right" href="javascript:CookiesBanner.createCookiesBannerCookie();">I agree</a>
+        Our site saves small pieces of text information (cookies) on your device in order to deliver better content and for statistical purposes. You can disable the usage of cookies by changing the settings of your browser. By browsing our website without changing the browser settings you grant us permission to store that information on your device.
+    </p>
+</div>
 </body>
 </html>
