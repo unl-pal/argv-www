@@ -124,3 +124,4 @@ venv/
 media/
 /static/
 migrations/
+.vscode/
