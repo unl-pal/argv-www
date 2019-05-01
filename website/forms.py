@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import formset_factory
+from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, ProjectSelector, Filter
 
 class UserForm(forms.ModelForm):
@@ -19,9 +20,7 @@ class UserFormLogin(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     fields = ['username', 'password']
 
-class UserFormRegister(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-
+class UserFormRegister(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(UserFormRegister, self).__init__(*args, **kwargs)
         self.fields['first_name'].required = True
@@ -30,7 +29,7 @@ class UserFormRegister(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name']
+        fields = ['username', 'email', 'password1', 'password2', 'first_name', 'last_name']
 
 class ProfileForm(forms.ModelForm):
     class Meta:

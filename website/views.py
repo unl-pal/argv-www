@@ -10,7 +10,7 @@ from django.db import transaction
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
@@ -41,17 +41,8 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.save()
-            current_site = get_current_site(request)
-            message = render_to_string('website/account_activation_email.html', {
-                'user' : user,
-                'domain' : current_site.domain,
-                'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-                'token' : account_activation_token.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage('Activate your account on PAClab', message, to=[to_email])
-            email.send()
+            form.save()
+            activate_email(request, user, 'Activated your account on PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
@@ -104,18 +95,10 @@ def profile(request):
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
+            request.user.profile.active_email = False
+            request.user.profile.save()
             if 'email' in userForm.changed_data:
-                user = request.user
-                current_site = get_current_site(request)
-                message = render_to_string('website/account_activation_email.html', {
-                    'user' : user,
-                    'domain' : current_site.domain,
-                    'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-                    'token' : account_activation_token.make_token(user),
-                })
-                to_email = userForm.cleaned_data.get('email')
-                email = EmailMessage('Please reconfirm your email address', message, to=[to_email])
-                email.send()
+                activate_email(request, request.user, 'Please reconfirm your email address')
             userForm.save()
             profileForm.save()
 
@@ -187,8 +170,7 @@ def data_default(request):
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
 
-def activate_email(request):
-    user = request.user
+def activate_email(request, user, content):
     current_site = get_current_site(request)
     message = render_to_string('website/account_activation_email.html', {
         'user' : user,
@@ -197,7 +179,7 @@ def activate_email(request):
         'token' : account_activation_token.make_token(user),
     })
     to_email = user.email
-    email = EmailMessage('Please reconfirm your email address', message, to=[to_email])
+    email = EmailMessage(content, message, to=[to_email])
     email.send()
     return redirect('website:activate_email_confirm')
 
