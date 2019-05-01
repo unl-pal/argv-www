@@ -170,7 +170,11 @@ def data_default(request):
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
 
-def activate_email(request, user, content):
+def activate_email_link(request):
+    activate_email(request, request.user, 'Reconfirm email address')
+    return redirect('website:activate_email_confirm')
+
+def activate_email(request, user, title):
     current_site = get_current_site(request)
     message = render_to_string('website/account_activation_email.html', {
         'user' : user,
@@ -179,7 +183,7 @@ def activate_email(request, user, content):
         'token' : account_activation_token.make_token(user),
     })
     to_email = user.email
-    email = EmailMessage(content, message, to=[to_email])
+    email = EmailMessage(title, message, to=[to_email])
     email.send()
     return redirect('website:activate_email_confirm')
 
