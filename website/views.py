@@ -14,7 +14,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, AdminProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .tokens import account_activation_token
 from .models import Paper, Profile
@@ -43,8 +43,10 @@ class RegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            form.save()
+            user = form.save()
+            user.save()
+            user.profile.token = form.cleaned_data['token']
+            user.profile.save()
             activate_email(request, user, 'Activated your account on PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
@@ -128,8 +130,7 @@ def profile(request):
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-        adminForm = AdminProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE, 'adminForm' : adminForm })
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
 
 @login_required
 def password_change(request):

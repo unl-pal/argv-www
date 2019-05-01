@@ -56,14 +56,6 @@ class ProfileForm(forms.ModelForm):
             'photo': PhotoInput(),
         }
 
-class AdminProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['bio']
-        labels = {
-            'bio' : 'Biography'
-        }
-
 class ProjectSelectionForm(forms.ModelForm):
     class Meta:
         model = ProjectSelector
