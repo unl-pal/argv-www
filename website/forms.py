@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django import forms
 from django.forms import formset_factory
-from django.contrib.auth.forms import UserCreationForm
 from .models import Profile, ProjectSelector, Filter
 from .validators import validate_gh_token
 

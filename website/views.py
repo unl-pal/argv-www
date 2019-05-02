@@ -17,8 +17,6 @@ from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .tokens import account_activation_token
-from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
 from .validators import validate_gh_token
 
 class PapersView(ListView):
@@ -47,7 +45,7 @@ class RegisterView(View):
             user.save()
             user.profile.token = form.cleaned_data['token']
             user.profile.save()
-            activate_email(request, user, 'Activated your account on PAClab')
+            activate_email(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
@@ -62,9 +60,7 @@ def activate_account(request, uidb64, token):
         user.profile.active_email = True
         user.profile.save()
         login(request, user)
-        messages.success(request, 'Your email is confirmed and account activated!')
-    else:
-        messages.error(request, 'Invalid activation link!')
+    messages.info(request, 'If you followed a valid email verification link, your email is now verified.')
     return redirect('website:index')
 
 class LoginView(View):
@@ -85,7 +81,7 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     if not user.profile.active_email:
-                        messages.warning(request, ('Your email account is not active!  Please activate your email from your profile page.'))
+                        messages.warning(request, ('Your email address is not yet verified!  Please verify email from your profile page.'))
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
@@ -100,12 +96,12 @@ def profile(request):
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
-            request.user.profile.active_email = False
-            request.user.profile.save()
-            if 'email' in userForm.changed_data:
-                activate_email(request, request.user, 'Please reconfirm your email address')
             userForm.save()
             profileForm.save()
+            if 'email' in userForm.changed_data:
+                request.user.profile.active_email = False
+                request.user.profile.save()
+                activate_email(request, request.user, 'Verify your email with PAClab')
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
