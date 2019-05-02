@@ -38,9 +38,9 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            user.profile.privacy_agreement = True
-            user.profile.terms_agreement = True
-            user.profile.age_confirmation = True
+            user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
+            user.profile.terms_agreement = form.cleaned_data['terms_agreement']
+            user.profile.age_confirmation = form.cleaned_data['age_confirmation']
             user.profile.save()
             messages.success(request, 'Account created! You can now login!')
             login(request, user)
