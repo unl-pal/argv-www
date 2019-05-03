@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, AdminProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
 from .models import Paper, Profile
 from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
@@ -38,6 +38,8 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
+            user.profile.token = form.cleaned_data['token']
+            user.profile.save()
             messages.success(request, 'Form saved!')
             login(request, user)
             return redirect('website:index')
@@ -74,9 +76,11 @@ def profile(request):
     if request.method == 'POST':
         userForm = UserForm(request.POST, instance=request.user)
         profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
-        if userForm.is_valid() and profileForm.is_valid():
+        adminForm = AdminProfileForm(request.POST, instance=request.user.profile)
+        if userForm.is_valid() and profileForm.is_valid() and adminForm.is_valid():
             userForm.save()
             profileForm.save()
+            adminForm.save()
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
@@ -101,7 +105,8 @@ def profile(request):
     else:    
         userForm = UserForm(instance=request.user)
         profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
+        adminForm = AdminProfileForm(instance=request.user.profile)
+    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE, 'adminForm' : adminForm })
 
 @login_required
 def password_change(request):

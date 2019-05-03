@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django import forms
 from django.forms import formset_factory
 from .models import Profile, ProjectSelector, Filter
+from .validators import validate_gh_token
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -26,6 +27,8 @@ class UserPasswordForm(PasswordChangeForm):
         fields = '__all__'
 
 class UserFormRegister(UserCreationForm):
+    token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text='GitHub Access Token', required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].required = True
@@ -43,15 +46,22 @@ class ProfileForm(forms.ModelForm):
             template_name = 'website/photoinput.html'
 
         model = Profile
-        fields = ['photo', 'bio', 'token', 'sharetoken']
+        fields = ['photo', 'token', 'sharetoken']
         labels = {
-            'bio' : 'Biography',
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs'
         }
         widgets = {
             'token': forms.TextInput(attrs={'size': 40}),
             'photo': PhotoInput(),
+        }
+
+class AdminProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio']
+        labels = {
+            'bio' : 'Biography'
         }
 
 class ProjectSelectionForm(forms.ModelForm):
