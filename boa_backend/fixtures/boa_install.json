@@ -3,7 +3,7 @@
         "model": "backend.backend",
         "pk": 1,
         "fields": {
-            "name": "Boa",
+            "name": "boa",
             "enable": false
         }
     }
