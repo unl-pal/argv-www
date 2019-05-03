@@ -43,6 +43,7 @@ class Profile(models.Model):
     privacy_agreement = models.BooleanField(default=False)
     terms_agreement = models.BooleanField(default=False)
     age_confirmation = models.BooleanField(default=False)
+    active_email = models.BooleanField(default=False)
 
     NONE = '--'
     DOCTOR = 'Dr.'

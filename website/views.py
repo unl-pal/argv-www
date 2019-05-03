@@ -8,11 +8,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
-from .models import Paper, Profile
-from .forms import UserForm, UserFormLogin, UserFormRegister, ProfileForm
+from .tokens import account_activation_token
 from .validators import validate_gh_token
 
 class PapersView(ListView):
@@ -41,12 +45,26 @@ class RegisterView(View):
             user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
             user.profile.terms_agreement = form.cleaned_data['terms_agreement']
             user.profile.age_confirmation = form.cleaned_data['age_confirmation']
+            user.profile.token = form.cleaned_data['token']
             user.profile.save()
-            messages.success(request, 'Account created! You can now login!')
             login(request, user)
+            activate_email(request, user, 'Verify your email with PAClab')
+            messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
-        messages.error(request, 'Invalid form entry')
         return render(request, self.template_name, { 'form' : form })
+
+def activate_account(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64)
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and  account_activation_token.check_token(user, token):
+        user.profile.active_email = True
+        user.profile.save()
+        login(request, user)
+    messages.info(request, 'If you followed a valid email verification link, your email is now verified.')
+    return redirect('website:index')
 
 class LoginView(View):
     form_class = UserFormLogin
@@ -65,6 +83,8 @@ class LoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    if not user.profile.active_email:
+                        messages.warning(request, ('Your email address is not yet verified!  Please verify email from your profile page.'))
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
@@ -81,6 +101,10 @@ def profile(request):
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
+            if 'email' in userForm.changed_data:
+                request.user.profile.active_email = False
+                request.user.profile.save()
+                activate_email(request, request.user, 'Verify your email with PAClab')
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
@@ -170,3 +194,23 @@ def data_default(request):
     data = pfilter.val_type
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
+
+def activate_email_link(request):
+    activate_email(request, request.user, 'Reconfirm email address')
+    return redirect('website:activate_email_confirm')
+
+def activate_email(request, user, title):
+    current_site = get_current_site(request)
+    message = render_to_string('website/account_activation_email.html', {
+        'user' : user,
+        'domain' : current_site.domain,
+        'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
+        'token' : account_activation_token.make_token(user),
+    })
+    to_email = user.email
+    email = EmailMessage(title, message, to=[to_email])
+    email.send()
+    return redirect('website:activate_email_confirm')
+
+def activate_email_confirm(request):
+    return render(request, 'website/activate_email_confirm.html')
