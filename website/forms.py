@@ -29,20 +29,19 @@ class UserPasswordForm(PasswordChangeForm):
 
 class UserFormRegister(UserCreationForm):
     token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text='GitHub Access Token', required=True)
+    terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#termsModal">Terms of Use Policy</button>'))
+    privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#privacyModal">Privacy Policy</button>'))
+    age_confirmation = forms.BooleanField(label='I am 13 years or older')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].required = True
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
-    
-    terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#termsModal">Terms of Use Policy</button>'))
-    privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#privacyModal">Privacy Policy</button>'))
-    age_confirmation = forms.BooleanField(label='I am 13 years or older')
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'terms_agreement', 'privacy_agreement', 'age_confirmation']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'token', 'terms_agreement', 'privacy_agreement', 'age_confirmation']
 
 class ProfileForm(forms.ModelForm):
     class Meta:
