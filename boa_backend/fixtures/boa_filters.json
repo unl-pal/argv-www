@@ -5,16 +5,9 @@
         "fields": {
             "name": "FileType",
             "val_type": "String",
-            "default_val": ".py"
-        }
-    },
-    {
-        "model": "website.filter",
-        "pk": 2,
-        "fields": {
-            "name": "Language",
-            "val_type": "String",
-            "default_val": "python"
+            "default_val": ".py",
+            "enabled": false,
+            "associated_backend": 1
         }
     }
 ]

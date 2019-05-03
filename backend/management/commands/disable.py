@@ -9,6 +9,6 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         backend = options['backend']
-        for filter in Filter.objects.all():
-            filter.enabled = False
-            filter.save()
+        for myfilter in Filter.objects.all().filter(associated_backend__name=backend):
+            myfilter.enabled = False
+            myfilter.save()

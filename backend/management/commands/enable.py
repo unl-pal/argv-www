@@ -11,6 +11,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         backend = options['backend']
         call_command('loaddata', backend + '_filters')
-        for myfilter in Filter.objects.all():
+        for myfilter in Filter.objects.all().filter(associated_backend__name=backend):
             myfilter.enabled = True
             myfilter.save()

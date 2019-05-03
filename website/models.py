@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
+from backend.models import Backend
 from .validators import validate_file_size, validate_gh_token
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses
@@ -112,6 +113,7 @@ class Filter(models.Model):
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
     enabled = models.BooleanField(default=False)
+    associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
 
     def is_int(self):
         return self.val_type in self.INT
