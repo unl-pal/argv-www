@@ -111,6 +111,7 @@ class Filter(models.Model):
     )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
+    enabled = models.BooleanField(default=False)
 
     def is_int(self):
         return self.val_type in self.INT
@@ -128,6 +129,8 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+    enabled = models.BooleanField(default=False)
+    processed = models.BooleanField(default=False)
 
     def __str__(self):
         return 'ProjectSelector'
