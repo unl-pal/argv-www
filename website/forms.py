@@ -63,6 +63,9 @@ class ProjectSelectionForm(forms.ModelForm):
     class Meta:
         model = ProjectSelector
         fields = ['input_dataset']
+        labels = {
+            'input_dataset' : '',
+        }
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())

@@ -154,7 +154,6 @@ def project_selection(request):
         return redirect('website:edit_profile')
 
     template_name = 'website/create_normal.html'
-    heading_message = 'Project Selection'
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None)
         formset = FilterFormSet(request.GET or None)
@@ -179,13 +178,12 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-            messages.success(request, ('Form saved'))
+            messages.success(request, ('Project selection created successfully.'))
             return redirect('website:project_selection')
         messages.error(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
-        'heading': heading_message,
     })
 
 def filter_default(request):
