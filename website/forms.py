@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.utils.safestring import mark_safe
 from django import forms
 from django.forms import formset_factory
 from .models import Profile, ProjectSelector, Filter
@@ -28,6 +29,9 @@ class UserPasswordForm(PasswordChangeForm):
 
 class UserFormRegister(UserCreationForm):
     token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text='GitHub Access Token', required=True)
+    terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#termsModal">Terms of Use</a>'))
+    privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#privacyModal">Privacy Policy</a>'))
+    age_confirmation = forms.BooleanField(label='I am 13 years or older')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -37,7 +41,7 @@ class UserFormRegister(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'token', 'terms_agreement', 'privacy_agreement', 'age_confirmation']
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -48,11 +52,11 @@ class ProfileForm(forms.ModelForm):
         fields = ['photo', 'token', 'sharetoken']
         labels = {
             'token' : 'Github Personal Access Token',
-            'sharetoken' : 'Allow using token for system jobs'
+            'sharetoken' : 'Allow using token for system jobs',
         }
         widgets = {
-            'token': forms.TextInput(attrs={'size': 40}),
-            'photo': PhotoInput(),
+            'token' : forms.TextInput(attrs={'size': 40}),
+            'photo' : PhotoInput(),
         }
 
 class ProjectSelectionForm(forms.ModelForm):
