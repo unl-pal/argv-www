@@ -1,4 +1,4 @@
-{% extends 'website/layout.html' %}
+{% extends 'website/base.html' %}
 {% block title %}Edit Profile{% endblock %}
 {% block profileactive %}active{% endblock %}
 {% block style %}
@@ -100,6 +100,13 @@
                 <h3 class="panel-title">Editing profile for {{ user.username }}</h3>
             </div>
             <div class="panel-body">
+                {% if not user.profile.active_email %}
+                    <div class="alert alert-danger">
+                        <h4>Email Not Verified</h4>
+                        <span>Your email address is currently not verified. Most features of the website will not be available unto you verify a valid email address.<br><br>
+                        You can <a href="{% url 'website:activate_email' %}">re-send the email verification</a> to the email listed below. If the email below is incorrect, please update it.</span>
+                    </div>
+                {% endif %}
                 <form class="form form-default" action="" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="crop_x" id="id_crop_x"/>
@@ -114,8 +121,6 @@
                     {% endif %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                <hr>
-                <small class="text-muted">Need to activate your email? <a href="{% url 'website:activate_email' %}">Activate email</a></small>
             </div>
         </div>
 
