@@ -48,7 +48,7 @@ class RegisterView(View):
             user.profile.token = form.cleaned_data['token']
             user.profile.save()
             login(request, user)
-            verify_email_link(request, user, 'Verify your email with PAClab')
+            send_email_verify(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
@@ -104,7 +104,7 @@ def profile(request):
             if 'email' in userForm.changed_data:
                 request.user.profile.active_email = False
                 request.user.profile.save()
-                verify_email_link(request, request.user, 'Verify your email with PAClab')
+                send_email_verify(request, request.user, 'Verify your email with PAClab')
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
@@ -196,10 +196,9 @@ def data_default(request):
     return JsonResponse({ 'data' : data, 'default' : default })
 
 def verify_email_link(request):
-    verify_email_link(request, request.user, 'Reconfirm email address')
-    return redirect('website:verify_email_confirm')
+    return send_email_verify(request, request.user, 'Reconfirm email address')
 
-def verify_email_link(request, user, title):
+def send_email_verify(request, user, title):
     current_site = get_current_site(request)
     message = render_to_string('website/email_verification_email.html', {
         'user' : user,
@@ -210,7 +209,5 @@ def verify_email_link(request, user, title):
     to_email = user.email
     email = EmailMessage(title, message, to=[to_email])
     email.send()
-    return redirect('website:verify_email_confirm')
-
-def verify_email_confirm(request):
-    return render(request, 'website/verify_email_confirm.html')
+    messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
+    return redirect('website:index')

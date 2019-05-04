@@ -16,7 +16,6 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     path('editprofile/', views.profile, name='edit_profile'),
     path('verify/email/', views.verify_email_link, name='verify_email_link'),
-    path('verify/email/confirm/', views.verify_email_confirm, name='verify_email_confirm'),
     path('verify/<uidb64>/<token>/', views.verify_email, name='verify_email'),
     path('password/change/', views.password_change, name='password_change'),
     path('policies/privacy/', TemplateView.as_view(template_name='website/privacy.html'), name='privacy_policy'),
