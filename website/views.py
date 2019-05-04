@@ -16,7 +16,7 @@ from django.core.mail import EmailMessage
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
 from PIL import Image
-from .tokens import account_activation_token
+from .tokens import email_verify_token
 from .validators import validate_gh_token
 
 class PapersView(ListView):
@@ -48,18 +48,18 @@ class RegisterView(View):
             user.profile.token = form.cleaned_data['token']
             user.profile.save()
             login(request, user)
-            activate_email(request, user, 'Verify your email with PAClab')
+            send_email_verify(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
-def activate_account(request, uidb64, token):
+def verify_email(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64)
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    if user is not None and  account_activation_token.check_token(user, token):
+    if user is not None and email_verify_token.check_token(user, token):
         user.profile.active_email = True
         user.profile.save()
         login(request, user)
@@ -104,7 +104,7 @@ def profile(request):
             if 'email' in userForm.changed_data:
                 request.user.profile.active_email = False
                 request.user.profile.save()
-                activate_email(request, request.user, 'Verify your email with PAClab')
+                send_email_verify(request, request.user, 'Verify your email with PAClab')
 
             if profileForm.cleaned_data['photo']:
                 image = Image.open(request.user.profile.photo)
@@ -123,7 +123,7 @@ def profile(request):
                 image.save(request.user.profile.photo.path)
 
             messages.success(request, 'Profile successfully updated')
-            return redirect('website:editProfile')
+            return redirect('website:edit_profile')
         else:
             messages.error(request, 'Invalid form entry')
     else:    
@@ -151,7 +151,7 @@ def project_selection(request):
         request.user.profile.token = ''
         request.user.profile.save()
         messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
-        return redirect('website:editProfile')
+        return redirect('website:edit_profile')
 
     template_name = 'website/create_normal.html'
     heading_message = 'Project Selection'
@@ -195,22 +195,19 @@ def data_default(request):
     default = pfilter.default_val
     return JsonResponse({ 'data' : data, 'default' : default })
 
-def activate_email_link(request):
-    activate_email(request, request.user, 'Reconfirm email address')
-    return redirect('website:activate_email_confirm')
+def verify_email_link(request):
+    return send_email_verify(request, request.user, 'Reconfirm email address')
 
-def activate_email(request, user, title):
+def send_email_verify(request, user, title):
     current_site = get_current_site(request)
-    message = render_to_string('website/account_activation_email.html', {
+    message = render_to_string('website/email_verification_email.html', {
         'user' : user,
         'domain' : current_site.domain,
         'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-        'token' : account_activation_token.make_token(user),
+        'token' : email_verify_token.make_token(user),
     })
     to_email = user.email
     email = EmailMessage(title, message, to=[to_email])
     email.send()
-    return redirect('website:activate_email_confirm')
-
-def activate_email_confirm(request):
-    return render(request, 'website/activate_email_confirm.html')
+    messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
+    return redirect('website:index')
