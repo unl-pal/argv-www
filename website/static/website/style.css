@@ -64,3 +64,16 @@ body {
 .profile-dropdown .img-responsive {
     display: inline;
 }
+
+/* fix checkboxes so labels are next to them */
+input[type="checkbox"] {
+    display: inline-block;
+    width: auto;
+    height: auto;
+}
+
+/* allow scrolling modals to scale properly */
+.modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+}
