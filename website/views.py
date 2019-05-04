@@ -33,7 +33,7 @@ class PeopleView(ListView):
 
 class RegisterView(View):
     form_class = UserFormRegister
-    template_name = 'website/login.html'
+    template_name = 'website/register.html'
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, { 'form' : form })
@@ -42,9 +42,12 @@ class RegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            user.save()
+            user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
+            user.profile.terms_agreement = form.cleaned_data['terms_agreement']
+            user.profile.age_confirmation = form.cleaned_data['age_confirmation']
             user.profile.token = form.cleaned_data['token']
             user.profile.save()
+            login(request, user)
             activate_email(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
