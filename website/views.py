@@ -154,7 +154,6 @@ def project_selection(request):
         return redirect('website:edit_profile')
 
     template_name = 'website/create_normal.html'
-    heading_message = 'Project Selection'
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None)
         formset = FilterFormSet(request.GET or None)
@@ -179,21 +178,18 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-            messages.success(request, ('Form saved'))
+            messages.success(request, ('Project selection created successfully.'))
             return redirect('website:project_selection')
         messages.error(request, ('Invalid form entry'))
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
-        'heading': heading_message,
     })
 
-def data_default(request):
-    text = request.GET.get('text', None)
-    pfilter = Filter.objects.get(name=text)
-    data = pfilter.val_type
-    default = pfilter.default_val
-    return JsonResponse({ 'data' : data, 'default' : default })
+def filter_default(request):
+    val = int(request.GET.get('id', 0))
+    pfilter = Filter.objects.get(pk=val)
+    return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
 
 def verify_email_link(request):
     return send_email_verify(request, request.user, 'Reconfirm email address')

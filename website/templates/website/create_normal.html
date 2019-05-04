@@ -2,32 +2,29 @@
 {% block title %}Project Selection{% endblock %}
 {% block body %}
 <div class="container">
-    <div class="row"></div>
     <div class="row">
-        <div class="col-md-12">
-            {% if heading %}
-            <h3>{{heading}}</h3>
-            {% endif %}
+        <div class="col-xs-12">
+            <h3>Project Selection</h3>
             <form class="form-horizontal" method="POST" action="">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}
-                <div class="row">
-                    <div class="col-md-2">
-                        <label>Selection</label>
+                <div class="row form-row">
+                    <div class="col-xs-2">
+                        <label>Input Dataset:</label>
                     </div>
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            {{p_form.as_p}}
+                    <div class="col-xs-4">
+                        <div class="form-inline">
+                            {{p_form}}
                         </div>
                     </div>
                 </div>
                 {{ formset.management_form }}
                 {% for form in formset %}
                 <div class="row form-row">
-                    <div class="col-md-2">
-                        <label>Filter</label>
+                    <div class="col-xs-2">
+                        <label>Filter:</label>
                     </div>
-                    <div class="col-4">
+                    <div class="col-xs-4">
                         <div class="form-inline">
                             {{form.pfilter}}
                             {{form.value}}
@@ -38,7 +35,7 @@
                 </div>
                 {% endfor %}
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-xs-4">
                         <button type="submit" class="btn btn-block btn-primary">Create</button>
                     </div>
                 </div>
@@ -73,9 +70,9 @@ function cloneMore(selector, prefix) {
     $(selector).after(newElement);
     var conditionRow = $('.form-row:not(:last)');
     conditionRow.find('.btn.add-form-row')
-    .removeClass('btn-success').addClass('btn-danger')
-    .removeClass('add-form-row').addClass('remove-form-row')
-    .html('-');
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
     return false;
 }
 function deleteForm(prefix, btn) {
@@ -103,26 +100,15 @@ $(document).on('click', '.remove-form-row', function(e){
     return false;
 });
 $('select').change(function (){
-    var text = $("option:selected", this).text();
+    var val = $("option:checked", this).val();
     current_input = this;
     $.ajax({
-        url: '/ajax/data_default/',
+        url: '/api/filter_default/',
         data: {
-            'text': text
+            'id': val
         },
         success: function (data) {
-            var values = $.map(data, function(value, key) { return value });
-            var val_type = values[0];
-            var default_val = values[1];
-            if(val_type==="String") {
-                $(current_input).nextAll('input').first().val(default_val);
-            }
-            else if(val_type==="Integer") {
-                $(current_input).nextAll('input').first().val(default_val);
-            }
-            else {
-                $(current_input).nextAll('input').first().val(default_val);
-            }
+            $(current_input).nextAll('input').first().val(data.default);
         }
     });
 });
