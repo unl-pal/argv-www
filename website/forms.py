@@ -29,8 +29,8 @@ class UserPasswordForm(PasswordChangeForm):
 
 class UserFormRegister(UserCreationForm):
     token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text='GitHub Access Token', required=True)
-    terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#termsModal">Terms of Use Policy</button>'))
-    privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <button type="button" class="btn-as-link" data-toggle="modal" data-target="#privacyModal">Privacy Policy</button>'))
+    terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#termsModal">Terms of Use</a>'))
+    privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#privacyModal">Privacy Policy</a>'))
     age_confirmation = forms.BooleanField(label='I am 13 years or older')
 
     def __init__(self, *args, **kwargs):
@@ -52,11 +52,11 @@ class ProfileForm(forms.ModelForm):
         fields = ['photo', 'token', 'sharetoken']
         labels = {
             'token' : 'Github Personal Access Token',
-            'sharetoken' : 'Allow using token for system jobs'
+            'sharetoken' : 'Allow using token for system jobs',
         }
         widgets = {
-            'token': forms.TextInput(attrs={'size': 40}),
-            'photo': PhotoInput(),
+            'token' : forms.TextInput(attrs={'size': 40}),
+            'photo' : PhotoInput(),
         }
 
 class ProjectSelectionForm(forms.ModelForm):
