@@ -20,7 +20,7 @@ urlpatterns = [
     path('password/change/', views.password_change, name='password_change'),
     path('policies/privacy/', TemplateView.as_view(template_name='website/privacy.html'), name='privacy_policy'),
     path('policies/terms_of_use/', TemplateView.as_view(template_name='website/terms.html'), name='tos'),
-    path('ajax/data_default/', views.data_default, name='data_default'),
+    path('api/filter_default/', views.filter_default, name='filter_default'),
     path('ajax/search/', views.ajax_search, name='ajax_search'),
     path('project/selection/', views.project_selection, name='project_selection'),
     path('project/list/', views.ProjectListView.as_view(), name='project_list'),

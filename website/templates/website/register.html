@@ -11,42 +11,38 @@
                     {% include 'website/form.html' with form=form %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                    <div tabindex="-1" id="termsModal" class="modal fade" role="dialog">
-                        <div class="modal-dialog modal-lg">                    
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Terms of Use</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="header gutter">
-                                        {% include 'website/agreement/terms.html' %}                                    
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
+                <div tabindex="-1" id="termsModal" class="modal fade modal-fullscreen modal-scrollable" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-mobile-text="Close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Terms of Use</h4>
+                            </div>
+                            <div class="modal-body">
+                                {% include 'website/agreement/terms.html' %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
-                    <div tabindex="-1" id="privacyModal" class="modal fade" role="dialog">
-                        <div class="modal-dialog modal-lg">                    
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Privacy Policy</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="header gutter">
-                                        {% include 'website/agreement/privacy.html' %}                                    
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
+                </div>
+                <div tabindex="-1" id="privacyModal" class="modal fade modal-fullscreen modal-scrollable" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-mobile-text="Close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Privacy Policy</h4>
+                            </div>
+                            <div class="modal-body">
+                                {% include 'website/agreement/privacy.html' %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
+                </div>
                 <br>
                 <p><a href="{% url 'website:password_reset' %}">Forgot Password?</a></p>
             </div>
@@ -55,11 +51,11 @@
 {% endblock %}
 {% block script %}
 <script>
-    $("#termsModal").on("shown.bs.modal", function () {                                                              
-        $('.btn-default').focus()                                                                            
+    $("#termsModal").on("shown.bs.modal", function () {
+        $('.btn-default').focus()
     });
-    $("#privacyModal").on("shown.bs.modal", function () {                                                              
-        $('.btn-default').focus()                                                                            
+    $("#privacyModal").on("shown.bs.modal", function () {
+        $('.btn-default').focus()
     });
 </script>
 {% endblock %}

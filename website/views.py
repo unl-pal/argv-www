@@ -258,12 +258,10 @@ def project_selection(request):
         'heading': heading_message,
     })
 
-def data_default(request):
-    text = request.GET.get('text', None)
-    pfilter = Filter.objects.get(name=text)
-    data = pfilter.val_type
-    default = pfilter.default_val
-    return JsonResponse({ 'data' : data, 'default' : default })
+def filter_default(request):
+    val = int(request.GET.get('id', 0))
+    pfilter = Filter.objects.get(pk=val)
+    return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
 
 def verify_email_link(request):
     return send_email_verify(request, request.user, 'Reconfirm email address')

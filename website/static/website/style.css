@@ -73,7 +73,13 @@ input[type="checkbox"] {
 }
 
 /* allow scrolling modals to scale properly */
-.modal-body {
-    max-height: 80vh;
+.modal-scrollable .modal-body {
     overflow-y: auto;
+}
+
+/* if not xs/sm, limit the body height to 80% viewport */
+@media (min-width:992px) {
+    .modal-scrollable .modal-body {
+        max-height: 80vh;
+    }
 }
