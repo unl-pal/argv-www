@@ -123,7 +123,7 @@ def profile(request):
                 image.save(request.user.profile.photo.path)
 
             messages.success(request, 'Profile successfully updated')
-            return redirect('website:editProfile')
+            return redirect('website:edit_profile')
         else:
             messages.error(request, 'Invalid form entry')
     else:    
@@ -151,7 +151,7 @@ def project_selection(request):
         request.user.profile.token = ''
         request.user.profile.save()
         messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
-        return redirect('website:editProfile')
+        return redirect('website:edit_profile')
 
     template_name = 'website/create_normal.html'
     heading_message = 'Project Selection'
