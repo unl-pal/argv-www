@@ -125,8 +125,8 @@
         </div>
 
         <!-- MODAL TO CROP THE IMAGE -->
-        <div tabindex="-1" class="modal modal-draggable fade" role="dialog" id="modalCrop">
-            <div class="modal-dialog">
+        <div tabindex="-1" class="modal modal-draggable fade modal-fullscreen" role="dialog" id="modalCrop">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -141,15 +141,15 @@
                     </div>
                     <div class="modal-footer">
                         <div class="btn-group pull-left" role="group">
-                            <button type="button" class="btn btn-default js-zoom-in">
+                            <button type="button" class="btn btn-default js-zoom-in" data-glyphicon="glyphicon-zoom-in" data-mobile-text="Zoom In">
                                 <span class="glyphicon glyphicon-zoom-in"></span>
                             </button>
-                            <button type="button" class="btn btn-default js-zoom-out">
+                            <button type="button" class="btn btn-default js-zoom-out" data-glyphicon="glyphicon-zoom-out" data-mobile-text="Zoom Out">
                                 <span class="glyphicon glyphicon-zoom-out"></span>
                             </button>
                         </div>
-                        <button type="button" class="btn btn-default js-crop-cancel">Nevermind</button>
-                        <button type="button" class="btn btn-primary js-crop-and-upload">Crop Photo</button>
+                        <button type="button" class="btn btn-default js-crop-cancel" data-glyphicon="glyphicon-remove" data-mobile-text="Nevermind">Nevermind</button>
+                        <button type="button" class="btn btn-primary js-crop-and-upload" data-glyphicon="glyphicon-ok" data-mobile-text="Crop Photo">Crop Photo</button>
                     </div>
                 </div>
             </div>
