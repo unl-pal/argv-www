@@ -1,7 +1,11 @@
 {% autoescape off %}
-Hi {{ user.username }},
+Dear {{ user.first_name }},
 
-Please click the following link to finalize your PAClab registration:
+Thank you for trying out PAClab!
+
+Please click the following link or copy/paste into a browser to finalize your PAClab registration:
 
 http://{{ domain }}{% url 'website:verify_email' uidb64=uid token=token %}
+
+- The PAClab Team
 {% endautoescape %}
