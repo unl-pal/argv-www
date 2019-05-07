@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import JsonResponse, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
@@ -145,18 +145,13 @@ def project_delete(request, slug):
             messages.warning(request, ('You are not the owner of this selector and cannot perform this task'))
     return render(request, 'website/delete.html')
 
-def ajax_search(request):
-    if request.is_ajax():
-        q = request.GET.get('term', '').capitalize()
-        search_qs = User.objects.filter(email__startswith=q)
-        results = []
-        for r in search_qs:
-            results.append(r.email)
-        data = json.dumps(results)
-    else:
-        data = 'fail'
-    mimetype = 'application/json'
-    return HttpResponse(data, mimetype)
+def api_usernames(request):
+    q = request.GET.get('term', '')
+    results = []
+    if len(q) > 2:
+        for r in User.objects.filter(username__startswith=q)[:10]:
+            results.append(r.first_name + ' ' + r.last_name + ' (' + r.username + ')')
+    return JsonResponse({ 'data': json.dumps(results) })
 
 def logoutView(request):
     logout(request)
@@ -256,7 +251,7 @@ def project_selection(request):
         'formset': formset,
     })
 
-def filter_default(request):
+def api_filter_default(request):
     val = int(request.GET.get('id', 0))
     pfilter = Filter.objects.get(pk=val)
     return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
