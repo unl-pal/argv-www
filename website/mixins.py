@@ -13,7 +13,7 @@ class EmailRequiredMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             if not request.user.profile.active_email:
-                messages.warning(request, mark_safe('Your email address has not been verified. You can <a href="' + reverse('website:activate_email', current_app='website') + '">re-send the email verification</a> or <a href="' + reverse('website:editProfile', current_app='website') + '">edit your profile</a> and change your email address.'))
+                messages.warning(request, mark_safe('Your email address has not been verified. You can <a href="' + reverse('website:verify_email_link', current_app='website') + '">re-send the email verification</a> or <a href="' + reverse('website:edit_profile', current_app='website') + '">edit your profile</a> and change your email address.'))
                 self.permission_denied_message = 'You must have a verified email address to view this page.'
                 return redirect('website:index')
         else:
