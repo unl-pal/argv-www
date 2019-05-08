@@ -149,7 +149,7 @@ def api_usernames(request):
     q = request.GET.get('term', '')
     results = []
     if len(q) > 2:
-        for r in User.objects.filter(username__contains=q)[:10]:
+        for r in User.objects.filter(username__icontains=q).filter(is_active=True).filter(profile__active_email=True)[:10]:
             results.append(r.first_name + ' ' + r.last_name + ' (' + r.username + ')')
     return JsonResponse(results, safe=False)
 
