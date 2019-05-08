@@ -4,7 +4,8 @@
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        <div class="panel panel-default">
+        <a href="{% url 'website:project_list' %}">Back to all project selections</a><br><br>
+        <div class="panel panel-primary">
             <div class="panel-heading">
                 <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
             </div>
@@ -16,7 +17,7 @@
                     <p style="padding-left: 2%;"><strong>Filter Default Value: </strong>{{ filter.default_val }}</p>
                     <br>
                 {% endfor %}
-                <div class="panel panel-default">
+                <div class="panel panel-warning">
                     <div class="panel-heading">
                         <h3 class="panel-title">Share this project selection</h3>
                     </div>
@@ -25,7 +26,7 @@
                         <form action="" method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             {% include 'website/form.html' with form=form %}
-                            <button class="btn btn-success">Submit</button>
+                            <button class="btn btn-primary">Share</button>
                         </form>
                     </div>
                 </div>
