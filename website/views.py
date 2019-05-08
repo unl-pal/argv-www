@@ -109,12 +109,18 @@ def project_detail(request, slug):
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
-        if form.is_valid():
+        if form.is_valid() and request.user == model.user or request.user.is_superuser:
+            send_list = form.cleaned_data['email'].split(',')
+            to = []
+            for user in send_list:
+                name, username = user.split('(')
+                username = username.rstrip(')')
+                email = str(User.objects.get(username=username).email)
+                to.append(email)
             user = str(request.user.username)
             url = request.META['HTTP_HOST'] + '/project/detail/' + slug
             variables = { 'user' : user, 'url' : url }
             msg_html = get_template('website/project_selection_email.html')
-            to = form.cleaned_data['email'].split(',')
             text_content = 'A project has been shared with you!'
             html_content = msg_html.render(variables)
             msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, to)
