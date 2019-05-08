@@ -10,12 +10,11 @@
                 <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
             </div>
             <div class="panel-body">
-                <h2 class="panel-title"><strong>Input Dataset:</strong> <em>{{ project.input_dataset }}</em></h2>
+                <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
+                <br>
                 {% for filter in project.pfilter.all %}
-                    <p style="padding-left: 2%;"><strong>Filter Name: </strong>{{ filter.name }}</p>
-                    <p style="padding-left: 2%;"><strong>Filter Data Type: </strong>{{ filter.val_type }}</p>
-                    <p style="padding-left: 2%;"><strong>Filter Default Value: </strong>{{ filter.default_val }}</p>
-                    <br>
+                    <h4><strong>{{ filter.name }}:</strong></h4>
+                    <p>{{ filter.default_val }}</p>
                 {% endfor %}
                 {% if user.profile.active_email %}
                     <div class="panel panel-warning">
