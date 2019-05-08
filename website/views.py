@@ -1,6 +1,6 @@
 import json
 
-from django.http import JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
@@ -90,7 +90,7 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     if not user.profile.active_email:
-                        messages.warning(request, ('Your email address is not yet verified!  Please verify email from your profile page.'))
+                        messages.warning(request, 'Your email address is not yet verified!  Please verify email from your profile page.')
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
@@ -105,27 +105,27 @@ def project_detail(request, slug):
         model = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
-    if model.is_alive == False:
+    if not model.is_alive:
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
-        user = str(request.user.username)
-        url = request.META['HTTP_HOST'] + '/project/detail/' + slug
-        variables = { 'user' : user, 'url' : url }
-        msg_html = get_template('website/project_selection_email.html')
         if form.is_valid():
-            subject, from_email, to = 'Shared Project', request.user.email, form.cleaned_data['email'].split(',')
+            user = str(request.user.username)
+            url = request.META['HTTP_HOST'] + '/project/detail/' + slug
+            variables = { 'user' : user, 'url' : url }
+            msg_html = get_template('website/project_selection_email.html')
+            to = form.cleaned_data['email'].split(',')
             text_content = 'A project has been shared with you!'
             html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, to)
+            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, to)
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-            messages.success(request, ('Success!'))
+            messages.success(request, 'Email invitation(s) sent')
         else:
-            messages.warning(request, ('Invalid form entry'))
+            messages.warning(request, 'Invalid form entry')
     else:
         form = EmailForm()
-    return render(request, 'website/projectsDetail.html', { 'project' : model, 'form' : form })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form })
 
 def project_delete(request, slug):
     try:
@@ -137,21 +137,21 @@ def project_delete(request, slug):
             if request.user.profile.active_email:
                 model.is_alive = False
                 model.save()
-                messages.info(request, ('You have deleted this project selector'))
+                messages.info(request, 'You have deleted this project selection')
                 return redirect('website:project_list')
             else:
-                messages.warning(request, ('Please activate your email before performing this task'))
+                messages.warning(request, 'Please activate your email before performing this task')
         else:
-            messages.warning(request, ('You are not the owner of this selector and cannot perform this task'))
+            messages.warning(request, 'You are not the owner of this selection and cannot delete it')
     return render(request, 'website/delete.html')
 
 def api_usernames(request):
     q = request.GET.get('term', '')
     results = []
     if len(q) > 2:
-        for r in User.objects.filter(username__startswith=q)[:10]:
+        for r in User.objects.filter(username__contains=q)[:10]:
             results.append(r.first_name + ' ' + r.last_name + ' (' + r.username + ')')
-    return JsonResponse({ 'data': json.dumps(results) })
+    return JsonResponse(results, safe=False)
 
 def logoutView(request):
     logout(request)
@@ -243,9 +243,9 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-            messages.success(request, ('Project selection created successfully.'))
+            messages.success(request, 'Project selection created successfully.')
             return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
-        messages.error(request, ('Invalid form entry'))
+        messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,

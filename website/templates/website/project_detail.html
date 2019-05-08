@@ -1,0 +1,46 @@
+{% extends 'website/base.html' %}
+{% load staticfiles %}
+{% block title %}Project Selection{% endblock %}
+{% block body %}
+    <div class="container">
+        {% include 'website/messages.html' %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
+            </div>
+            <div class="panel-body">
+                <h2 class="panel-title"><strong>Input Dataset:</strong> <em>{{ project.input_dataset }}</em></h2>
+                {% for filter in project.pfilter.all %}
+                    <p style="padding-left: 2%;"><strong>Filter Name: </strong>{{ filter.name }}</p>
+                    <p style="padding-left: 2%;"><strong>Filter Data Type: </strong>{{ filter.val_type }}</p>
+                    <p style="padding-left: 2%;"><strong>Filter Default Value: </strong>{{ filter.default_val }}</p>
+                    <br>
+                {% endfor %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Share this project selection</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>Enter a PAClab username or email address to share this project selection.</p>
+                        <form action="" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% include 'website/form.html' with form=form %}
+                            <button class="btn btn-success">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'website/jquery.tagsinput.js' %}"></script>
+<script>
+    $('input:eq(1)').tagsInput({
+        autocomplete_url: '/api/usernames/',
+        autocomplete: { minLength: 3 },
+        defaultText: 'username/email'
+    });
+</script>
+{% endblock %}

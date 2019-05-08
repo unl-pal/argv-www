@@ -177,10 +177,8 @@
 	$.fn.tagsInput = function(options) {
     var settings = jQuery.extend({
       interactive:true,
-      defaultText:'add a tag',
+      defaultText:'username or email',
       minChars:0,
-      width:'300px',
-      height:'100px',
       autocomplete: {selectFirst: false },
       hide:true,
       delimiter: ',',
@@ -237,10 +235,6 @@
 			markup = markup + '</div><div class="tags_clear"></div></div>';
 
 			$(markup).insertAfter(this);
-
-			$(data.holder).css('width',settings.width);
-			$(data.holder).css('min-height',settings.height);
-			$(data.holder).css('height',settings.height);
 
 			if ($(data.real_input).val()!='') {
 				$.fn.tagsInput.importTags($(data.real_input),$(data.real_input).val());

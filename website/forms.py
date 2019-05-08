@@ -68,7 +68,7 @@ class ProjectSelectionForm(forms.ModelForm):
         }
 
 class EmailForm(forms.Form):
-    email = forms.CharField()
+    email = forms.CharField(label='')
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
