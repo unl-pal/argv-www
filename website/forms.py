@@ -75,7 +75,8 @@ class FilterDetailForm(forms.Form):
     value = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
-            'placeholder' : 'Enter value'
+            'placeholder' : 'Enter value',
+            'size' : 10
         }),
         required=True)
 
