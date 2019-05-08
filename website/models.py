@@ -129,7 +129,7 @@ class Filter(models.Model):
         return self.name
 
 class ProjectSelector(models.Model):
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
@@ -202,5 +202,3 @@ class UserAuthAuditEntry(models.Model):
 
     def __str__(self):
         return '{0} - {1}/{2}/{3} - {4}/{5}/{6}'.format(self.action, self.datetime, self.ip, self.user, self.attempted, self.hijacker, self.hijacked)
-
-ProjectSelector._meta.get_field('slug')._unique = True
