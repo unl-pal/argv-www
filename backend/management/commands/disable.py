@@ -1,8 +1,13 @@
 from django.core.management.base import BaseCommand
 from website.models import Filter
 
+'''Disable Backend
+
+Usage: manage.py disable BACKEND_NAME
+Disables all filters of certain backend
+'''
 class Command(BaseCommand):
-    help = 'Installs specified backend'
+    help = 'Disables all filters of certain backend'
 
     def add_arguments(self, parser):
         parser.add_argument('backend')
