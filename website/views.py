@@ -131,7 +131,8 @@ def project_detail(request, slug):
             messages.warning(request, 'Invalid form entry')
     else:
         form = EmailForm()
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form })
+        value = FilterDetail.objects.get(pk=model.pk).value
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'value' : value })
 
 def project_delete(request, slug):
     try:

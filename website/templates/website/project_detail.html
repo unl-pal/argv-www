@@ -14,7 +14,7 @@
                 <br>
                 {% for filter in project.pfilter.all %}
                     <h4><strong>{{ filter.name }}:</strong></h4>
-                    <p>{{ filter.default_val }}</p>
+                    <p>{{ value }}</p>
                 {% endfor %}
                 {% if user.profile.active_email %}
                     <br>
