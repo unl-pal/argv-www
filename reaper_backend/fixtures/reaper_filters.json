@@ -1,0 +1,13 @@
+[
+    {
+        "model": "website.filter",
+        "pk": 2,
+        "fields": {
+            "name": "Language",
+            "val_type": "String",
+            "default_val": "python",
+            "enabled": false,
+            "associated_backend": 2
+        }
+    }
+]

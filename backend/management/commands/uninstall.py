@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+from django.core.management import call_command
 from backend.models import Backend
+from website.models import Filter
 
 
 '''Uninstall Command
@@ -18,3 +20,4 @@ class Command(BaseCommand):
         backend = Backend.objects.get(name=backend)
         backend.enabled = False
         backend.save()
+        call_command('disable', backend)
