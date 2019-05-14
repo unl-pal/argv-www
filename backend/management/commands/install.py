@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from backend.models import Backend
 
 ''' Install Command
 
@@ -15,3 +16,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         backend = options['backend']
         call_command('loaddata', backend + '_install')
+        backend = Backend.objects.get(name=backend)
+        backend.enabled = True
+        backend.save()
