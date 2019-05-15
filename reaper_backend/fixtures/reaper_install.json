@@ -4,7 +4,7 @@
         "pk": 2,
         "fields": {
             "name": "reaper",
-            "enable": false
+            "enabled": false
         }
     }
 ]
