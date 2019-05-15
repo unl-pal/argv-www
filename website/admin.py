@@ -48,10 +48,13 @@ class UserAuthAuditEntryAdmin(admin.ModelAdmin):
         return False
 
 class FilterAdmin(admin.ModelAdmin):
-    model = Filter
-    readonly_fields = ['name','val_type','default_val','enabled','associated_backend']
+    list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
+    list_filter = ['enabled', 'associated_backend', ]
 
     def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
     
     def has_delete_permission(self, request, obj=None):
