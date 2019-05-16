@@ -12,9 +12,9 @@
             <div class="panel-body">
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
                 <br>
-                {% for filter in project.pfilter.all %}
-                    <h4><strong>{{ filter.name }}:</strong></h4>
-                    <p>{{ value }}</p>
+                {% for filter in values %}
+                    <h4><strong>{{ filter.pfilter }}:</strong></h4>
+                    <p>{{ filter }}</p>
                 {% endfor %}
                 {% if user.profile.active_email %}
                     <br>
