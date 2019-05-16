@@ -24,6 +24,7 @@ from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, 
 from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
+from .decorators import email_required
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -100,6 +101,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user, is_alive=True)
 
+@email_required
 def project_detail(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
