@@ -135,7 +135,7 @@ class ProjectSelector(models.Model):
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
-    is_alive = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True)
 
     def save(self, **kwargs):
         # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
