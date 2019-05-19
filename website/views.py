@@ -135,7 +135,6 @@ def project_detail(request, slug):
         values = FilterDetail.objects.all().filter(project_selector=model)
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
 
-@login_required
 @email_required
 def project_delete(request, slug):
     try:
