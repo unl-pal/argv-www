@@ -101,7 +101,6 @@ class ProjectListView(EmailRequiredMixin, ListView):
     def get_queryset(self):
         return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
 
-@email_required
 def project_detail(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
@@ -136,6 +135,8 @@ def project_detail(request, slug):
         values = FilterDetail.objects.all().filter(project_selector=model)
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
 
+@login_required
+@email_required
 def project_delete(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
