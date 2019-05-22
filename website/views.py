@@ -99,7 +99,10 @@ class ProjectListView(EmailRequiredMixin, ListView):
     template_name='website/projects.html'
     context_object_name='projects'
     def get_queryset(self):
-        return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
+        if self.request.user.has_perm('website.view_disabled'):
+            return ProjectSelector.objects.all().filter(user=self.request.user)
+        else:
+            return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
 
 def project_detail(request, slug):
     try:
