@@ -110,7 +110,7 @@ def project_detail(request, slug):
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
-        if form.is_valid() and request.user == model.user or request.user.is_superuser:
+        if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projectselector'):
             send_list = form.cleaned_data['email'].split(',')
             to = []
             for user in send_list:
