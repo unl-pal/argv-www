@@ -142,7 +142,7 @@ def project_delete(request, slug):
     except:
         raise Http404
     if request.method == 'POST':
-        if request.user == model.user or request.user.is_superuser:
+        if request.user == model.user or request.user.has_perm('website.delete_projectselector'):
             model.enabled = False
             model.save()
             messages.info(request, 'You have deleted this project selection')
