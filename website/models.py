@@ -137,6 +137,11 @@ class ProjectSelector(models.Model):
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)
 
+    class Meta:
+        permissions = [
+            ('view_disabled', 'Can view disabled project selectors')
+        ]
+
     def save(self, **kwargs):
         # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
         super().save(**kwargs)

@@ -106,7 +106,7 @@ def project_detail(request, slug):
         model = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
-    if not model.enabled:
+    if model.enabled == False and request.user.has_perm('website.view_disabled') == False:
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
