@@ -143,13 +143,10 @@ def project_delete(request, slug):
         raise Http404
     if request.method == 'POST':
         if request.user == model.user or request.user.is_superuser:
-            if request.user.profile.active_email:
-                model.enabled = False
-                model.save()
-                messages.info(request, 'You have deleted this project selection')
-                return redirect('website:project_list')
-            else:
-                messages.warning(request, 'Please activate your email before performing this task')
+            model.enabled = False
+            model.save()
+            messages.info(request, 'You have deleted this project selection')
+            return redirect('website:project_list')
         else:
             messages.warning(request, 'You are not the owner of this selection and cannot delete it')
     return render(request, 'website/delete.html')
