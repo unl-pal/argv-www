@@ -24,4 +24,4 @@ PACKAGES:
 ADDITIONAL FILES:
 
  * benchmarks - a directory of 999 benchmark methods in 526 compilable classes suitable for symbolic execution. 
- * config.properties
+ * config.properties - Properties for running the full framework (i.e. downloading, filtering, transforming). 
