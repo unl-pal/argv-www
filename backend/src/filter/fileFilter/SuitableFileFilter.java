@@ -2,8 +2,12 @@ package filter.fileFilter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import download.GitProject;
 import sourceAnalysis.AnalyzedFile;
@@ -11,10 +15,8 @@ import sourceAnalysis.AnalyzedFile;
 public class SuitableFileFilter {
 	private ArrayList<File> spfSuitableFiles;
 	private int spfSuitableMethods;
-	private List<GitProject> gitProjects;
 
-	public SuitableFileFilter(List<GitProject> gitProjects) {
-		this.gitProjects = gitProjects;
+	public SuitableFileFilter() {
 		spfSuitableFiles = new ArrayList<File>();
 		spfSuitableMethods = 0;
 	}
@@ -27,12 +29,14 @@ public class SuitableFileFilter {
 		return spfSuitableMethods;
 	}
 
-	public void findSuitableFiles() {
-		for (GitProject project : gitProjects) {
-		//	project.collectFilesInProject();	
-			ArrayList<File> files = project.getFiles();
-
-			for (File file : files) {
+	public void removeUnsuitableFiles(File benchmarkDir) {
+		
+		Iterator itr = FileUtils.iterateFiles(benchmarkDir, new String[] { "java" }, true);
+		
+		while (itr.hasNext()) {
+			
+			File file = (File) itr.next();
+			
 				try {
 					SymbolicSuitableMethodFinder finder = new SymbolicSuitableMethodFinder(file);
 					finder.analyze();
@@ -41,15 +45,16 @@ public class SuitableFileFilter {
 						spfSuitableMethods += af.getSpfSuitableMethodCount();
 						if (af.isSymbolicSuitable()) {
 							spfSuitableFiles.add(file);
+						}else {
+							Files.delete(file.toPath());
 						}
 					} catch (Exception e) {
-						// what exceptions happen here?
 						continue;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}
 	}
+
 }

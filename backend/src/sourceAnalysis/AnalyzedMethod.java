@@ -72,7 +72,7 @@ public class AnalyzedMethod {
 	}
 	
 	public boolean isSymbolicSuitable() {
-		return (hasParameters && hasOnlyIntParameters);
-//		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
+//		return (hasParameters && hasOnlyIntParameters);
+		return (hasParameters && hasOnlyIntParameters && hasIntOperations);
 	}
 }
