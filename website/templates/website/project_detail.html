@@ -37,13 +37,17 @@
     </div>
 {% endblock %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'website/jquery.tagsinput.css' %}">
+{% endblock %}
+
 {% block script %}
-<script src="{% static 'website/jquery.tagsinput.js' %}"></script>
-<script>
-    $('input:eq(1)').tagsInput({
-        autocomplete_url: '/api/usernames/',
-        autocomplete: { minLength: 3 },
-        defaultText: 'username/email'
-    });
-</script>
+    <script src="{% static 'website/jquery.tagsinput.js' %}"></script>
+    <script>
+        $('input:eq(1)').tagsInput({
+            autocomplete_url: '/api/usernames/',
+            autocomplete: { minLength: 3 },
+            defaultText: 'username/email'
+        });
+    </script>
 {% endblock %}
