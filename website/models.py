@@ -132,14 +132,41 @@ class Filter(models.Model):
         return self.name
 
 class ProjectSelector(models.Model):
+    slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-    enabled = models.BooleanField(default=False)
     processed = models.BooleanField(default=False)
+    created = models.DateField(auto_now_add=True)
+    parent = models.CharField(max_length=255, default='', blank=True)
+    enabled = models.BooleanField(default=True)
+
+    class Meta:
+        permissions = [
+            ('view_disabled', 'Can view disabled project selectors')
+        ]
+
+    def save(self, **kwargs):
+        # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
+        super().save(**kwargs)
+        self.slug = self.gen_slug()
+        super().save(**kwargs)
+
+    """ Generates a unique slug to be used for sharing
+
+        Arguments: none, returns string(slug)
+        Creates a unique id to be used for project sharing.
+        Uses primary key to generate unique key.
+        Checks for collisions using check_collision(slug).
+        Does not return until unique slug is generated.    
+    """
+    def gen_slug(self):
+        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        slug = slug.replace('-','')
+        return slug
 
     def __str__(self):
-        return 'ProjectSelector'
+        return self.slug
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)

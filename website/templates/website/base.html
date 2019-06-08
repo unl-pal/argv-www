@@ -8,6 +8,7 @@
     <title>PAClab - {% block title %}PAClab{% endblock %}</title>
 
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" integrity="sha384-xewr6kSkq3dBbEtB6Z/3oFZmknWn7nHqhLVLrYgzEFRbU/DHSxW7K3B44yWUN60D" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" integrity="sha384-Nlo8b0yiGl7Dn+BgLn4mxhIIBU6We7aeeiulNCjHdUv/eKHx59s3anfSUjExbDxn" crossorigin="anonymous">
     {% if USE_HIJACK == True %}
         <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
@@ -67,6 +68,7 @@
                             {% endif %}
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:project_selection' %}">New project selection</a></li>
+                            <li><a href="{% url 'website:project_list' %}">List project selections</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:logout' %}">Sign out</a></li>
                         </ul>
