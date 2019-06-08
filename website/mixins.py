@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.contrib import messages
