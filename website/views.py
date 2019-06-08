@@ -101,8 +101,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
     def get_queryset(self):
         if self.request.user.has_perm('website.view_disabled'):
             return ProjectSelector.objects.all().filter(user=self.request.user)
-        else:
-            return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
+        return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
 
 def project_detail(request, slug):
     try:
@@ -122,7 +121,7 @@ def project_detail(request, slug):
                 email = str(User.objects.get(username=username).email)
                 to.append(email)
             user = str(request.user.username)
-            url = request.META['HTTP_HOST'] + '/project/detail/' + slug
+            url = request.build_absolute_uri('/project/detail/' + slug)
             variables = { 'user' : user, 'url' : url }
             msg_html = get_template('website/project_selection_email.html')
             text_content = 'A project has been shared with you!'
