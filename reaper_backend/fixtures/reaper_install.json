@@ -1,7 +1,6 @@
 [
     {
         "model": "backend.backend",
-        "pk": 2,
         "fields": {
             "name": "reaper",
             "enabled": false

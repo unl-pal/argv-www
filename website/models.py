@@ -104,6 +104,10 @@ class Selection(models.Model):
     def __str__(self):
         return self.name
 
+class FilterManager(models.Manager):
+    def get_by_natural_key(self, name, backend):
+        return self.get(name=name, associated_backend=backend)
+
 class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
     INT = 'Integer'
@@ -119,6 +123,11 @@ class Filter(models.Model):
     enabled = models.BooleanField(default=False)
     associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
 
+    objects = FilterManager()
+
+    class Meta:
+        unique_together = [['name', 'associated_backend']]
+
     def is_int(self):
         return self.val_type in self.INT
 
@@ -130,6 +139,9 @@ class Filter(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return (self.name, self.associated_backend)
 
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)

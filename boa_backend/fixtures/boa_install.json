@@ -1,7 +1,6 @@
 [
     {
         "model": "backend.backend",
-        "pk": 1,
         "fields": {
             "name": "boa",
             "enabled": false

@@ -1,13 +1,12 @@
 [
     {
         "model": "website.filter",
-        "pk": 1,
         "fields": {
             "name": "FileType",
             "val_type": "String",
             "default_val": ".py",
             "enabled": false,
-            "associated_backend": 1
+            "associated_backend": ["boa"]
         }
     }
 ]
