@@ -4,17 +4,17 @@
 {% block body %}
     <div class="container">
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person.profile.isAdmin %}
+            {% if person.is_active and person.profile.isAdmin %}
             {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person.profile.isModerator %}
+            {% if person.is_active and person.profile.isModerator %}
             {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
         {% for person in allPeople %}
-            {% if person.is_staff and person.is_active and person.profile.isRetired %}
+            {% if person.profile.isRetired %}
             {% include 'website/person.html' %}
             {% endif %}
         {% endfor %}
