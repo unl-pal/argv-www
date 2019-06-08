@@ -24,7 +24,7 @@ from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, 
 from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
-from .decorators import email_required
+from .decorators import email_required, email_verify_warning
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -91,7 +91,7 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     if not user.profile.active_email:
-                        messages.warning(request, 'Your email address is not yet verified!  Please verify email from your profile page.')
+                        return email_verify_warning(request)
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
 
