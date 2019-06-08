@@ -83,3 +83,8 @@ input[type="checkbox"] {
         max-height: 80vh;
     }
 }
+
+.ui-menu-item-wrapper:hover {
+    background: #337ab7;
+    color: #fff;
+}

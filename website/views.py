@@ -1,4 +1,7 @@
-from django.http import HttpResponse, JsonResponse
+import json
+
+from django.http import HttpResponse, JsonResponse, Http404
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
@@ -8,16 +11,20 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
+from .decorators import email_required, email_verify_warning
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -84,9 +91,75 @@ class LoginView(View):
                 if user.is_active:
                     login(request, user)
                     if not user.profile.active_email:
-                        messages.warning(request, ('Your email address is not yet verified!  Please verify email from your profile page.'))
+                        return email_verify_warning(request)
                     return redirect('website:index')
         return render(request, self.template_name, { 'form' : form })
+
+class ProjectListView(EmailRequiredMixin, ListView):
+    template_name='website/projects.html'
+    context_object_name='projects'
+    def get_queryset(self):
+        if self.request.user.has_perm('website.view_disabled'):
+            return ProjectSelector.objects.all().filter(user=self.request.user)
+        return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
+
+def project_detail(request, slug):
+    try:
+        model = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+    if model.enabled == False and request.user.has_perm('website.view_disabled') == False:
+        raise Http404
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projectselector'):
+            send_list = form.cleaned_data['email'].split(',')
+            to = []
+            for user in send_list:
+                name, username = user.split('(')
+                username = username.rstrip(')')
+                email = str(User.objects.get(username=username).email)
+                to.append(email)
+            user = str(request.user.username)
+            url = request.build_absolute_uri('/project/detail/' + slug)
+            variables = { 'user' : user, 'url' : url }
+            msg_html = get_template('website/project_selection_email.html')
+            text_content = 'A project has been shared with you!'
+            html_content = msg_html.render(variables)
+            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(request, 'Email invitation(s) sent')
+        else:
+            messages.warning(request, 'Invalid form entry')
+    else:
+        form = EmailForm()
+        values = FilterDetail.objects.all().filter(project_selector=model)
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
+
+@email_required
+def project_delete(request, slug):
+    try:
+        model = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+    if request.method == 'POST':
+        if request.user == model.user or request.user.has_perm('website.delete_projectselector'):
+            model.enabled = False
+            model.save()
+            messages.info(request, 'You have deleted this project selection')
+            return redirect('website:project_list')
+        else:
+            messages.warning(request, 'You are not the owner of this selection and cannot delete it')
+    return render(request, 'website/delete.html')
+
+def api_usernames(request):
+    q = request.GET.get('term', '')
+    results = []
+    if len(q) > 2:
+        for r in User.objects.filter(username__icontains=q).filter(is_active=True).filter(profile__active_email=True)[:10]:
+            results.append(r.first_name + ' ' + r.last_name + ' (' + r.username + ')')
+    return JsonResponse(results, safe=False)
 
 def logoutView(request):
     logout(request)
@@ -178,15 +251,15 @@ def project_selection(request):
                         connection.save()
                     except:
                         pass
-            messages.success(request, ('Project selection created successfully.'))
-            return redirect('website:project_selection')
-        messages.error(request, ('Invalid form entry'))
+            messages.success(request, 'Project selection created successfully.')
+            return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
+        messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
     })
 
-def filter_default(request):
+def api_filter_default(request):
     val = int(request.GET.get('id', 0))
     pfilter = Filter.objects.get(pk=val)
     return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })

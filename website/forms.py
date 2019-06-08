@@ -67,12 +67,16 @@ class ProjectSelectionForm(forms.ModelForm):
             'input_dataset' : '',
         }
 
+class EmailForm(forms.Form):
+    email = forms.CharField(label='')
+
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(Filter.objects.all())
     value = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
-            'placeholder' : 'Enter value'
+            'placeholder' : 'Enter value',
+            'size' : 10
         }),
         required=True)
 
