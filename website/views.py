@@ -261,7 +261,10 @@ def project_selection(request):
 
 def api_filter_default(request):
     val = int(request.GET.get('id', 0))
-    pfilter = Filter.objects.get(pk=val)
+    try:
+        pfilter = Filter.objects.get(pk=val)
+    except:
+        raise Http404
     return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
 
 def verify_email_link(request):
