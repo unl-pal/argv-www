@@ -2,9 +2,9 @@
     {
         "model": "website.filter",
         "fields": {
-            "name": "Language",
-            "val_type": "String",
-            "default_val": "python",
+            "name": "Minimum number of stars",
+            "val_type": "Integer",
+            "default_val": "100",
             "enabled": false,
             "associated_backend": ["reaper"]
         }

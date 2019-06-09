@@ -2,9 +2,19 @@
     {
         "model": "website.filter",
         "fields": {
-            "name": "FileType",
-            "val_type": "String",
-            "default_val": ".py",
+            "name": "Minimum number of commits",
+            "val_type": "Integer",
+            "default_val": "50",
+            "enabled": false,
+            "associated_backend": ["boa"]
+        }
+    },
+    {
+        "model": "website.filter",
+        "fields": {
+            "name": "Minimum number of source files",
+            "val_type": "Integer",
+            "default_val": "10",
             "enabled": false,
             "associated_backend": ["boa"]
         }
