@@ -65,6 +65,7 @@ class BioProfileForm(ProfileForm):
 
     class Meta(ProfileForm.Meta):
         ProfileForm.Meta.fields.insert(1, 'bio')
+        ProfileForm.Meta.labels['bio'] = 'Biography'
 
 class ProjectSelectionForm(forms.ModelForm):
     class Meta:
