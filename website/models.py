@@ -48,39 +48,36 @@ class Profile(models.Model):
 
     NONE = '--'
     DOCTOR = 'Dr.'
-    SURNAME_CHOICES = (
+    HONORIFIC_CHOICES = (
         (NONE, ''),
         (DOCTOR, 'DR'),
     )
-    surname = models.CharField(
+    honorific = models.CharField(
         max_length=5,
-        choices=SURNAME_CHOICES,
+        choices=HONORIFIC_CHOICES,
         default=NONE,
     )
-    NONE = 'User'
+    USER = 'User'
     RETIRED = 'Retired'
     MODERATOR = 'Moderator'
     ADMIN = 'Admin'
     STAFF_STATUS = (
-        (NONE, 'USER'),
+        (USER, 'USER'),
         (RETIRED, 'RETIRED'),
         (MODERATOR, 'MODERATOR'),
         (ADMIN, 'ADMIN'),
     )
 
-    staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=NONE)
+    staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def isAdmin(self):
-        return self.staffStatus in (self.ADMIN)
+        return self.staffStatus == self.ADMIN
 
     def isModerator(self):
-        return self.staffStatus in (self.MODERATOR)
+        return self.staffStatus == self.MODERATOR
 
     def isRetired(self):
-        return self.staffStatus in (self.RETIRED)
-
-    def isDoctor(self):
-        return self.surname in (self.DOCTOR)
+        return self.staffStatus == self.RETIRED
 
     def __str__(self):
         return self.user.first_name

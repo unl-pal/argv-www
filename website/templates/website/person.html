@@ -3,7 +3,7 @@
         <img src="{{ person.profile.photo.url }}" class="img-fluid img-thumbnail"/>
     </div>
     <div class="col-xs-8 col-md-10">
-        <h2>{% if person.profile.isDoctor %}{{ person.profile.surname }} {% endif %}{{ person.first_name }} {{ person.last_name }}</h2>
+        <h2>{{ person.profile.honorific }} {{ person.first_name }} {{ person.last_name }}</h2>
         <h4>Contact: {{ person.email }}</h4>
     </div>
     <div class="col-xs-8 col-md-10">
