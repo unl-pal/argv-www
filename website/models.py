@@ -46,7 +46,7 @@ class Profile(models.Model):
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
 
-    NONE = '--'
+    NONE = ''
     DOCTOR = 'Dr.'
     HONORIFIC_CHOICES = (
         (NONE, ''),
