@@ -20,7 +20,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
@@ -172,7 +172,10 @@ def logoutView(request):
 def profile(request):
     if request.method == 'POST':
         userForm = UserForm(request.POST, instance=request.user)
-        profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        if request.user.profile.hasBio():
+            profileForm = BioProfileForm(request.POST, request.FILES, instance=request.user.profile)
+        else:
+            profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
@@ -203,7 +206,10 @@ def profile(request):
             messages.error(request, 'Invalid form entry')
     else:    
         userForm = UserForm(instance=request.user)
-        profileForm = ProfileForm(instance=request.user.profile)
+        if request.user.profile.hasBio():
+            profileForm = BioProfileForm(instance=request.user.profile)
+        else:
+            profileForm = ProfileForm(instance=request.user.profile)
     return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
 
 @login_required

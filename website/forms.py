@@ -59,6 +59,13 @@ class ProfileForm(forms.ModelForm):
             'photo' : PhotoInput(),
         }
 
+class BioProfileForm(ProfileForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args,**kwargs)
+
+    class Meta(ProfileForm.Meta):
+        ProfileForm.Meta.fields.insert(1, 'bio')
+
 class ProjectSelectionForm(forms.ModelForm):
     class Meta:
         model = ProjectSelector

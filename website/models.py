@@ -70,6 +70,9 @@ class Profile(models.Model):
 
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
+    def hasBio(self):
+        return self.staffStatus != self.USER
+
     def isAdmin(self):
         return self.staffStatus == self.ADMIN
 
