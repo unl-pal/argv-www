@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from glob import glob
 from decouple import config, Csv
 import dj_database_url
 
@@ -32,6 +33,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 INSTALLED_APPS = [
     'website.apps.WebsiteConfig',
+    'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -139,6 +141,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
 
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)

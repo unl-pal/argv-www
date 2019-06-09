@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
+from backend.models import Backend
 from .validators import validate_file_size, validate_gh_token
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses
@@ -103,6 +104,10 @@ class Selection(models.Model):
     def __str__(self):
         return self.name
 
+class FilterManager(models.Manager):
+    def get_by_natural_key(self, name, backend):
+        return self.get(name=name, associated_backend=backend)
+
 class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
     INT = 'Integer'
@@ -115,6 +120,13 @@ class Filter(models.Model):
     )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
+    enabled = models.BooleanField(default=False)
+    associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
+
+    objects = FilterManager()
+
+    class Meta:
+        unique_together = [['name', 'associated_backend']]
 
     def is_int(self):
         return self.val_type in self.INT
@@ -128,11 +140,15 @@ class Filter(models.Model):
     def __str__(self):
         return self.name
 
+    def natural_key(self):
+        return (self.name, self.associated_backend)
+
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+    processed = models.BooleanField(default=False)
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)

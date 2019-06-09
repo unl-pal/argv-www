@@ -29,14 +29,14 @@ from .decorators import email_required, email_verify_warning
 class PapersView(ListView):
     template_name='website/papers.html'
     context_object_name='allPapers'
-    def get_queryset(self):
-        return Paper.objects.all()
+    paginate_by = 25
+    queryset = Paper.objects.all()
 
 class PeopleView(ListView):
     template_name='website/people.html'
     context_object_name = 'allPeople'
-    def get_queryset(self):
-        return User.objects.all().order_by('last_name')
+    paginate_by = 10
+    queryset = User.objects.all().exclude(profile__staffStatus='USER').order_by('profile__staffStatus').order_by('last_name')
 
 class RegisterView(View):
     form_class = UserFormRegister
@@ -98,10 +98,12 @@ class LoginView(View):
 class ProjectListView(EmailRequiredMixin, ListView):
     template_name='website/projects.html'
     context_object_name='projects'
+    paginate_by = 20
     def get_queryset(self):
-        if self.request.user.has_perm('website.view_disabled'):
-            return ProjectSelector.objects.all().filter(user=self.request.user)
-        return ProjectSelector.objects.all().filter(user=self.request.user, enabled=True)
+        objects = ProjectSelector.objects.all().filter(user=self.request.user)
+        if not self.request.user.has_perm('website.view_disabled'):
+            objects = objects.filter(enabled=True)
+        return objects
 
 def project_detail(request, slug):
     try:
@@ -261,7 +263,10 @@ def project_selection(request):
 
 def api_filter_default(request):
     val = int(request.GET.get('id', 0))
-    pfilter = Filter.objects.get(pk=val)
+    try:
+        pfilter = Filter.objects.get(pk=val)
+    except:
+        raise Http404
     return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
 
 def verify_email_link(request):

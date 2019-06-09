@@ -99,7 +99,7 @@ $(document).on('click', '.remove-form-row', function(e){
     deleteForm('form', $(this));
     return false;
 });
-$('select').change(function (){
+$('select[name!="input_dataset"]').change(function (){
     var val = $("option:checked", this).val();
     current_input = this;
     $.ajax({

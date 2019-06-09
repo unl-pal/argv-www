@@ -47,11 +47,24 @@ class UserAuthAuditEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+class FilterAdmin(admin.ModelAdmin):
+    list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
+    list_filter = ['enabled', 'associated_backend', ]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
 admin.site.register(ProjectSelector, SelectionAdmin)
-admin.site.register(Filter)
+admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Transform)

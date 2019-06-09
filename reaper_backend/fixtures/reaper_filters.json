@@ -1,0 +1,12 @@
+[
+    {
+        "model": "website.filter",
+        "fields": {
+            "name": "Minimum number of stars",
+            "val_type": "Integer",
+            "default_val": "100",
+            "enabled": false,
+            "associated_backend": ["reaper"]
+        }
+    }
+]

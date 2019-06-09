@@ -1,0 +1,9 @@
+[
+    {
+        "model": "backend.backend",
+        "fields": {
+            "name": "boa",
+            "enabled": false
+        }
+    }
+]
