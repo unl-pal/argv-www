@@ -16,23 +16,25 @@
     {% if form.is_bound and field.errors %}
         <div class="form-group has-error has-feedback">
     {% else %}
-        <div class="form-group form-row">
+        <div class="form-group">
     {% endif %}
-        {{ field.label_tag }}
 
-        {% render_field field class="form-control" %}
+    {{ field.label_tag }}
 
-        {% if form.is_bound and field.errors %}
-            <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-            {% for error in field.errors %}
-                <div class="invalid-feedback">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% render_field field class="form-control" %}
 
-        {% if field.help_text %}
-            <small class="help-block">{{ field.help_text }}</small>
-        {% endif %}
+    {% if form.is_bound and field.errors %}
+        <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+        <span class="sr-only">(error)</span>
+        {% for error in field.errors %}
+            <div class="help-block">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if field.help_text %}
+        <small class="help-block">{{ field.help_text }}</small>
+    {% endif %}
     </div>
 {% endfor %}
