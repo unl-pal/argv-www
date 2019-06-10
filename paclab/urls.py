@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('pi-admin/', admin.site.urls),
     re_path(r'^hijack/', include('hijack.urls', namespace='hijack')),
     path('', include('website.urls'))
 ]
