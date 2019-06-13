@@ -107,7 +107,7 @@
                         You can <a href="{% url 'website:verify_email_link' %}">re-send the email verification</a> to the email listed below. If the email below is incorrect, please update it.</span>
                     </div>
                 {% endif %}
-                <form class="form form-default" action="" method="post" enctype="multipart/form-data">
+                <form class="form form-default" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="crop_x" id="id_crop_x"/>
                     <input type="hidden" name="crop_y" id="id_crop_y"/>
