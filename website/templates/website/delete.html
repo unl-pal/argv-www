@@ -4,7 +4,7 @@
     {% include 'website/messages.html' %}
     <h2>Are you sure you want to delete this asset?</h2>
     <hr>
-    <form action="" method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <button class="btn btn-danger">Delete</button>
     </form>

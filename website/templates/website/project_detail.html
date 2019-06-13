@@ -24,7 +24,7 @@
                         </div>
                         <div class="panel-body">
                             <p>Enter a PAClab username or email address to share this project selection.</p>
-                            <form action="" method="POST" enctype="multipart/form-data">
+                            <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {% include 'website/form.html' with form=form %}
                                 <button class="btn btn-primary">Share</button>
