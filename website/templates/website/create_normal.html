@@ -8,13 +8,13 @@
             <form class="form-horizontal" method="POST">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}
-                    <div class="row">
+                <div class="row">
                     <div class="col-xs-2 col-sm-4">
                         <label class="pull-right">Input Dataset:</label>
                     </div>
                     <div class="col-xs-10 col-sm-8">
                         <div class="form-inline">
-                            {{p_form}}
+                            {{p_form.input_dataset}}
                         </div>
                     </div>
                 </div>
