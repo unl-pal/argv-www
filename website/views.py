@@ -103,7 +103,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
         objects = ProjectSelector.objects.all().filter(user=self.request.user)
         if not self.request.user.has_perm('website.view_disabled'):
             objects = objects.filter(enabled=True)
-        return objects
+        return objects.order_by('-created')
 
 def project_detail(request, slug):
     try:
