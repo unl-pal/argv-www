@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone
 from backend.models import Backend
 from .validators import validate_file_size, validate_gh_token
+from .choices import *
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses
 User._meta.get_field('email')._unique = True
@@ -148,7 +149,7 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-    processed = models.BooleanField(default=False)
+    processed = models.CharField(choices=PROCESS_STATUS, default='Ready', max_length=255)
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)
