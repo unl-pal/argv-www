@@ -1,6 +1,6 @@
-class Runner:
-    def __init__(self):
-        self.pfilters = None
-    
-    def run(self):
-        print(self.pfilters)
+from backend.runner import Runner
+
+class BoaRunner(Runner):
+    name = None
+    val_type = None
+    value = None
