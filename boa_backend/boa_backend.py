@@ -4,3 +4,4 @@ class BoaRunner(Runner):
     name = None
     val_type = None
     value = None
+    results = None

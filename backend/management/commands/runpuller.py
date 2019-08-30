@@ -20,14 +20,26 @@ class Command(BaseCommand):
                 filters = selector.filterdetail_set.all()
                 for pfilter in filters:
                     associated_backend = str(pfilter.pfilter.associated_backend)
+
                     # Pulling out attributes
                     name = pfilter.pfilter.name
                     val_type = pfilter.pfilter.val_type
                     value = pfilter.value
+
                     # Creating Runner
                     modname = associated_backend + '_backend'
                     modname += '.' + modname
                     backend = importlib.import_module(modname)
                     runner = backend.Runner(name=name, val_type=val_type, value=value)
+
+                    # Transform filter into query
                     runner.transform()
+
+                    # Pass query into backend api
+                    runner.run()
+
+                    # Return lists of github urls, create a new model, associate with selector, and save
+                    runner.save_results()
+                selector.processed = 'DONE'
+                selector.save()
             time.sleep(3)

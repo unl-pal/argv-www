@@ -3,6 +3,7 @@ class Runner:
         self.name = name
         self.val_type = val_type
         self.value = value
+        self.results = ''
     
     def run(self):
         # Sends to backend
@@ -13,3 +14,8 @@ class Runner:
         print(self.name)
         print(self.val_type)
         print(self.value)
+    
+    def return_results(self):
+        # Saves list of urls and returns a list of urls
+        print('Saving results')
+        return self.results
