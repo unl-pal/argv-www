@@ -15,7 +15,7 @@ class Runner:
         print(self.val_type)
         print(self.value)
     
-    def return_results(self):
+    def save_results(self):
         # Saves list of urls and returns a list of urls
         print('Saving results')
         return self.results

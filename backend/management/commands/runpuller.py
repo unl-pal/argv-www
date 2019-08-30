@@ -17,6 +17,8 @@ class Command(BaseCommand):
         while(True):
             selectors = ProjectSelector.objects.all().filter(processed='READY')
             for selector in selectors:
+                selector.processed = 'ONGOING'
+                selector.save()
                 filters = selector.filterdetail_set.all()
                 for pfilter in filters:
                     associated_backend = str(pfilter.pfilter.associated_backend)
@@ -40,6 +42,6 @@ class Command(BaseCommand):
 
                     # Return lists of github urls, create a new model, associate with selector, and save
                     runner.save_results()
-                selector.processed = 'DONE'
+                selector.processed = 'PROCESSED'
                 selector.save()
             time.sleep(3)
