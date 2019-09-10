@@ -14,10 +14,6 @@ class Runner:
     def run(self):
         # Sends to backend
         print('Sending to backend...')
-
-    def transform(self):
-        # transforms data, getting it ready for api
-        print('Transforming selector into query...')
     
     def save_results(self):
         # Saves list of urls and returns a list of urls
