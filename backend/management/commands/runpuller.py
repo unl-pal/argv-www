@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     modname = associated_backend + '_backend'
                     modname += '.' + modname
                     backend = importlib.import_module(modname)
-                    runner = backend.Runner(selector)
+                    runner = backend.BoaRunner(selector)
                     process = multiprocessing.Process(target=runner.run, args=())
                 selector.processed = 'PROCESSED'
                 selector.save()
