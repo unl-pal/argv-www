@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Paper, Profile, Dataset, ProjectSelector, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
+from .models import Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -64,6 +64,7 @@ admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
 admin.site.register(ProjectSelector, SelectionAdmin)
+admin.site.register(Project)
 admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)

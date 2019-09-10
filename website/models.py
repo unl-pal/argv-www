@@ -99,12 +99,6 @@ class Dataset(models.Model):
     def __str__(self):
         return self.name
 
-class Selection(models.Model):
-    name = models.CharField(max_length=200, default='')
-
-    def __str__(self):
-        return self.name
-
 class FilterManager(models.Manager):
     def get_by_natural_key(self, name, backend):
         return self.get(name=name, associated_backend=backend)
@@ -144,6 +138,13 @@ class Filter(models.Model):
     def natural_key(self):
         return (self.name, self.associated_backend)
 
+class Project(models.Model):
+    dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT)
+    url = models.URLField(max_length=1000)
+
+    def __str__(self):
+        return self.url
+
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
@@ -153,6 +154,7 @@ class ProjectSelector(models.Model):
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)
+    project = models.ManyToManyField(Project, through='Selection')
 
     class Meta:
         permissions = [
@@ -180,6 +182,19 @@ class ProjectSelector(models.Model):
 
     def __str__(self):
         return self.slug
+
+class Selection(models.Model):
+    name = models.CharField(max_length=200, default='')
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['project_selector'], name='project_selector_key'),
+        ]
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
