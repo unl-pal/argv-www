@@ -16,7 +16,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         while(True):
-            selectors = ProjectSelector.objects.all().filter(processed='READY')
+            selectors = ProjectSelector.objects.all().exclude(processed='PROCESSED')
             for selector in selectors:
                 selector.processed = 'ONGOING'
                 selector.save()
@@ -27,11 +27,8 @@ class Command(BaseCommand):
                     if associated_backend not in backends:
                         backends.append(associated_backend)
 
-                for backend in backends:
                     modname = associated_backend + '_backend.runner'
                     backend = importlib.import_module(modname)
                     runner = backend.Runner(selector)
                     process = multiprocessing.Process(target=runner.run, args=())
-                selector.processed = 'PROCESSED'
-                selector.save()
             time.sleep(3)
