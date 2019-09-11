@@ -11,16 +11,14 @@ class Runner:
     def __init__(self, selector):
         self.selector = selector
     
-    def done(self, flter):
-        flter.status = 'PROCESSED'
-        flter.save()
-        self.selector.save()
-    
-    def processed_filter(self, flter, url):
-        self.done(flter)
+    def done(self):
         self.selector.processed = 'PROCESSED'
         [self.selector.processed = 'ONGOING' for flter in self.selector.filterdetail_set.all() if flter.status == 'READY']
-        self.save_results(url)
+        self.selector.save()
+    
+    def filter_done(self, flter):
+        flter.status = 'PROCESSED'
+        flter.save()
         
     def run(self):
         # Sends to backend
