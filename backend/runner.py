@@ -28,15 +28,15 @@ class Runner:
         # Sends to backend
         print('Sending to backend...')
     
-    def save_results(self, url):
+    def save_result(self, url):
         if self.dry_run:
             return
 
-        for selection in self.selector.project_set.all():
+        for selection in self.selector.selection_set.all():
             if selection.project.url == url:
                 return
 
-        new_project = Project.create(dataset=self.selector.dataset, url=url)
+        new_project = Project.objects.create(dataset=self.selector.input_dataset, url=url)
         new_project.save()
-        new_selection = Selection.create(project_selector=self.selector, project=new_project)
+        new_selection = Selection.objects.create(project_selector=self.selector, project=new_project)
         new_selection.save()
