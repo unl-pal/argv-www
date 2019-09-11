@@ -9,27 +9,33 @@ class Runner:
     for pfilter in filters: -> each pfilter will be the filter model.
     Filter models contain data types and the name of the filter
     '''
-    def __init__(self, selector):
+    def __init__(self, selector, dry_run):
         self.selector = selector
+        self.dry_run = dry_run
     
     def done(self):
-        filters_not_done = self.selector.filterdetail_set.all().exclude(status=PROCESSED)
-        if len(filters_not_done) == 0:
+        filters_not_done = self.selector.filterdetail_set.exclude(status=PROCESSED)
+        if not self.dry_run and len(filters_not_done) == 0:
             self.selector.processed = PROCESSED
             self.selector.save()
     
     def filter_done(self, flter):
-        flter.status = PROCESSED
-        flter.save()
+        if not self.dry_run:
+            flter.status = PROCESSED
+            flter.save()
         
     def run(self):
         # Sends to backend
         print('Sending to backend...')
     
     def save_results(self, url):
+        if self.dry_run:
+            return
+
         for selection in self.selector.project_set.all():
             if selection.project.url == url:
                 return
+
         new_project = Project.create(dataset=self.selector.dataset, url=url)
         new_project.save()
         new_selection = Selection.create(project_selector=self.selector, project=new_project)

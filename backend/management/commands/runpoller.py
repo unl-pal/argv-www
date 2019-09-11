@@ -53,7 +53,7 @@ class Command(BaseCommand):
         for backend in backends:
             modname = backend + '_backend.runner'
             backend = importlib.import_module(modname)
-            runner = backend.Runner(selector)
+            runner = backend.Runner(selector, self.dry_run)
             self.stdout.write('    -> calling backend: ' + modname)
             #process = multiprocessing.Process(target=runner.run, args=())
             runner.run()
