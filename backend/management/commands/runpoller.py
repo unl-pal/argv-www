@@ -8,13 +8,13 @@ from django.conf import settings
 
 from website.choices import *
 
-'''Run Puller
+'''Run Poller
 
-Usage: manage.py runpuller
-Runs a boa puller in the background to grab unprocessed project selections from database
+Usage: manage.py runpoller
+Runs a poller in the background to grab unprocessed project selections from database
 '''
 class Command(BaseCommand):
-    help = 'Runs a boa puller in the background to grab unprocessed project selections from database'
+    help = 'Runs a poller in the background to grab unprocessed project selections from database'
     
     def add_arguments(self, parser):
         parser.add_argument('slug', nargs='*', help='Specific project selection slug(s) to process', type=str)
