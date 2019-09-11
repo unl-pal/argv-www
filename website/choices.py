@@ -1,6 +1,9 @@
 # Processed
+PROCESSED = 'Processed'
+ONGOING = 'Ongoing'
+READY = 'Ready'
 PROCESS_STATUS = {
-    ('PROCESSED', 'Processed'),
-    ('ONGOING', 'Ongoing'),
-    ('READY', 'Ready'),
+    (PROCESSED, 'Processed'),
+    (ONGOING, 'Ongoing'),
+    (READY, 'Ready'),
 }

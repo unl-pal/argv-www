@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from website.models import ProjectSelector
 from django.conf import settings
 
+from website.choices import *
+
 '''Run Puller
 
 Usage: manage.py runpuller
@@ -16,9 +18,9 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         while(True):
-            selectors = ProjectSelector.objects.all().exclude(processed='PROCESSED')
+            selectors = ProjectSelector.objects.all().exclude(processed=PROCESSED)
             for selector in selectors:
-                selector.processed = 'ONGOING'
+                selector.processed = ONGOING
                 selector.save()
                 filters = selector.filterdetail_set.all()
                 backends = []

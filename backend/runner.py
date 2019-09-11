@@ -1,4 +1,5 @@
 from website.models import ProjectSelector, Project, Selection
+from website.choices import *
 
 class Runner:
     '''Notes on attributes from selector
@@ -12,13 +13,13 @@ class Runner:
         self.selector = selector
     
     def done(self):
-        filters_not_done = self.selector.filterdetail_set.all().exclude(status='PROCESSED')
+        filters_not_done = self.selector.filterdetail_set.all().exclude(status=PROCESSED)
         if len(filters_not_done) == 0:
-            self.selector.processed = 'PROCESSED'
+            self.selector.processed = PROCESSED
             self.selector.save()
     
     def filter_done(self, flter):
-        flter.status = 'PROCESSED'
+        flter.status = PROCESSED
         flter.save()
         
     def run(self):
