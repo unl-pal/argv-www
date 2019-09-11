@@ -28,6 +28,7 @@ class Runner:
         raise NotImplementedError('runners must override the run() method')
     
     def save_result(self, url):
+        print("saving result: " + url)
         if self.dry_run:
             return
 
