@@ -28,10 +28,10 @@ class Command(BaseCommand):
                         backends.append(associated_backend)
 
                 for backend in backends:
-                    modname = associated_backend + '_backend'
+                    modname = associated_backend + 'runner'
                     modname += '.' + modname
                     backend = importlib.import_module(modname)
-                    runner = backend.BoaRunner(selector)
+                    runner = backend.Runner(selector)
                     process = multiprocessing.Process(target=runner.run, args=())
                 selector.processed = 'PROCESSED'
                 selector.save()

@@ -1,4 +1,4 @@
 from backend.runner import Runner
 
-class BoaRunner(Runner):
+class Runner(Runner):
     selector = None
