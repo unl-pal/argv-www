@@ -28,8 +28,7 @@ class Command(BaseCommand):
                         backends.append(associated_backend)
 
                 for backend in backends:
-                    modname = associated_backend + 'runner'
-                    modname += '.' + modname
+                    modname = associated_backend + '_backend.runner'
                     backend = importlib.import_module(modname)
                     runner = backend.Runner(selector)
                     process = multiprocessing.Process(target=runner.run, args=())
