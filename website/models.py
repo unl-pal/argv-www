@@ -140,6 +140,7 @@ class Filter(models.Model):
 
 class Project(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT)
+    url = models.URLField(max_length=1000)
 
     def __str__(self):
         return self.url
@@ -190,7 +191,6 @@ class ProjectSelector(models.Model):
         return self.slug
 
 class Selection(models.Model):
-    name = models.CharField(max_length=200, default='')
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 

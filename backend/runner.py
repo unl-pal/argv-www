@@ -1,4 +1,4 @@
-from website.models import ProjectSelector, RepositoryURL
+from website.models import ProjectSelector, Project, Selection
 
 class Runner:
     '''Notes on attributes from selector
@@ -27,9 +27,10 @@ class Runner:
         print('Sending to backend...')
     
     def save_results(self, url):
-        for repourl in self.selector.project.urls_set.all():
-            current_url = repourl.url
-            if url == current_url:
+        for selection in self.selector.project_set.all():
+            if selection.project.url == url:
                 return
-        new_url = RespositoryURL.create(project=self.selector.project, url=url)
-        new_url.save()
+        new_project = Project.create(dataset=self.selector.dataset, url=url)
+        new_project.save()
+        new_selection = Selection.create(project_selector=self.selector, project=new_project)
+        new_selection.save()
