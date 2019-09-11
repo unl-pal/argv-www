@@ -140,6 +140,12 @@ class Filter(models.Model):
 
 class Project(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.url
+
+class RepositoryURL(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     url = models.URLField(max_length=1000)
 
     def __str__(self):
