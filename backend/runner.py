@@ -13,7 +13,9 @@ class Runner:
     
     def done(self):
         self.selector.processed = 'PROCESSED'
-        [self.selector.processed = 'ONGOING' for flter in self.selector.filterdetail_set.all() if flter.status == 'READY']
+        for flter in self.selector.filterdetail_set.all():
+            if flter.status == 'READY':
+                self.selector.processed = 'ONGOING'
         self.selector.save()
     
     def filter_done(self, flter):
