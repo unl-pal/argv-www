@@ -25,8 +25,7 @@ class Runner:
             flter.save()
         
     def run(self):
-        # Sends to backend
-        print('Sending to backend...')
+        raise NotImplementedError('runners must override the run() method')
     
     def save_result(self, url):
         if self.dry_run:
