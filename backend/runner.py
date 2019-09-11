@@ -10,6 +10,11 @@ class Runner:
     '''
     def __init__(self, selector):
         self.selector = selector
+    
+    def done(self, flter):
+        flter.status = 'PROCESSED'
+        flter.save()
+        self.selector.save()
         
     def run(self):
         # Sends to backend
