@@ -29,6 +29,7 @@ class Command(BaseCommand):
                     if associated_backend not in backends:
                         backends.append(associated_backend)
 
+                for backend in backends:
                     modname = associated_backend + '_backend.runner'
                     backend = importlib.import_module(modname)
                     runner = backend.Runner(selector)
