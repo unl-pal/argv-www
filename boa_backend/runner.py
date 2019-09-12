@@ -46,7 +46,7 @@ if (!filtered)
     def run(self):
         print('        -> boa backend processing: ' + self.selector.slug)
 
-        query = self.template_start
+        query = '# ' + self.selector.slug + '\n' + self.template_start
         for f in self.filters():
             query += self.translate_filter(f)
         query += self.template_end
