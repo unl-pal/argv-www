@@ -9,9 +9,10 @@ class Runner:
     for pfilter in filters: -> each pfilter will be the filter model.
     Filter models contain data types and the name of the filter
     '''
-    def __init__(self, selector, dry_run):
+    def __init__(self, selector, dry_run, verbosity):
         self.selector = selector
         self.dry_run = dry_run
+        self.verbosity = verbosity
     
     def done(self):
         filters_not_done = self.selector.filterdetail_set.exclude(status=PROCESSED)
@@ -28,7 +29,8 @@ class Runner:
         raise NotImplementedError('runners must override the run() method')
     
     def save_result(self, url):
-        print("saving result: " + url)
+        if self.verbosity >= 3:
+            print("saving result: " + url)
         if self.dry_run:
             return
 

@@ -44,23 +44,29 @@ if (!filtered)
         return self.selector.filterdetail_set.filter(status=READY)
 
     def run(self):
-        print('        -> boa backend processing: ' + self.selector.slug)
+        if self.verbosity >= 1:
+            print('        -> boa backend processing: ' + self.selector.slug)
 
         query = '# ' + self.selector.slug + '\n' + self.template_start
         for f in self.filters():
             query += self.translate_filter(f)
         query += self.template_end
-        print(query)
+        if self.verbosity >= 3:
+            print(query)
 
         client = BoaClient()
         client.login('TODO USERNAME', 'TODO PASSWORD')
         job = client.query(query, client.get_dataset('2015 September/GitHub'))
+        if self.verbosity >= 2:
+            print('            -> boa job: http://boa.cs.iastate.edu/boa/index.php?q=boa/job/' + str(job.id))
         while job.compiler_status == 'Running' or job.exec_status == 'Running' or job.compiler_status == 'Waiting' or job.exec_status == 'Waiting':
             job.refresh()
             time.sleep(3)
 
-        if job.compiler_status == 'Error' or job.exec_status == 'Error':
-            print('job ' + str(job.id) + 'had ERROR')
+        if job.compiler_status == 'Error':
+            print('job ' + str(job.id) + ' had compile error')
+        elif job.exec_status == 'Error':
+            print('job ' + str(job.id) + ' had exec error')
         else:
             output = job.output()
 

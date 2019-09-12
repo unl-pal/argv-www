@@ -24,6 +24,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.dry_run = options['dry_run']
         self.no_poll = options['no_poll']
+        self.verbosity = options['verbosity']
 
         for slug in options['slug']:
             self.process_selection(ProjectSelector.objects.get(slug=slug,processed=READY))
@@ -53,7 +54,8 @@ class Command(BaseCommand):
         for backend in backends:
             modname = backend + '_backend.runner'
             backend = importlib.import_module(modname)
-            runner = backend.Runner(selector, self.dry_run)
-            self.stdout.write('    -> calling backend: ' + modname)
+            runner = backend.Runner(selector, self.dry_run, self.verbosity)
+            if self.verbosity >= 2:
+                self.stdout.write('    -> calling backend: ' + modname)
             #process = multiprocessing.Process(target=runner.run, args=())
             runner.run()
