@@ -58,15 +58,18 @@ if (!filtered)
         while job.compiler_status == 'Running' or job.exec_status == 'Running' or job.compiler_status == 'Waiting' or job.exec_status == 'Waiting':
             job.refresh()
             time.sleep(3)
+
         if job.compiler_status == 'Error' or job.exec_status == 'Error':
             print('job ' + str(job.id) + 'had ERROR')
-        output = job.output()
+        else:
+            output = job.output()
+
+            for line in output.splitlines(False):
+                self.save_result(str(line)[8:])
+
+            for f in self.filters():
+                self.filter_done(f)
+
+            self.done()
+
         client.close()
-
-        for line in output.splitlines(False):
-            self.save_result(line[4:])
-
-        for f in self.filters():
-            self.filter_done(f)
-
-        self.done()
