@@ -34,10 +34,13 @@ class Runner:
         if self.dry_run:
             return
 
-        for selection in self.selector.selection_set.all():
-            if selection.project.url == url:
+        projects = Project.objects.all()
+        for project in projects:
+            if url == project.url:
+                print('URL already exists in project table.  Returning...')
                 return
 
+        print('URL does not exist in project table.  Adding to project table.')
         new_project = Project.objects.create(dataset=self.selector.input_dataset, url=url)
         new_project.save()
         new_selection = Selection.objects.create(project_selector=self.selector, project=new_project)
