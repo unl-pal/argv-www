@@ -1,6 +1,7 @@
 import time
 from backend.runner import Runner
 from boaapi.boa_client import BoaClient
+from decouple import config
 
 from website.choices import *
 
@@ -54,7 +55,8 @@ filtered := false;
             print(query)
 
         client = BoaClient()
-        client.login('TODO USERNAME', 'TODO PASSWORD')
+        client.login(config('BOA_USER'), config('BOA_PW'))
+
         job = client.query(query, client.get_dataset('2015 September/GitHub'))
         if self.verbosity >= 2:
             print('            -> boa job: http://boa.cs.iastate.edu/boa/index.php?q=boa/job/' + str(job.id))
