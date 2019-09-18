@@ -10,16 +10,15 @@ filtered := false;
 
 """
 
-    template_end = """
-if (!filtered)
+    template_end = """if (!filtered)
     o << input.project_url;"""
 
     def translate_filter(self, filtr):
+        s = "if (!filtered) {\n";
         if filtr.pfilter.pk == 1:
-            return "if (!filtered && (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + "))\n" + "    filtered = true;\n\n"
+            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n"
         elif filtr.pfilter.pk == 2:
-            return """if (!filtered) {
-    file_count := 0;
+            s += """    file_count := 0;
     visit(input, visitor {
         before node: CodeRepository -> {
             snapshot := getsnapshot(node);
@@ -33,9 +32,9 @@ if (!filtered)
     });
     if (file_count < """ + str(filtr.value) + """)
         filtered = true;
-}
 """
-        return ""
+        s += "}\n\n"
+        return s
 
     def all_filters(self):
         return self.selector.filterdetail_set.all()
