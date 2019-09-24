@@ -148,13 +148,6 @@ class Project(models.Model):
     def __str__(self):
         return self.url
 
-class RepositoryURL(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    url = models.URLField(max_length=1000)
-
-    def __str__(self):
-        return self.url
-
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
