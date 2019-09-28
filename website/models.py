@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone
 from backend.models import Backend
 from .validators import validate_file_size, validate_gh_token
+from .choices import *
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses
 User._meta.get_field('email')._unique = True
@@ -98,12 +99,6 @@ class Dataset(models.Model):
     def __str__(self):
         return self.name
 
-class Selection(models.Model):
-    name = models.CharField(max_length=200, default='')
-
-    def __str__(self):
-        return self.name
-
 class FilterManager(models.Manager):
     def get_by_natural_key(self, name, backend):
         return self.get(name=name, associated_backend=backend)
@@ -143,15 +138,26 @@ class Filter(models.Model):
     def natural_key(self):
         return (self.name, self.associated_backend)
 
+class Project(models.Model):
+    dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT)
+    url = models.URLField(max_length=1000)
+    host = models.CharField(max_length=1000, null=True, blank=True)
+    path = models.CharField(max_length=5000, null=True, blank=True)
+    datetime_processed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.url
+
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-    processed = models.BooleanField(default=False)
+    processed = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)
+    project = models.ManyToManyField(Project, through='Selection')
 
     class Meta:
         permissions = [
@@ -180,10 +186,23 @@ class ProjectSelector(models.Model):
     def __str__(self):
         return self.slug
 
+class Selection(models.Model):
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.project_selector.slug
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['project_selector'], name='project_selector_key'),
+        ]
+
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
     pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
     value = models.TextField(max_length=1000, default='1')
+    status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
 
     def __str__(self):
         return self.value
