@@ -69,10 +69,10 @@ filtered := false;
         elif job.exec_status == 'Error':
             print('job ' + str(job.id) + ' had exec error')
         else:
-            output = job.output()
+            output = job.output().decode('utf-8')
 
             for line in output.splitlines(False):
-                self.save_result(str(line)[8:])
+                self.save_result(line[8:])
 
             for f in self.filters():
                 self.filter_done(f)
