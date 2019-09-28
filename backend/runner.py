@@ -34,21 +34,13 @@ class Runner:
         if self.dry_run:
             return
 
-        projects = Project.objects.all()
-        for project in projects:
-            if url == project.url:
-                print('URL already exists in project table.  Connecting result to existing project...')
-                existing_selections = Selection.objects.filter(project_selector=self.selector, project=project)
-                if len(existing_selections) == 0:
-                    new_selection = Selection.objects.create(project_selector=self.selector, project=project)
-                    new_selection.save()
-                    return
-                else:
-                    print('A selection exists for this project connecting it to the current selector.  This indicates the project is done processing.  Please make sure no processes have halted.')
-                    return
+        projects = Project.objects.filter(dataset=self.selector.input_dataset, url=url)
+        if len(projects) == 0:
+            project = Project.objects.create(dataset=self.selector.input_dataset, url=url)
+            project.save()
+        else:
+            project = projects[0]
 
-        print('URL does not exist in project table.  Adding to project table.')
-        new_project = Project.objects.create(dataset=self.selector.input_dataset, url=url)
-        new_project.save()
-        new_selection = Selection.objects.create(project_selector=self.selector, project=new_project)
-        new_selection.save()
+        if not Selection.objects.filter(project_selector=self.selector, project=project).exists():
+            new_selection = Selection.objects.create(project_selector=self.selector, project=project)
+            new_selection.save()
