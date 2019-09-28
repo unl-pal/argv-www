@@ -58,5 +58,4 @@ class Command(BaseCommand):
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
             #process = multiprocessing.Process(target=runner.run, args=())
-            # runner.run()
-            runner.save_result('https://www.google.com/')
+            runner.run()
