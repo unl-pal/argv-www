@@ -27,7 +27,10 @@ class Command(BaseCommand):
         self.verbosity = options['verbosity']
 
         for slug in options['slug']:
-            self.process_selection(ProjectSelector.objects.get(slug=slug,processed=READY))
+            try:
+                self.process_selection(ProjectSelector.objects.get(slug=slug,processed=READY))
+            except:
+                self.stdout.write('error processing: ' + slug)
 
         if len(options['slug']) == 0:
             while True:
