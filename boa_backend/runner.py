@@ -72,7 +72,7 @@ filtered := false;
             output = job.output().decode('utf-8')
 
             for line in output.splitlines(False):
-                self.save_result(line[8:])
+                self.save_result(line[6:])
 
             for f in self.filters():
                 self.filter_done(f)
