@@ -1,6 +1,24 @@
 {% extends 'website/base.html' %}
 {% block title %}Project Selections{% endblock %}
 {% block projectsactive %}active{% endblock %}
+{% block style %}
+<style type="text/css">
+.glyphicon.spinning {
+    animation: spin 2s infinite linear;
+    -webkit-animation: spin2 2s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
 {% block body %}
     <div class="container-fluid" style="width: 80%">
         <h1>Project Selections</h1>
@@ -18,7 +36,7 @@
                 <tbody>
                     {% for project in projects %}
                         <tr>
-                            <td><a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
+                            <td>{% if project.processed != 'PROCESSED' %}<span class="glyphicon glyphicon-refresh spinning"></span> {% endif %}<a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
                             <td>{{ project.created }}</td>
                             <td>
                                 <p>
