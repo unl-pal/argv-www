@@ -20,9 +20,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('pi-admin/', admin.site.urls),
-    re_path(r'^hijack/', include('hijack.urls', namespace='hijack')),
     path('', include('website.urls'))
 ]
+
+if settings.USE_HIJACK:
+    urlpatterns += re_path(r'^hijack/', include('hijack.urls', namespace='hijack'))
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
