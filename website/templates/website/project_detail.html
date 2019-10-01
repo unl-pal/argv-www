@@ -15,9 +15,11 @@
                 <br>
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
-                    <p>{{ filter }}</p>
+                    <p><em>Value:</em> {{ filter }}</p>
+                    <p><em>Status: </em>{{ filter.status }}</p>
                 {% endfor %}
                 {% for url in project.project.all %}
+                    <h4><strong>{{ url.url }}</strong></h4>
                     {% if not url.host %}
                         <p>Project has not been processed.</p>
                     {% elif url.host and url.date_processed == '' %}
