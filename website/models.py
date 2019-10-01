@@ -205,6 +205,7 @@ class FilterDetail(models.Model):
     pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
     value = models.TextField(max_length=1000, default='1')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
+    fin_process = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.value
