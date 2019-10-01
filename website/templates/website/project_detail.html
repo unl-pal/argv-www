@@ -17,6 +17,17 @@
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p>{{ filter }}</p>
                 {% endfor %}
+                {% for url in project.project.all %}
+                    {% if not url.host %}
+                        <p>Project has not been processed.</p>
+                    {% elif url.host and url.date_processed == '' %}
+                        <p>Project is processing</p>
+                    {% elif url.host and url.date_processed != '' and not url.path %}
+                        <p>Project did not clone</p>
+                    {% else %}
+                        <p>Project is done processing!</p>
+                    {% endif %}
+                {% endfor %}
                 {% if user.profile.active_email %}
                     <br>
                     <div class="panel panel-warning">
