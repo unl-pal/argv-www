@@ -49,6 +49,9 @@
                                 <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>
                                 <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger">Delete</a>
                             </td>
+                            <td>
+                                {% if not project.enabled %}<span class="glyphicon glyphicon-remove"></span>{% endif %} 
+                            </td>
                         </tr>
                     {% empty%}
                         <tr>
