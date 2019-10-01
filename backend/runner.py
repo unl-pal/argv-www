@@ -17,7 +17,7 @@ class Runner:
     def done(self):
         filters_not_done = self.selector.filterdetail_set.exclude(status=PROCESSED)
         if not self.dry_run and len(filters_not_done) == 0:
-            self.selector.processed = PROCESSED
+            self.selector.status = PROCESSED
             self.selector.save()
     
     def filter_done(self, flter):

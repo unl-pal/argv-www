@@ -28,13 +28,13 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_selection(ProjectSelector.objects.get(slug=slug,processed=READY))
+                self.process_selection(ProjectSelector.objects.get(slug=slug,status=READY))
             except:
                 self.stdout.write('error processing: ' + slug)
 
         if len(options['slug']) == 0:
             while True:
-                selectors = ProjectSelector.objects.filter(processed=READY)
+                selectors = ProjectSelector.objects.filter(status=READY)
                 for selector in selectors:
                     self.process_selection(selector)
 
@@ -45,7 +45,7 @@ class Command(BaseCommand):
     def process_selection(self, selector):
         self.stdout.write('processing ProjectSelection: ' + selector.slug)
         if not self.dry_run:
-            selector.processed = ONGOING
+            selector.status = ONGOING
             selector.save()
 
         filters = selector.filterdetail_set.all()

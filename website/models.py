@@ -153,11 +153,13 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-    processed = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
+    status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
     parent = models.CharField(max_length=255, default='', blank=True)
     enabled = models.BooleanField(default=True)
     project = models.ManyToManyField(Project, through='Selection')
+    submitted = models.DateTimeField(auto_now_add=True)
+    fin_process = models.DateTimeField(auto_now=True)
 
     class Meta:
         permissions = [
