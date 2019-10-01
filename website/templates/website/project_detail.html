@@ -5,6 +5,9 @@
     <div class="container">
         {% include 'website/messages.html' %}
         <a href="{% url 'website:project_list' %}">Back to all project selections</a><br><br>
+        {% if project.processed != 'PROCESSED' %}
+            <div class="alert alert-warning">This selector is still processing</div>
+        {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
