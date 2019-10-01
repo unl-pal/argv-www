@@ -11,6 +11,7 @@
             </div>
             <div class="panel-body">
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
+                <h4><strong>Projects Matched:</strong> {{ project.project.all|length }}</h4>
                 <br>
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
