@@ -40,3 +40,33 @@ class TestModels(TestCase):
     def test_profile(self):
         assert self.profile
         assert self.profile.user == self.user
+    
+    def test_paper(self):
+        assert self.paper
+    
+    def test_dataset(self):
+        assert self.dataset
+    
+    def test_filter(self):
+        assert self.flter
+    
+    def test_project(self):
+        assert self.project
+    
+    def test_selector(self):
+        assert self.selector
+    
+    def test_selection(self):
+        assert self.selection
+    
+    def test_filter_detail(self):
+        assert self.flter_detail
+    
+    def test_transformer(self):
+        assert self.transformer
+    
+    def test_transform(self):
+        assert self.transformed
+    
+    def test_analysis(self):
+        assert self.analysis
