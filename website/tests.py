@@ -70,3 +70,19 @@ class TestModels(TestCase):
     
     def test_analysis(self):
         assert self.analysis
+
+class TestViews(TestModels):    
+    def setUp(self):
+        self.user = User.objects.last()
+        self.profile = self.user.profile
+        self.paper = Paper.objects.last()
+        self.dataset = Dataset.objects.last()
+        self.flter = Filter.objects.last()
+        self.project = Project.objects.last()
+        self.selector = ProjectSelector.objects.last()
+        self.selection = Selection.objects.last()
+        self.flter_detail = FilterDetail.objects.last()
+        self.transformer = ProjectTransformer.objects.last()
+        self.transformed = Transform.objects.last()
+        self.analysis = Analysis.objects.last()
+        self.client.login(username='testuser', password='testing321')
