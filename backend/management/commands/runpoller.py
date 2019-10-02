@@ -52,12 +52,12 @@ class Command(BaseCommand):
         backends = set()
         for pfilter in filters:
             associated_backend = str(pfilter.pfilter.associated_backend)
-            backends.add(associated_backend)
+            backends.add((associated_backend, pfilter.pfilter.associated_backend))
 
-        for backend in backends:
+        for (backend, backend_id) in backends:
             modname = backend + '_backend.runner'
             backend = importlib.import_module(modname)
-            runner = backend.Runner(selector, self.dry_run, self.verbosity)
+            runner = backend.Runner(selector, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
             #process = multiprocessing.Process(target=runner.run, args=())
