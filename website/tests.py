@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from backend.models import Backend
+from decouple import config
 from .models import Paper, Profile, Dataset, Filter, FilterDetail, Project, ProjectSelector, ProjectTransformer, Transform, Selection, Analysis, UserAuthAuditEntry
 from .choices import *
 
@@ -75,6 +76,12 @@ class TestViews(TestModels):
     def setUp(self):
         self.user = User.objects.last()
         self.profile = self.user.profile
+        self.profile.age_confirmation = True
+        self.profile.privacy_agreement = True
+        self.profile.terms_agreement = True
+        self.profile.active_email = True
+        self.profile.token = config('GITHUB_TEST_TOKEN')
+        self.profile.save()
         self.paper = Paper.objects.last()
         self.dataset = Dataset.objects.last()
         self.flter = Filter.objects.last()
@@ -86,3 +93,79 @@ class TestViews(TestModels):
         self.transformed = Transform.objects.last()
         self.analysis = Analysis.objects.last()
         self.client.login(username='testuser', password='testing321')
+
+    def test_index(self):
+        res = self.client.get('')
+        assert res.status_code == 200
+    
+    def test_funding(self):
+        res = self.client.get('/funding/')
+        assert res.status_code == 200
+
+    def test_papers(self):
+        res = self.client.get('/papers/')
+        assert res.status_code == 200
+
+    def test_people(self):
+        res = self.client.get('/people/')
+        assert res.status_code == 200
+
+    def test_login_get(self):
+        res = self.client.get('/login/')
+        assert res.status_code == 200
+    
+    def test_login_post(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testing321'
+        }
+        res = self.client.post('/login/')
+        assert res.status_code == 200
+
+    def test_logout(self):
+        res = self.client.post('/logout/')
+        assert res.status_code == 302
+
+    def test_register_get(self):
+        res = self.client.get('/register/')
+        assert res.status_code == 200
+    
+    # test register manually because of github token
+
+    def test_profile_get(self):
+        res = self.client.get('/editprofile/')
+        assert res.status_code == 200
+
+    # test edit profile manually because of image upload
+
+    # test password reset and email verification manually because of email
+
+    def test_privacy_policy(self):
+        res = self.client.get('/policies/privacy/')
+        assert res.status_code == 200
+
+    def test_terms_of_user(self):
+        res = self.client.get('/policies/terms_of_use/')
+        assert res.status_code == 200
+
+    def test_new_project_selection(self):
+        res = self.client.get('/project/selection/')
+        assert res.status_code == 200
+    
+    # test post logic manually for custom code
+
+    def test_project_list(self):
+        res = self.client.get('/project/list/')
+        assert res.status_code == 200
+
+    def test_project_detail(self):
+        res = self.client.get(f'/project/detail/{self.selector.slug}/')
+        assert res.status_code == 200
+
+    def test_project_delete_get(self):
+        res = self.client.get(f'/project/delete/{self.selector.slug}/')
+        assert res.status_code == 200
+    
+    def test_project_delete_post(self):
+        res = self.client.post(f'/project/delete/{self.selector.slug}/')
+        assert res.status_code == 302
