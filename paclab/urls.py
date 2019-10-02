@@ -24,7 +24,7 @@ urlpatterns = [
 ]
 
 if settings.USE_HIJACK:
-    urlpatterns += re_path(r'^hijack/', include('hijack.urls', namespace='hijack'))
+    urlpatterns += [re_path(r'^hijack/', include('hijack.urls', namespace='hijack'))]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
