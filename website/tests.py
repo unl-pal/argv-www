@@ -13,11 +13,11 @@ class TestModels(TestCase):
         backend = Backend.objects.create(name='testbackend')
         flter = Filter.objects.create(name='testfilter', val_type='Integer', default_val=1, associated_backend=backend)
         project = Project.objects.create(dataset=dataset, url='http://www.google.com/')
-        selector = ProjectSelecotr.objects.create(input_dataset=dataset, user=user, pfilter=flter, processed=READY)
-        Selection.objects.create(project=project, project_selector=selector)
+        selector = ProjectSelector.objects.create(input_dataset=dataset, user=user)
+        selection = Selection.objects.create(project=project, project_selector=selector)
         FilterDetail.objects.create(project_selector=selector, pfilter=flter, value=1, status=READY)
         transformer = ProjectTransformer.objects.create(input_selection=selection, user=user)
-        Transform.objects.create(project_transformers=transformer, name='testtransform')
+        Transform.objects.create(name='testtransform')
         Analysis.objects.create(input_selection=selection, user=user)
     
     def setUp(self):
@@ -33,3 +33,10 @@ class TestModels(TestCase):
         self.transformer = ProjectTransformer.objects.last()
         self.transformed = Transform.objects.last()
         self.analysis = Analysis.objects.last()
+    
+    def test_user(self):
+        assert self.user
+    
+    def test_profile(self):
+        assert self.profile
+        assert self.profile.user == self.user

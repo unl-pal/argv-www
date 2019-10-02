@@ -165,9 +165,8 @@ class ProjectSelector(models.Model):
         ]
 
     def save(self, **kwargs):
-        # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
-        super().save(**kwargs)
-        self.slug = self.gen_slug()
+        if self.pk == None:
+            self.slug = self.gen_slug()
         super().save(**kwargs)
 
     """ Generates a unique slug to be used for sharing
