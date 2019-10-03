@@ -57,6 +57,7 @@ class Profile(models.Model):
         max_length=5,
         choices=HONORIFIC_CHOICES,
         default=NONE,
+        blank=True,
     )
     USER = 'User'
     RETIRED = 'Retired'
