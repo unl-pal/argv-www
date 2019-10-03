@@ -48,7 +48,12 @@ class Profile(models.Model):
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
     country = CountryField()
-    honorific = models.CharField(max_length=5,choices=HONORIFIC_CHOICES, default=NONE, blank=True)
+    honorific = models.CharField(
+        max_length=5,
+        choices=HONORIFIC_CHOICES,
+        default=NONE,
+        blank=True
+    )
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def hasBio(self):
