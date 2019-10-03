@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from backend.models import Backend
+from django_countries.fields import CountryField
 from .validators import validate_file_size, validate_gh_token
 from .choices import *
 
@@ -46,6 +47,7 @@ class Profile(models.Model):
     terms_agreement = models.BooleanField(default=False)
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
+    country = CountryField()
 
     NONE = ''
     DOCTOR = 'Dr.'
