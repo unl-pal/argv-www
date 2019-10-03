@@ -48,30 +48,7 @@ class Profile(models.Model):
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
     country = CountryField()
-
-    NONE = ''
-    DOCTOR = 'Dr.'
-    HONORIFIC_CHOICES = (
-        (NONE, ''),
-        (DOCTOR, 'DR'),
-    )
-    honorific = models.CharField(
-        max_length=5,
-        choices=HONORIFIC_CHOICES,
-        default=NONE,
-        blank=True,
-    )
-    USER = 'User'
-    RETIRED = 'Retired'
-    MODERATOR = 'Moderator'
-    ADMIN = 'Admin'
-    STAFF_STATUS = (
-        (USER, 'USER'),
-        (RETIRED, 'RETIRED'),
-        (MODERATOR, 'MODERATOR'),
-        (ADMIN, 'ADMIN'),
-    )
-
+    honorific = models.CharField(max_length=5,choices=HONORIFIC_CHOICES, default=NONE, blank=True)
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def hasBio(self):
@@ -108,14 +85,6 @@ class FilterManager(models.Manager):
 
 class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
-    INT = 'Integer'
-    STRING = 'String'
-    LIST = 'List'
-    TYPE_CHOICES = (
-        (INT, 'Integer'),
-        (STRING, 'String'),
-        (LIST, 'List'),
-    )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
     enabled = models.BooleanField(default=False)
