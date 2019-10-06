@@ -37,12 +37,6 @@ filtered := false;
         s += "}\n\n"
         return s
 
-    def all_filters(self):
-        return self.selector.filterdetail_set.all()
-
-    def filters(self):
-        return self.selector.filterdetail_set.filter(status=READY)
-
     def run(self):
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
@@ -60,6 +54,10 @@ filtered := false;
         job = client.query(query, client.get_dataset('2015 September/GitHub'))
         if self.verbosity >= 2:
             print('            -> boa job: http://boa.cs.iastate.edu/boa/index.php?q=boa/job/' + str(job.id))
+
+        for f in self.filters():
+            self.filter_start(f)
+
         while job.compiler_status == 'Running' or job.exec_status == 'Running' or job.compiler_status == 'Waiting' or job.exec_status == 'Waiting':
             job.refresh()
             time.sleep(3)
