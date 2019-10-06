@@ -1,12 +1,13 @@
 import time
 import importlib
-import datetime
+import pytz
 import subprocess
 import socket
 import shutil
 import os
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from website.models import Project
 from django.conf import settings
 from decouple import config
@@ -72,7 +73,7 @@ class Command(BaseCommand):
             self.stdout.write('    -> SKIPPING: already exists: ' + project_name)
             if not self.dry_run:
                 project.path = path
-                project.datetime_processed = datetime.now()
+                project.datetime_processed = timezone.now()
                 project.save()
             return
 
@@ -93,10 +94,10 @@ class Command(BaseCommand):
                 shutil.move(tmp, repo_root)
 
                 project.path = path
-                project.datetime_processed = datetime.now()
+                project.datetime_processed = timezone.now()
                 project.save()
             else:
-                project.datetime_processed = datetime.now()
+                project.datetime_processed = timezone.now()
                 project.save()
 
         # cleanup temp files
