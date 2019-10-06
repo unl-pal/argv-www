@@ -57,7 +57,10 @@ class Command(BaseCommand):
         host = host[:host.index("/")]
 
         tmp = '/tmp/' + project_name[:project_name.rindex('/')]
-        repo_root = config('REPO_PATH') + host
+        repo_root = config('REPO_PATH')
+        if repo_root[-1:] != '/':
+            repo_root += '/'
+        repo_root += host
         path = repo_root + '/' + project_name
 
         if self.verbosity >= 3:
