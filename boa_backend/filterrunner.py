@@ -1,11 +1,11 @@
 import time
-from backend.runner import Runner
+from backend.filterrunner import FilterRunner
 from boaapi.boa_client import BoaClient
 from decouple import config
 
 from website.choices import *
 
-class Runner(Runner):
+class FilterRunner(FilterRunner):
     template_start = """o: output collection of string;
 filtered := false;
 
