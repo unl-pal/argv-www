@@ -28,14 +28,14 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_transform(ProjectTransformer.objects.get(slug=slug,processed=READY))
+                self.process_transform(ProjectTransformer.objects.get(slug=slug,status=READY))
             except:
                 self.stdout.write('error processing: ' + slug)
 
         if len(options['slug']) == 0:
             while True:
-                transforms = ProjectTransformer.objects.filter(processed=READY)
-                for transform in transform:
+                transforms = ProjectTransformer.objects.filter(status=READY)
+                for transform in transforms:
                     self.process_transform(transform)
 
                 if self.no_poll:
@@ -45,7 +45,7 @@ class Command(BaseCommand):
     def process_transform(self, transform):
         self.stdout.write('processing ProjectTransformer: ' + transform.slug)
         if not self.dry_run:
-            transform.processed = ONGOING
+            transform.status = ONGOING
             transform.save()
 
         transforms = transform.transforms_set.all()

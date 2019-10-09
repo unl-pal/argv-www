@@ -6,7 +6,11 @@ class TransformRunner:
         self.verbosity = verbosity
 
     def done(self):
-        pass
+        if self.dry_run:
+            return
+        if not self.transformed_project.transforms_set.exclude(status=PROCESSED).exists():
+            self.transformed_project.status = PROCESSED
+            self.transformed_project.save()
 
     def run(self):
         raise NotImplementedError('filter runners must override the run() method')
