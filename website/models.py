@@ -155,7 +155,7 @@ class ProjectSelector(models.Model):
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     processed = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
-    parent = models.CharField(max_length=255, default='', blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     enabled = models.BooleanField(default=True)
     project = models.ManyToManyField(Project, through='Selection')
 
@@ -216,14 +216,26 @@ class Transform(models.Model):
         return self.name
 
 class ProjectTransformer(models.Model):
+    slug = models.SlugField(unique=True)
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
     transforms = models.ManyToManyField(Transform)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return self.project_selector.slug
+        return self.slug
+    
+    def save(self, **kwargs):
+        if self.pk == None:
+            self.slug = self.gen_slug()
+        super().save(**kwargs)
+
+    def gen_slug(self):
+        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        slug = slug.replace('-','')
+        return slug
 
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)
