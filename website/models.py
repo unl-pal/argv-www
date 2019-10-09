@@ -207,23 +207,23 @@ class FilterDetail(models.Model):
     def __str__(self):
         return self.value
 
+class Transform(models.Model):
+    name = models.CharField(max_length=200, default='')
+    enabled = models.BooleanField(default=False)
+    associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.name
+
 class ProjectTransformer(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
+    transforms = models.ManyToManyField(Transform)
 
     def __str__(self):
         return self.project_selector.slug
-
-class Transform(models.Model):
-    project_transformers = models.ManyToManyField(ProjectTransformer)
-    name = models.CharField(max_length=200, default='')
-    status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
-    datetime_processed = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
 
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)
