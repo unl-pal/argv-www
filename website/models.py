@@ -208,18 +208,32 @@ class FilterDetail(models.Model):
         return self.value
 
 class ProjectTransformer(models.Model):
-    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
+    status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
+    datetime_processed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.input_selection
+        return self.project_selector.slug
 
 class Transform(models.Model):
     project_transformers = models.ManyToManyField(ProjectTransformer)
     name = models.CharField(max_length=200, default='')
+    status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
+    datetime_processed = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+class TransformedProject(models.Model):
+    host = models.CharField(max_length=255)
+    path = models.CharField(max_length = 255)
+    datetime_processed = models.DateTimeField(null=True, blank=True)
+    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.project.url
 
 class Analysis(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
