@@ -155,7 +155,7 @@ class ProjectSelector(models.Model):
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     processed = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
-    parent = models.CharField(max_length=255, default='', blank=True)
+    parent = models.CharField(max_length=255, default='', blank=True, null=True)
     enabled = models.BooleanField(default=True)
     project = models.ManyToManyField(Project, through='Selection')
 
