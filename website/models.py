@@ -57,16 +57,16 @@ class Profile(models.Model):
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def hasBio(self):
-        return self.staffStatus != self.USER
+        return self.staffStatus != USER
 
     def isAdmin(self):
-        return self.staffStatus == self.ADMIN
+        return self.staffStatus == ADMIN
 
     def isModerator(self):
-        return self.staffStatus == self.MODERATOR
+        return self.staffStatus == MODERATOR
 
     def isRetired(self):
-        return self.staffStatus == self.RETIRED
+        return self.staffStatus == RETIRED
 
     def __str__(self):
         return self.user.first_name

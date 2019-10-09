@@ -36,7 +36,7 @@ class PeopleView(ListView):
     template_name='website/people.html'
     context_object_name = 'allPeople'
     paginate_by = 10
-    queryset = User.objects.all().exclude(profile__staffStatus='USER').order_by('profile__staffStatus').order_by('last_name')
+    queryset = User.objects.all().exclude(profile__staffStatus='user').order_by('profile__staffStatus').order_by('last_name')
 
 class RegisterView(View):
     form_class = UserFormRegister
