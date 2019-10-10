@@ -23,7 +23,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
+from .models import Paper, Profile, FilterDetail, ProjectSelector, ProjectTransformer, Filter
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
@@ -299,12 +299,14 @@ def send_email_verify(request, user, title):
     messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
     return redirect('website:index')
 
-def download(request):
+def download(request, slug):
     in_memory = io.BytesIO()
     zip = ZipFile(in_memory, 'a')
 
-    zip.writestr('test.txt', 'test txt file')
-    zip.writestr('test.csv', 'test csv file')
+    transformer = ProjectTransformer.objects.last()
+
+    for transform in transformer.transforms.all():
+        print(transform)    
 
     for file in zip.filelist:
         file.create_system = 0

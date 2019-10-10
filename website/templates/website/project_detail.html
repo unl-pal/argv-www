@@ -12,7 +12,7 @@
             <div class="panel-body">
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
                 <br>
-                <a href="{% url 'website:download' %}">Download results</a>
+                <a href="{% url 'website:download' project.slug %}">Download results</a>
                 <!-- {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p>{{ filter }}</p>
