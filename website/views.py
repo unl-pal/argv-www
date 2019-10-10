@@ -23,7 +23,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, ProjectSelector, ProjectTransformer, Filter
+from .models import Paper, Profile, FilterDetail, ProjectSelector, TransformedProject
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
@@ -303,10 +303,12 @@ def download(request, slug):
     in_memory = io.BytesIO()
     zip = ZipFile(in_memory, 'a')
 
-    transformer = ProjectTransformer.objects.last()
+    try:
+        project = TransformedProject.objects.last()
+    except:
+        print('No transformed projects')
 
-    for transform in transformer.transforms.all():
-        print(transform)
+    print(project.path)
 
     for file in zip.filelist:
         file.create_system = 0
