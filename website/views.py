@@ -32,6 +32,7 @@ class PapersView(ListView):
     context_object_name='allPapers'
     paginate_by = 25
     queryset = Paper.objects.all()
+    ordering = ['-date']
 
 class PeopleView(ListView):
     template_name='website/people.html'
