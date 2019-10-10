@@ -12,10 +12,11 @@
             <div class="panel-body">
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
                 <br>
-                {% for filter in values %}
+                <a href="{% url 'website:download' %}">Download results</a>
+                <!-- {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p>{{ filter }}</p>
-                {% endfor %}
+                {% endfor %} -->
                 {% if user.profile.active_email %}
                     <br>
                     <div class="panel panel-warning">

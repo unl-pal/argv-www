@@ -1,5 +1,9 @@
 import json
 
+import io
+from zipfile import ZipFile
+from django.http import HttpResponse
+
 from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
@@ -294,3 +298,23 @@ def send_email_verify(request, user, title):
     email.send()
     messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
     return redirect('website:index')
+
+def download(request):
+    in_memory = io.BytesIO()
+    zip = ZipFile(in_memory, 'a')
+
+    zip.writestr('test.txt', 'test txt file')
+    zip.writestr('test.csv', 'test csv file')
+
+    for file in zip.filelist:
+        file.create_system = 0
+    
+    zip.close()
+
+    response = HttpResponse(content_type="application/zip")
+    response["Content-Disposition"] = "attachment; filename=test.zip"
+
+    in_memory.seek(0)
+    response.write(in_memory.read())
+
+    return response
