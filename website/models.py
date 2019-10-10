@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from backend.models import Backend
+from django_countries.fields import CountryField
 from .validators import validate_file_size, validate_gh_token
 from .choices import *
 
@@ -46,42 +47,26 @@ class Profile(models.Model):
     terms_agreement = models.BooleanField(default=False)
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
-
-    NONE = ''
-    DOCTOR = 'Dr.'
-    HONORIFIC_CHOICES = (
-        (NONE, ''),
-        (DOCTOR, 'DR'),
-    )
+    country = CountryField()
     honorific = models.CharField(
         max_length=5,
         choices=HONORIFIC_CHOICES,
         default=NONE,
+        blank=True
     )
-    USER = 'User'
-    RETIRED = 'Retired'
-    MODERATOR = 'Moderator'
-    ADMIN = 'Admin'
-    STAFF_STATUS = (
-        (USER, 'USER'),
-        (RETIRED, 'RETIRED'),
-        (MODERATOR, 'MODERATOR'),
-        (ADMIN, 'ADMIN'),
-    )
-
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def hasBio(self):
-        return self.staffStatus != self.USER
+        return self.staffStatus != USER
 
     def isAdmin(self):
-        return self.staffStatus == self.ADMIN
+        return self.staffStatus == ADMIN
 
     def isModerator(self):
-        return self.staffStatus == self.MODERATOR
+        return self.staffStatus == MODERATOR
 
     def isRetired(self):
-        return self.staffStatus == self.RETIRED
+        return self.staffStatus == RETIRED
 
     def __str__(self):
         return self.user.first_name
@@ -105,14 +90,6 @@ class FilterManager(models.Manager):
 
 class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
-    INT = 'Integer'
-    STRING = 'String'
-    LIST = 'List'
-    TYPE_CHOICES = (
-        (INT, 'Integer'),
-        (STRING, 'String'),
-        (LIST, 'List'),
-    )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
     enabled = models.BooleanField(default=False)
