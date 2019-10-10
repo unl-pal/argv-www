@@ -25,6 +25,7 @@ from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
 from .decorators import email_required, email_verify_warning
+from .choices import *
 
 class PapersView(ListView):
     template_name='website/papers.html'
@@ -36,7 +37,7 @@ class PeopleView(ListView):
     template_name='website/people.html'
     context_object_name = 'allPeople'
     paginate_by = 10
-    queryset = User.objects.all().exclude(profile__staffStatus='user').order_by('profile__staffStatus').order_by('last_name')
+    queryset = User.objects.all().exclude(profile__staffStatus=USER).order_by('profile__staffStatus').order_by('last_name')
 
 class RegisterView(View):
     form_class = UserFormRegister
