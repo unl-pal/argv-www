@@ -306,7 +306,7 @@ def download(request, slug):
     transformer = ProjectTransformer.objects.last()
 
     for transform in transformer.transforms.all():
-        print(transform)    
+        print(transform)
 
     for file in zip.filelist:
         file.create_system = 0
