@@ -302,14 +302,15 @@ def send_email_verify(request, user, title):
     return redirect('website:index')
 
 def download(request, slug):
+    cwd = os.getcwd()
+    download_loc = '/media/downloads/'
     try:
         project = TransformedProject.objects.last()
+        result_path = os.getcwd() + download_loc
+        path = os.path.join(cwd, project.path)
     except:
         raise Http404
-    
-    cwd = os.getcwd()
-    path = os.path.join(cwd, project.path)
 
-    shutil.make_archive('C:/Users/Rebs/Documents/Dev/paclab-www/media/downloads/' + slug, 'zip', root_dir='C:/Users/Rebs/Documents/Dev/paclab-www/media/test/')
+    shutil.make_archive(result_path + slug, 'zip', root_dir=path)
 
-    return redirect('/media/downloads/' + slug + '.zip')
+    return redirect(download_loc + slug + '.zip')
