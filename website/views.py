@@ -1,7 +1,7 @@
 import json
 
 import os
-from zipfile import ZipFile
+import zipfile
 from django.http import HttpResponse
 import subprocess
 import shutil
@@ -304,13 +304,25 @@ def send_email_verify(request, user, title):
 def download(request, slug):
     cwd = os.getcwd()
     download_loc = '/media/downloads/'
+    result_path = cwd + download_loc
     try:
-        project = TransformedProject.objects.last()
-        result_path = os.getcwd() + download_loc
-        path = os.path.join(cwd, project.path)
+        selector = ProjectSelector.objects.get(slug=slug)
+        projects = selector.selection_set.all()
+        paths = []
+        for project in projects:
+            transformed_project = project.project.transformedproject_set.all()[0]
+            paths.append(os.path.join(cwd, transformed_project.path))
+        
     except:
         raise Http404
 
-    shutil.make_archive(result_path + slug, 'zip', root_dir=path)
+    for path in paths:
+        # subprocess.Popen(['zip', '-r', download_loc + slug, path])
+        shutil.make_archive(result_path + slug, 'zip', root_dir=path)
+
+    # archive = zipfile.ZipFile(result_path + slug, 'a', zipfile.ZIP_DEFLATED)
+    # for path in paths:
+    #     archive.write(path)
+    # archive.close()
 
     return redirect(download_loc + slug + '.zip')
