@@ -1,8 +1,10 @@
 import json
 
-import io
+import os
 from zipfile import ZipFile
 from django.http import HttpResponse
+import subprocess
+import shutil
 
 from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
@@ -300,25 +302,14 @@ def send_email_verify(request, user, title):
     return redirect('website:index')
 
 def download(request, slug):
-    in_memory = io.BytesIO()
-    zip = ZipFile(in_memory, 'a')
-
     try:
         project = TransformedProject.objects.last()
     except:
-        print('No transformed projects')
-
-    print(project.path)
-
-    for file in zip.filelist:
-        file.create_system = 0
+        raise Http404
     
-    zip.close()
+    cwd = os.getcwd()
+    path = os.path.join(cwd, project.path)
 
-    response = HttpResponse(content_type="application/zip")
-    response["Content-Disposition"] = "attachment; filename=test.zip"
+    shutil.make_archive('C:/Users/Rebs/Documents/Dev/paclab-www/media/downloads/' + slug, 'zip', root_dir='C:/Users/Rebs/Documents/Dev/paclab-www/media/test/')
 
-    in_memory.seek(0)
-    response.write(in_memory.read())
-
-    return response
+    return redirect('/media/downloads/' + slug + '.zip')
