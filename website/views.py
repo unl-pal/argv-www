@@ -3,8 +3,7 @@ import json
 import os
 import zipfile
 from django.http import HttpResponse
-import subprocess
-import shutil
+from django.utils.encoding import smart_str
 
 from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
@@ -302,27 +301,30 @@ def send_email_verify(request, user, title):
     return redirect('website:index')
 
 def download(request, slug):
-    cwd = os.getcwd()
+    proj_root = os.getcwd()
     download_loc = '/media/downloads/'
-    result_path = cwd + download_loc
+    results = 'media/downloads'
+    dest_path = os.path.join(proj_root, results)
+    final_file = slug + '.zip'
+    final_zip = os.path.join(dest_path, final_file)
+    
     try:
         selector = ProjectSelector.objects.get(slug=slug)
         projects = selector.selection_set.all()
         paths = []
         for project in projects:
             transformed_project = project.project.transformedproject_set.all()[0]
-            paths.append(os.path.join(cwd, transformed_project.path))
-        
+            paths.append(os.path.join(proj_root, transformed_project.path))
     except:
         raise Http404
-
+    
+    archive = zipfile.ZipFile(final_zip, 'a')
     for path in paths:
-        # subprocess.Popen(['zip', '-r', download_loc + slug, path])
-        shutil.make_archive(result_path + slug, 'zip', root_dir=path)
+        for dirname, subdirs, files in os.walk(path):
+            for filename in files:
+                full_path = os.path.join(dirname, filename)
+                first, arcname = full_path.split(proj_root)
+                archive.write(full_path, arcname)
+    archive.close()
 
-    # archive = zipfile.ZipFile(result_path + slug, 'a', zipfile.ZIP_DEFLATED)
-    # for path in paths:
-    #     archive.write(path)
-    # archive.close()
-
-    return redirect(download_loc + slug + '.zip')
+    return redirect(f'/media/downloads/{slug}.zip/')
