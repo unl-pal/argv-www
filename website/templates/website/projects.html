@@ -1,4 +1,5 @@
 {% extends 'website/base.html' %}
+{% load calc_cloned_projects %}
 {% block title %}Project Selections{% endblock %}
 {% block projectsactive %}active{% endblock %}
 {% block style %}
@@ -21,6 +22,7 @@
 {% endblock %}
 {% block body %}
     <div class="container-fluid" style="width: 80%">
+        {% include 'website/messages.html' %}
         <h1>Project Selections</h1>
         <div class="table-responsive">
             <table class="table table-hover table-striped">
@@ -28,7 +30,7 @@
                     <tr>
                         <th>Project Selection</th>
                         <th>Created</th>
-                        <th>Filters</th>
+                        <th>Cloned Projects vs. Projects Matched</th>
                         <th>Options</th>
                     </tr>
                 </thead>
@@ -36,18 +38,16 @@
                 <tbody>
                     {% for project in projects %}
                         <tr>
-                            <td>{% if project.processed != 'PROCESSED' %}<span class="glyphicon glyphicon-refresh spinning"></span> {% endif %}<a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
+                            <td>{% if project.status != 'PROCESSED' %}<span class="glyphicon glyphicon-refresh spinning"></span> {% endif %}<a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
                             <td>{{ project.created }}</td>
                             <td>
                                 <p>
-                                    {% for filter in project.filterdetail_set.all %}
-                                        {{ filter }}, 
-                                    {% endfor %}
+                                    {{ project|calc_cloned_projects }}/{{ project.project.all|length }}
                                 </p>
                             </td>
                             <td>
                                 <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>
-                                <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger">Delete</a>
+                                <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}>Delete</a>
                             </td>
                         </tr>
                     {% empty%}

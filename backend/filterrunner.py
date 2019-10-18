@@ -19,6 +19,7 @@ class FilterRunner:
         if self.dry_run:
             return
         if not self.selector.filterdetail_set.exclude(status=PROCESSED).exists():
+            self.selector.status = PROCESSED
             self.selector.processed = PROCESSED
             self.selector.save()
 
