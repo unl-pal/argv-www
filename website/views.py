@@ -2,6 +2,7 @@ import json
 
 import os
 import zipfile
+from decouple import config
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
@@ -212,7 +213,7 @@ def profile(request):
             return redirect('website:edit_profile')
         else:
             messages.error(request, 'Invalid form entry')
-    else:    
+    else:
         userForm = UserForm(instance=request.user)
         if request.user.profile.hasBio():
             profileForm = BioProfileForm(instance=request.user.profile)
@@ -301,30 +302,35 @@ def send_email_verify(request, user, title):
     return redirect('website:index')
 
 def download(request, slug):
-    proj_root = os.getcwd()
-    download_loc = '/media/downloads/'
-    results = 'media/downloads'
-    dest_path = os.path.join(proj_root, results)
-    final_file = slug + '.zip'
-    final_zip = os.path.join(dest_path, final_file)
-    
+    paths = []
+
     try:
-        selector = ProjectSelector.objects.get(slug=slug)
-        projects = selector.selection_set.all()
-        paths = []
-        for project in projects:
+        for project in ProjectSelector.objects.get(slug=slug).selection_set.all():
             transformed_project = project.project.transformedproject_set.all()[0]
-            paths.append(os.path.join(proj_root, transformed_project.path))
+            paths.append((transformed_project.host, transformed_project.path))
     except:
         raise Http404
-    
-    archive = zipfile.ZipFile(final_zip, 'a')
-    for path in paths:
-        for dirname, subdirs, files in os.walk(path):
-            for filename in files:
-                full_path = os.path.join(dirname, filename)
-                first, arcname = full_path.split(proj_root)
-                archive.write(full_path, arcname)
-    archive.close()
 
-    return redirect(f'/media/downloads/{slug}.zip/')
+    if not paths:
+        raise Http404
+
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_filename = slug + '.zip'
+    zipfile_path = os.path.join(download_path, download_filename)
+
+    if not os.path.exists(zipfile_path):
+        if not os.path.exists(download_path):
+            os.mkdir(download_path, 0o755)
+
+        transformed_path = config('TRANSFORMED_PATH')
+
+        archive = zipfile.ZipFile(zipfile_path, 'a')
+        for path in paths:
+            for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
+                for filename in files:
+                    full_path = os.path.join(dirname, filename)
+                    first, arcname = full_path.split(os.path.join(transformed_path, path[0]))
+                    archive.write(full_path, arcname)
+        archive.close()
+
+    return redirect(f'{settings.MEDIA_URL}/downloads/{download_filename}')
