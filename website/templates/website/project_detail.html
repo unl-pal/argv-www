@@ -24,6 +24,7 @@
                     <p><em>Value:</em> {{ filter }}</p>
                     <p><em>Status: </em>{{ filter.status }}</p>
                 {% endfor %}
+                {% comment %}
                 {% for url in project.project.all %}
                     <h4><strong>{{ url.url }}</strong></h4>
                     {% if not url.host %}
@@ -36,6 +37,7 @@
                         <p>Project is done processing!</p>
                     {% endif %}
                 {% endfor %}
+                {% endcomment %}
                 {% if user.profile.active_email %}
                     <br>
                     <div class="panel panel-warning">
