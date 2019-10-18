@@ -49,7 +49,7 @@ class ProfileForm(forms.ModelForm):
             template_name = 'website/photoinput.html'
 
         model = Profile
-        fields = ['photo', 'token', 'sharetoken']
+        fields = ['photo', 'token', 'sharetoken', 'country']
         labels = {
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs',

@@ -8,9 +8,9 @@ from django.conf import settings
 
 from website.choices import *
 
-'''Run Poller
+'''Run Filters Poller
 
-Usage: manage.py runpoller
+Usage: manage.py runfilters
 Runs a poller in the background to grab unprocessed project selections from database
 '''
 class Command(BaseCommand):
@@ -55,10 +55,10 @@ class Command(BaseCommand):
             backends.add((associated_backend, pfilter.pfilter.associated_backend))
 
         for (backend, backend_id) in backends:
-            modname = backend + '_backend.runner'
+            modname = backend + '_backend.filterrunner'
             backend = importlib.import_module(modname)
-            runner = backend.Runner(selector, backend_id, self.dry_run, self.verbosity)
+            filterrunner = backend.FilterRunner(selector, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=runner.run, args=())
-            runner.run()
+            #process = multiprocessing.Process(target=filterrunner.run, args=())
+            filterrunner.run()

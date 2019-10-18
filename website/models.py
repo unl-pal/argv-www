@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from backend.models import Backend
+from django_countries.fields import CountryField
 from .validators import validate_file_size, validate_gh_token
 from .choices import *
 
@@ -46,42 +47,26 @@ class Profile(models.Model):
     terms_agreement = models.BooleanField(default=False)
     age_confirmation = models.BooleanField(default=False)
     active_email = models.BooleanField(default=False)
-
-    NONE = ''
-    DOCTOR = 'Dr.'
-    HONORIFIC_CHOICES = (
-        (NONE, ''),
-        (DOCTOR, 'DR'),
-    )
+    country = CountryField()
     honorific = models.CharField(
         max_length=5,
         choices=HONORIFIC_CHOICES,
         default=NONE,
+        blank=True
     )
-    USER = 'User'
-    RETIRED = 'Retired'
-    MODERATOR = 'Moderator'
-    ADMIN = 'Admin'
-    STAFF_STATUS = (
-        (USER, 'USER'),
-        (RETIRED, 'RETIRED'),
-        (MODERATOR, 'MODERATOR'),
-        (ADMIN, 'ADMIN'),
-    )
-
     staffStatus = models.CharField(max_length=15, choices=STAFF_STATUS, default=USER)
 
     def hasBio(self):
-        return self.staffStatus != self.USER
+        return self.staffStatus != USER
 
     def isAdmin(self):
-        return self.staffStatus == self.ADMIN
+        return self.staffStatus == ADMIN
 
     def isModerator(self):
-        return self.staffStatus == self.MODERATOR
+        return self.staffStatus == MODERATOR
 
     def isRetired(self):
-        return self.staffStatus == self.RETIRED
+        return self.staffStatus == RETIRED
 
     def __str__(self):
         return self.user.first_name
@@ -105,14 +90,6 @@ class FilterManager(models.Manager):
 
 class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
-    INT = 'Integer'
-    STRING = 'String'
-    LIST = 'List'
-    TYPE_CHOICES = (
-        (INT, 'Integer'),
-        (STRING, 'String'),
-        (LIST, 'List'),
-    )
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
     enabled = models.BooleanField(default=False)
@@ -155,7 +132,7 @@ class ProjectSelector(models.Model):
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
-    parent = models.CharField(max_length=255, default='', blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     enabled = models.BooleanField(default=True)
     project = models.ManyToManyField(Project, through='Selection')
     submitted = models.DateTimeField(auto_now_add=True)
@@ -167,9 +144,8 @@ class ProjectSelector(models.Model):
         ]
 
     def save(self, **kwargs):
-        # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
-        super().save(**kwargs)
-        self.slug = self.gen_slug()
+        if self.pk == None:
+            self.slug = self.gen_slug()
         super().save(**kwargs)
 
     """ Generates a unique slug to be used for sharing
@@ -181,7 +157,7 @@ class ProjectSelector(models.Model):
         Does not return until unique slug is generated.    
     """
     def gen_slug(self):
-        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        slug = str(uuid.uuid4())
         slug = slug.replace('-','')
         return slug
 
@@ -210,19 +186,45 @@ class FilterDetail(models.Model):
     def __str__(self):
         return self.value
 
-class ProjectTransformer(models.Model):
-    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.input_selection
-
 class Transform(models.Model):
-    project_transformers = models.ManyToManyField(ProjectTransformer)
     name = models.CharField(max_length=200, default='')
+    enabled = models.BooleanField(default=False)
+    associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
+
+class ProjectTransformer(models.Model):
+    slug = models.SlugField(unique=True)
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
+    datetime_processed = models.DateTimeField(auto_now=True)
+    transforms = models.ManyToManyField(Transform)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.slug
+    
+    def save(self, **kwargs):
+        if self.pk == None:
+            self.slug = self.gen_slug()
+        super().save(**kwargs)
+
+    def gen_slug(self):
+        slug = str(uuid.uuid4())
+        slug = slug.replace('-','')
+        return slug
+
+class TransformedProject(models.Model):
+    host = models.CharField(max_length=255)
+    path = models.CharField(max_length = 255)
+    datetime_processed = models.DateTimeField(null=True, blank=True)
+    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.project.url
 
 class Analysis(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)

@@ -1,7 +1,7 @@
 from website.models import ProjectSelector, Project, Selection
 from website.choices import *
 
-class Runner:
+class FilterRunner:
     '''Notes on attributes from selector
 
     filters = selector.filterdetail_set.all() -> will give you a list of all filter details.
@@ -20,6 +20,7 @@ class Runner:
             return
         if not self.selector.filterdetail_set.exclude(status=PROCESSED).exists():
             self.selector.status = PROCESSED
+            self.selector.processed = PROCESSED
             self.selector.save()
 
     def all_filters(self):
@@ -39,7 +40,7 @@ class Runner:
             flter.save()
 
     def run(self):
-        raise NotImplementedError('runners must override the run() method')
+        raise NotImplementedError('filter runners must override the run() method')
 
     def save_result(self, url):
         if self.verbosity >= 3:
