@@ -18,7 +18,9 @@
                 <h4><strong>Project Submitted:</strong> {{ project.submitted }}</h4>
                 {% if project.status == 'PROCESSED' %}<h4><strong>Project Finished Processing:</strong>{{ project.fin_process }}</h4>{% endif %}
                 <br>
-                <a href="{% url 'website:download' project.slug %}">Download results</a>
+                {% if project.status == 'PROCESSED' %}
+                    <a href="{% url 'website:download' project.slug %}">Download results</a>
+                {% endif %}
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p><em>Value:</em> {{ filter }}</p>
