@@ -26,7 +26,6 @@
                     <p><em>Value:</em> {{ filter }}</p>
                     <p><em>Status: </em>{{ filter.status }}</p>
                 {% endfor %}
-                {% comment %}
                 {% for url in project.project.all %}
                     <h4><strong>{{ url.url }}</strong></h4>
                     {% if not url.host %}
@@ -39,7 +38,29 @@
                         <p>Project is done processing!</p>
                     {% endif %}
                 {% endfor %}
-                {% endcomment %}
+
+                {% if values.has_other_pages %}
+                    <ul class="pagination">
+                        {% if values.has_previous %}
+                            <li><a href="?page={{ values.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                    {% for i in values.paginator.page_range %}
+                        {% if values.number == i %}
+                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {% else %}
+                            <li><a href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if values.has_next %}
+                        <li><a href="?page={{ values.next_page_number }}">&raquo;</a></li>
+                    {% else %}
+                        <li class="disabled"><span>&raquo;</span></li>
+                    {% endif %}
+                    </ul>
+                {% endif %}
+                
                 {% if user.profile.active_email %}
                     <br>
                     <div class="panel panel-warning">
