@@ -2,11 +2,11 @@
 PROCESSED = 'PROCESSED'
 ONGOING = 'ONGOING'
 READY = 'READY'
-PROCESS_STATUS = {
+PROCESS_STATUS = (
     (PROCESSED, 'Processed'),
     (ONGOING, 'Ongoing'),
     (READY, 'Ready'),
-}
+)
 
 # Honorific
 NONE = ''
