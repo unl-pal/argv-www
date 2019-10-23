@@ -1,3 +1,4 @@
+from django.utils import timezone
 from website.models import ProjectSelector, Project, Selection
 from website.choices import *
 
@@ -20,7 +21,7 @@ class FilterRunner:
             return
         if not self.selector.filterdetail_set.exclude(status=PROCESSED).exists():
             self.selector.status = PROCESSED
-            self.selector.processed = PROCESSED
+            self.selector.fin_process = timezone.now()
             self.selector.save()
 
     def all_filters(self):
