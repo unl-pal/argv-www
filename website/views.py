@@ -153,8 +153,9 @@ def project_detail(request, slug):
             transformer = ProjectTransformer.objects.get(project_selector=model)
         except:
             pass
-        if model.status == PROCESSED and transformer.status == PROCESSED:
-            is_done = True
+        if transformer != None:
+            if model.status == PROCESSED and transformer.status == PROCESSED:
+                is_done = True
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : is_done })
 
 @email_required
