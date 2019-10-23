@@ -48,16 +48,16 @@ class Command(BaseCommand):
             transform.status = ONGOING
             transform.save()
 
-        transforms = transform.transforms_set.all()
+        transforms = transform.transforms.exclude(enabled=False)
         backends = set()
         for t in transforms:
             associated_backend = str(t.associated_backend)
-            backends.add((associated_backend, t.associated_backend))
+            backends.add((t, associated_backend, t.associated_backend))
 
-        for (backend, backend_id) in backends:
+        for (t, backend, backend_id) in backends:
             modname = backend + '_backend.transformrunner'
             backend = importlib.import_module(modname)
-            transformrunner = backend.TransformRunner(transform, backend_id, self.dry_run, self.verbosity)
+            transformrunner = backend.TransformRunner(transform, t, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
             #process = multiprocessing.Process(target=transformrunner.run, args=())

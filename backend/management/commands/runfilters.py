@@ -48,7 +48,7 @@ class Command(BaseCommand):
             selector.status = ONGOING
             selector.save()
 
-        filters = selector.filterdetail_set.all()
+        filters = selector.filterdetail_set.exclude(enabled=False)
         backends = set()
         for pfilter in filters:
             associated_backend = str(pfilter.pfilter.associated_backend)
