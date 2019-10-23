@@ -1,5 +1,5 @@
 {% extends 'website/base.html' %}
-{% load calc_cloned_projects %}
+{% load calc_finished_projects %}
 {% block title %}Project Selections{% endblock %}
 {% block projectsactive %}active{% endblock %}
 {% block style %}
@@ -30,7 +30,7 @@
                     <tr>
                         <th>Project Selection</th>
                         <th>Created</th>
-                        <th>Cloned Projects vs. Projects Matched</th>
+                        <th>Transformed Project Number</th>
                         <th>Options</th>
                     </tr>
                 </thead>
@@ -42,7 +42,7 @@
                             <td>{{ project.created }}</td>
                             <td>
                                 <p>
-                                    {{ project|calc_cloned_projects }}/{{ project.project.all|length }}
+                                    {{ project|calc_finished_projects }}
                                 </p>
                             </td>
                             <td>
