@@ -16,9 +16,9 @@
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
                 <h4><strong>Projects Matched:</strong> {{ project.project.all|length }}</h4>
                 <h4><strong>Project Submitted:</strong> {{ project.submitted }}</h4>
-                {% if project.status == 'PROCESSED' %}<h4><strong>Project Finished Processing:</strong>{{ project.fin_process }}</h4>{% endif %}
+                {% if is_done %}<h4><strong>Project Finished Processing:</strong>{{ project.fin_process }}</h4>{% endif %}
                 <br>
-                {% if project.status == 'PROCESSED' %}
+                {% if is_done %}
                     <a href="{% url 'website:download' project.slug %}">Download results</a>
                 {% endif %}
                 {% for filter in values %}
@@ -26,6 +26,8 @@
                     <p><em>Value:</em> {{ filter }}</p>
                     <p><em>Status: </em>{{ filter.status }}</p>
                 {% endfor %}
+
+                {% comment %}
                 {% for url in project.project.all %}
                     <h4><strong>{{ url.url }}</strong></h4>
                     {% if not url.host %}
@@ -38,6 +40,7 @@
                         <p>Project is done processing!</p>
                     {% endif %}
                 {% endfor %}
+                {% endcomment %}
                 
                 {% if user.profile.active_email %}
                     <br>

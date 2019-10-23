@@ -26,7 +26,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, TransformedProject
+from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
@@ -145,9 +145,17 @@ def project_detail(request, slug):
         else:
             messages.warning(request, 'Invalid form entry')
     else:
+        is_done = False
         form = EmailForm()
         values = FilterDetail.objects.all().filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
+        transformer = None
+        try:
+            transformer = ProjectTransformer.objects.get(project_selector=model)
+        except:
+            pass
+        if model.status == PROCESSED and transformer.status == PROCESSED:
+            is_done = True
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : is_done })
 
 @email_required
 def project_delete(request, slug):
