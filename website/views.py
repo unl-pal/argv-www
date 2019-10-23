@@ -146,15 +146,7 @@ def project_detail(request, slug):
             messages.warning(request, 'Invalid form entry')
     else:
         form = EmailForm()
-        value_list = FilterDetail.objects.all().filter(project_selector=model)
-        page = request.GET.get('page', 1)
-        paginator = Paginator(value_list, 2)
-        try:
-            values = paginator.page(page)
-        except PageNotAnInteger:
-            values = paginator.page(1)
-        except EmptyPage:
-            values = paginator.page(paginator.num_pages)
+        values = FilterDetail.objects.all().filter(project_selector=model)
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
 
 @email_required
