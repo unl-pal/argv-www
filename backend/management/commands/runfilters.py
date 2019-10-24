@@ -8,9 +8,9 @@ from django.conf import settings
 
 from website.choices import *
 
-'''Run Poller
+'''Run Filters Poller
 
-Usage: manage.py runpoller
+Usage: manage.py runfilters
 Runs a poller in the background to grab unprocessed project selections from database
 '''
 class Command(BaseCommand):
@@ -28,13 +28,13 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_selection(ProjectSelector.objects.get(slug=slug,processed=READY))
+                self.process_selection(ProjectSelector.objects.get(slug=slug))
             except:
                 self.stdout.write('error processing: ' + slug)
 
         if len(options['slug']) == 0:
             while True:
-                selectors = ProjectSelector.objects.filter(processed=READY)
+                selectors = ProjectSelector.objects.filter(status=READY)
                 for selector in selectors:
                     self.process_selection(selector)
 
@@ -45,20 +45,20 @@ class Command(BaseCommand):
     def process_selection(self, selector):
         self.stdout.write('processing ProjectSelection: ' + selector.slug)
         if not self.dry_run:
-            selector.processed = ONGOING
+            selector.status = ONGOING
             selector.save()
 
-        filters = selector.filterdetail_set.all()
+        filters = selector.filterdetail_set.exclude(pfilter__enabled=False)
         backends = set()
         for pfilter in filters:
             associated_backend = str(pfilter.pfilter.associated_backend)
             backends.add((associated_backend, pfilter.pfilter.associated_backend))
 
         for (backend, backend_id) in backends:
-            modname = backend + '_backend.runner'
+            modname = backend + '_backend.filterrunner'
             backend = importlib.import_module(modname)
-            runner = backend.Runner(selector, backend_id, self.dry_run, self.verbosity)
+            filterrunner = backend.FilterRunner(selector, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=runner.run, args=())
-            runner.run()
+            #process = multiprocessing.Process(target=filterrunner.run, args=())
+            filterrunner.run()

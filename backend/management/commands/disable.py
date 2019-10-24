@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
-from website.models import Filter
+from website.models import Filter, Transform
 
 '''Disable Backend
 
 Usage: manage.py disable BACKEND_NAME
-Disables all filters of certain backend
+Disables all items in the database associated with the specified backend.
 '''
 class Command(BaseCommand):
     help = 'Disables all filters of certain backend'
@@ -17,3 +17,6 @@ class Command(BaseCommand):
         for myfilter in Filter.objects.all().filter(associated_backend__name=backend):
             myfilter.enabled = False
             myfilter.save()
+        for mytransform in Transform.objects.all().filter(associated_backend__name=backend):
+            mytransform.enabled = False
+            mytransform.save()

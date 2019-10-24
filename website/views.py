@@ -1,5 +1,9 @@
 import json
 
+import os
+import zipfile
+from decouple import config
+
 from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,7 +23,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, ProjectSelector, Filter
+from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
@@ -140,7 +144,7 @@ def project_detail(request, slug):
     else:
         form = EmailForm()
         values = FilterDetail.objects.all().filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.status == PROCESSED, 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
 
 @email_required
 def project_delete(request, slug):
@@ -207,7 +211,7 @@ def profile(request):
             return redirect('website:edit_profile')
         else:
             messages.error(request, 'Invalid form entry')
-    else:    
+    else:
         userForm = UserForm(instance=request.user)
         if request.user.profile.hasBio():
             profileForm = BioProfileForm(instance=request.user.profile)
@@ -294,3 +298,37 @@ def send_email_verify(request, user, title):
     email.send()
     messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
     return redirect('website:index')
+
+def download(request, slug):
+    paths = []
+
+    try:
+        for project in ProjectSelector.objects.get(slug=slug).selection_set.all():
+            transformed_project = project.project.transformedproject_set.all()[0]
+            paths.append((transformed_project.host, transformed_project.path))
+    except:
+        raise Http404
+
+    if not paths:
+        raise Http404
+
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_filename = slug + '.zip'
+    zipfile_path = os.path.join(download_path, download_filename)
+
+    if not os.path.exists(zipfile_path):
+        if not os.path.exists(download_path):
+            os.mkdir(download_path, 0o755)
+
+        transformed_path = config('TRANSFORMED_PATH')
+
+        archive = zipfile.ZipFile(zipfile_path, 'a')
+        for path in paths:
+            for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
+                for filename in files:
+                    full_path = os.path.join(dirname, filename)
+                    first, arcname = full_path.split(os.path.join(transformed_path, path[0]))
+                    archive.write(full_path, arcname)
+        archive.close()
+
+    return redirect(f'{settings.MEDIA_URL}/downloads/{download_filename}')

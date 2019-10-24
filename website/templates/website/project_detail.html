@@ -1,23 +1,54 @@
 {% extends 'website/base.html' %}
+{% load calc_finished_projects %}
 {% load staticfiles %}
 {% block title %}Project Selection{% endblock %}
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        <a href="{% url 'website:project_list' %}">Back to all project selections</a><br><br>
+        <a href="{% url 'website:project_list' %}">Back to all project selections</a><br/><br/>
+        {% if not is_done %}
+            <div class="alert alert-warning">This selector is still processing</div>
+        {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
             </div>
             <div class="panel-body">
+                <h4><strong>Selection Submitted:</strong> {{ project.submitted }}</h4>
+                {% if is_done %}<h4><strong>Dataset Generated:</strong>{{ project.fin_process }}</h4>{% endif %}
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
-                <br>
+                <br/>
+                <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
+                <h4><strong>Projects Cloned:</strong> {{ cloned }}</h4>
+                <h4><strong>Projects Transformed:</strong> {{ project|calc_finished_projects }}</h4>
+                <br/>
+                {% if is_done %}
+                    <h3><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</h3>
+                    <br/>
+                {% endif %}
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
-                    <p>{{ filter }}</p>
+                    <p><em>Value:</em> {{ filter }}</p>
+                    <p><em>Status: </em>{{ filter.status }}</p>
                 {% endfor %}
+
+                {% comment %}
+                {% for url in project.project.all %}
+                    <h4><strong>{{ url.url }}</strong></h4>
+                    {% if not url.host %}
+                        <p>Project has not been processed.</p>
+                    {% elif url.host and url.date_processed == '' %}
+                        <p>Project is processing</p>
+                    {% elif url.host and url.date_processed != '' and not url.path %}
+                        <p>Project did not clone</p>
+                    {% else %}
+                        <p>Project is done processing!</p>
+                    {% endif %}
+                {% endfor %}
+                {% endcomment %}
+                
                 {% if user.profile.active_email %}
-                    <br>
+                    <br/>
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h3 class="panel-title">Share this project selection</h3>

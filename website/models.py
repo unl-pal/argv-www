@@ -130,11 +130,13 @@ class ProjectSelector(models.Model):
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
-    processed = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
+    status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
-    parent = models.CharField(max_length=255, default='', blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
     enabled = models.BooleanField(default=True)
     project = models.ManyToManyField(Project, through='Selection')
+    submitted = models.DateTimeField(auto_now_add=True)
+    fin_process = models.DateTimeField(auto_now=True)
 
     class Meta:
         permissions = [
@@ -142,9 +144,8 @@ class ProjectSelector(models.Model):
         ]
 
     def save(self, **kwargs):
-        # The double save is inefficient but a unique pk isn't generated until after the object is initially created.
-        super().save(**kwargs)
-        self.slug = self.gen_slug()
+        if self.pk == None:
+            self.slug = self.gen_slug()
         super().save(**kwargs)
 
     """ Generates a unique slug to be used for sharing
@@ -156,7 +157,7 @@ class ProjectSelector(models.Model):
         Does not return until unique slug is generated.    
     """
     def gen_slug(self):
-        slug = str(uuid.uuid5(uuid.NAMESPACE_URL, str(self.pk)))
+        slug = str(uuid.uuid4())
         slug = slug.replace('-','')
         return slug
 
@@ -180,23 +181,50 @@ class FilterDetail(models.Model):
     pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
     value = models.TextField(max_length=1000, default='1')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
+    fin_process = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.value
 
-class ProjectTransformer(models.Model):
-    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.input_selection
-
 class Transform(models.Model):
-    project_transformers = models.ManyToManyField(ProjectTransformer)
     name = models.CharField(max_length=200, default='')
+    enabled = models.BooleanField(default=False)
+    associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
+
+class ProjectTransformer(models.Model):
+    slug = models.SlugField(unique=True)
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
+    datetime_processed = models.DateTimeField(auto_now=True)
+    transforms = models.ManyToManyField(Transform)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.slug
+    
+    def save(self, **kwargs):
+        if self.pk == None:
+            self.slug = self.gen_slug()
+        super().save(**kwargs)
+
+    def gen_slug(self):
+        slug = str(uuid.uuid4())
+        slug = slug.replace('-','')
+        return slug
+
+class TransformedProject(models.Model):
+    host = models.CharField(max_length=255)
+    path = models.CharField(max_length=5000, null=True, blank=True)
+    datetime_processed = models.DateTimeField(null=True, blank=True)
+    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.project.url
 
 class Analysis(models.Model):
     input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)

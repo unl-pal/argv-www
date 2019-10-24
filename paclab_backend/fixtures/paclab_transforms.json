@@ -1,0 +1,10 @@
+[
+    {
+        "model": "website.transform",
+        "fields": {
+            "name": "PAClab integer transformer",
+            "enabled": false,
+            "associated_backend": ["paclab"]
+        }
+    }
+]
