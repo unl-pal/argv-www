@@ -4,7 +4,7 @@
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        <a href="{% url 'website:project_list' %}">Back to all project selections</a><br><br>
+        <a href="{% url 'website:project_list' %}">Back to all project selections</a><br/><br/>
         {% if project.status != 'PROCESSED' %}
             <div class="alert alert-warning">This selector is still processing</div>
         {% endif %}
@@ -13,14 +13,15 @@
                 <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
             </div>
             <div class="panel-body">
+                <h4><strong>Selection Submitted:</strong> {{ project.submitted }}</h4>
+                {% if is_done %}<h4><strong>Dataset Generated:</strong>{{ project.fin_process }}</h4>{% endif %}
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
-                <h4><strong>Projects Matched:</strong> {{ project.project.all|length }}</h4>
-                <h4><strong>Project Submitted:</strong> {{ project.submitted }}</h4>
-                {% if is_done %}<h4><strong>Project Finished Processing:</strong>{{ project.fin_process }}</h4>{% endif %}
-                <br>
                 {% if is_done %}
-                    <a href="{% url 'website:download' project.slug %}">Download results</a>
+                    <a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)
                 {% endif %}
+                <br/>
+                <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
+                <br/>
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p><em>Value:</em> {{ filter }}</p>
@@ -43,7 +44,7 @@
                 {% endcomment %}
                 
                 {% if user.profile.active_email %}
-                    <br>
+                    <br/>
                     <div class="panel panel-warning">
                         <div class="panel-heading">
                             <h3 class="panel-title">Share this project selection</h3>
