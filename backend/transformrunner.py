@@ -31,7 +31,12 @@ class TransformRunner:
     def run(self):
         raise NotImplementedError('transform runners must override the run() method')
 
-    def finish_project(self, proj, path):
+    def finish_project(self, proj, path = None):
+        if self.verbosity >= 3:
+            if not path:
+                print("project transform failed: " + proj.url)
+            else:
+                print("saving project transform: " + proj.url)
         if self.dry_run:
             return
 
@@ -41,9 +46,3 @@ class TransformRunner:
         p.path = path
         p.datetime_processed = timezone.now()
         p.save()
-
-    def failed_project(self, proj):
-        if self.verbosity >= 3:
-            print("project transform failed: " + url)
-
-        self.finish_project(proj, None)

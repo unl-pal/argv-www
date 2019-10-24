@@ -45,6 +45,6 @@ class TransformRunner(TransformRunner):
 
         if not self.dry_run:
             if proc.returncode == 0:
-                self.finish_project(project)
+                self.finish_project(project, out_path)
             else:
-                self.failed_project(project)
+                self.finish_project(project)
