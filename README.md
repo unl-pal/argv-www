@@ -42,11 +42,11 @@ Note that development and production environments have different requirements fi
    - `DATABASE_URL='sqlite:////full/path/to/paclab-www/db.sqlite3'` or url to your database
    - `EMAIL_USER='gmail-smtp-email-username'`
    - `EMAIL_PASSWORD='gmail-smtp-email-password'`
-   - `BOA_USE=''`
-   - `BOA_PW=''`
-   - `REPO_PATH=''`
-   - `TRANSFORMED_PATH=''`
-   - `PACLAB_TRANSFORM_PATH=''`
+   - `BOA_USER='your boa username'`
+   - `BOA_PW='your boa password'`
+   - `REPO_PATH='/path/to/store/repositories'`
+   - `TRANSFORMED_PATH='/path/to/store/transformed/projects'`
+   - `PACLAB_TRANSFORM_PATH='/path/to/paclabs/transformer'`
 9. Create migration files for database: `python3 manage.py makemigrations website backend`
 10. Create database tables: `python3 manage.py migrate`
 
