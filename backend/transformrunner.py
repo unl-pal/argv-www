@@ -24,6 +24,10 @@ class TransformRunner:
         #    self.transformed_project.status = READY
         self.transformed_project.save()
 
+        self.transformed_project.project_selector.status = PROCESSED
+        self.transformed_project.project_selector.fin_process = timezone.now()
+        self.transformed_project.project_selector.save()
+
     def all_projects(self):
         return self.transformed_project.project_selector.project.filter(path__isnull=False)
 

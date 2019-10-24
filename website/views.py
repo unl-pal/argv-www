@@ -142,18 +142,9 @@ def project_detail(request, slug):
         else:
             messages.warning(request, 'Invalid form entry')
     else:
-        is_done = False
         form = EmailForm()
         values = FilterDetail.objects.all().filter(project_selector=model)
-        transformer = None
-        try:
-            transformer = ProjectTransformer.objects.get(project_selector=model)
-        except:
-            pass
-        if transformer != None:
-            if model.status == PROCESSED and transformer.status == PROCESSED:
-                is_done = True
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : is_done, 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.status == PROCESSED, 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
 
 @email_required
 def project_delete(request, slug):

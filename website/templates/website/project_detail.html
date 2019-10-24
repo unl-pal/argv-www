@@ -17,14 +17,15 @@
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted }}</h4>
                 {% if is_done %}<h4><strong>Dataset Generated:</strong>{{ project.fin_process }}</h4>{% endif %}
                 <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
-                {% if is_done %}
-                    <a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)
-                {% endif %}
                 <br/>
                 <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ project|calc_finished_projects }}</h4>
                 <br/>
+                {% if is_done %}
+                    <h3><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</h3>
+                    <br/>
+                {% endif %}
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
                     <p><em>Value:</em> {{ filter }}</p>
