@@ -218,7 +218,7 @@ class ProjectTransformer(models.Model):
 
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)
-    path = models.CharField(max_length = 255)
+    path = models.CharField(max_length=5000, null=True, blank=True)
     datetime_processed = models.DateTimeField(null=True, blank=True)
     transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
     project = models.ForeignKey(Project, on_delete=models.PROTECT)
