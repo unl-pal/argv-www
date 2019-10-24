@@ -1,6 +1,7 @@
 import socket
 
 from django.utils import timezone
+from website.models import TransformedProject
 from website.choices import *
 
 class TransformRunner:

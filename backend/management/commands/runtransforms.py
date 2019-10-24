@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_transform(ProjectTransformer.objects.get(slug=slug,status=READY))
+                self.process_transform(ProjectTransformer.objects.get(slug=slug))
             except:
                 self.stdout.write('error processing: ' + slug)
 
