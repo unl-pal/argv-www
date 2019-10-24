@@ -28,7 +28,7 @@ class FilterRunner:
         return self.selector.filterdetail_set.filter(pfilter__associated_backend=self.backend_id)
 
     def filters(self):
-        return self.all_filters().filter(status=READY)
+        return self.all_filters().exclude(status=PROCESSED)
 
     def filter_start(self, flter):
         if not self.dry_run:
