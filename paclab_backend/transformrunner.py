@@ -1,4 +1,6 @@
 import subprocess
+import os
+import shutil
 
 from backend.transformrunner import TransformRunner
 from decouple import config
@@ -6,7 +8,7 @@ from decouple import config
 class TransformRunner(TransformRunner):
     def run(self):
         self.repo_path = config('REPO_PATH')
-        self.filtered_path = config('TRANSFORMED_PATH') + '-tmp'
+        self.filtered_path = config('TRANSFORMED_PATH') + '/tmp'
         self.transformed_path = config('TRANSFORMED_PATH')
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
 
@@ -38,6 +40,14 @@ class TransformRunner(TransformRunner):
         transformed_root += host
         out_path = transformed_root + '/' + project_name
 
+        if os.path.exists(out_path):
+            self.stdout.write('    -> SKIPPING: already exists: ' + project_name)
+            self.finish_project(project, out_path)
+            return
+
+        if os.path.exists(filter_path):
+            shutil.rmtree(filter_path)
+
         proc = subprocess.Popen(['./run.sh', path, filter_path, out_path], cwd=self.transformer_path, stdout=subprocess.PIPE if self.verbosity < 2 else None, stderr=subprocess.PIPE if self.verbosity < 2 else None)
         if self.verbosity >= 2:
             self.stdout.write('    -> process id: ' + str(proc.pid))
@@ -48,3 +58,6 @@ class TransformRunner(TransformRunner):
                 self.finish_project(project, out_path)
             else:
                 self.finish_project(project)
+
+        if os.path.exists(filter_path):
+            shutil.rmtree(filter_path)

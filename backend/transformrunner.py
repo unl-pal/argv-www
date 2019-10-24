@@ -15,9 +15,10 @@ class TransformRunner:
     def done(self):
         if self.dry_run:
             return
-        if not self.transformed_project.transforms_set.exclude(status=PROCESSED).exists():
-            self.transformed_project.status = PROCESSED
-            self.transformed_project.datetime_processed = timezone.now()
+# TODO only mark done if everything processed?
+        #if not self.transformed_project.transforms_set.exclude(status=PROCESSED).exists():
+        self.transformed_project.status = PROCESSED
+        self.transformed_project.datetime_processed = timezone.now()
         #else:
         #    self.transformed_project.status = READY
         self.transformed_project.save()
