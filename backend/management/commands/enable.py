@@ -5,8 +5,7 @@ from website.models import Filter, Transform
 '''Enable Command
 
 Usage: manage.py enable BACKEND_NAME
-Installs all filters from the specified backend into the database.
-Enables all disabled filters in the database associated with the given backend.
+Installs and enables all items in the database associated with the specified backend.
 '''
 class Command(BaseCommand):
     help = 'Installs all filters from the specified backend into the database'
