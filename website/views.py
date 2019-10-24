@@ -303,9 +303,10 @@ def download(request, slug):
     paths = []
 
     try:
-        for project in ProjectSelector.objects.get(slug=slug).selection_set.all():
-            transformed_project = project.project.transformedproject_set.all()[0]
-            paths.append((transformed_project.host, transformed_project.path))
+        for project in ProjectSelector.objects.get(slug=slug).project.exclude(path__isnull=True):
+            transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
+            if transformed_project:
+                paths.append((transformed_project.host, transformed_project.path))
     except:
         raise Http404
 
