@@ -8,7 +8,6 @@ from decouple import config
 class TransformRunner(TransformRunner):
     def run(self):
         self.repo_path = config('REPO_PATH')
-        self.filtered_path = config('TRANSFORMED_PATH') + '/tmp'
         self.transformed_path = config('TRANSFORMED_PATH')
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
 
@@ -28,11 +27,7 @@ class TransformRunner(TransformRunner):
         repo_root += host
         path = repo_root + '/' + project_name
 
-        filter_root = self.filtered_path
-        if filter_root[-1:] != '/':
-            filter_root += '/'
-        filter_root += host
-        filter_path = filter_root + '/' + project_name
+        filter_path = '/tmp/' + project_name + '-filter'
 
         transformed_root = self.transformed_path
         if transformed_root[-1:] != '/':
@@ -41,7 +36,7 @@ class TransformRunner(TransformRunner):
         out_path = transformed_root + '/' + project_name
 
         if os.path.exists(out_path):
-            self.stdout.write('    -> SKIPPING: already exists: ' + project_name)
+            print('    -> SKIPPING: already exists: ' + project_name)
             self.finish_project(project, out_path)
             return
 
@@ -50,7 +45,7 @@ class TransformRunner(TransformRunner):
 
         proc = subprocess.Popen(['./run.sh', path, filter_path, out_path], cwd=self.transformer_path, stdout=subprocess.PIPE if self.verbosity < 2 else None, stderr=subprocess.PIPE if self.verbosity < 2 else None)
         if self.verbosity >= 2:
-            self.stdout.write('    -> process id: ' + str(proc.pid))
+            print('    -> process id: ' + str(proc.pid))
         proc.wait()
 
         if not self.dry_run:
