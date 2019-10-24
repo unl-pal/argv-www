@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_selection(ProjectSelector.objects.get(slug=slug,status=READY))
+                self.process_selection(ProjectSelector.objects.get(slug=slug))
             except:
                 self.stdout.write('error processing: ' + slug)
 
@@ -48,7 +48,7 @@ class Command(BaseCommand):
             selector.status = ONGOING
             selector.save()
 
-        filters = selector.filterdetail_set.exclude(enabled=False)
+        filters = selector.filterdetail_set.exclude(pfilter__enabled=False)
         backends = set()
         for pfilter in filters:
             associated_backend = str(pfilter.pfilter.associated_backend)
