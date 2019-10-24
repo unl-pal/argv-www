@@ -3,10 +3,7 @@ import json
 import os
 import zipfile
 from decouple import config
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, JsonResponse, Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
