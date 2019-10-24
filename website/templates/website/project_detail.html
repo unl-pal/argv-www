@@ -1,4 +1,5 @@
 {% extends 'website/base.html' %}
+{% load calc_finished_projects %}
 {% load staticfiles %}
 {% block title %}Project Selection{% endblock %}
 {% block body %}
@@ -22,6 +23,7 @@
                 <br/>
                 <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned }}</h4>
+                <h4><strong>Projects Transformed:</strong> {{ project|calc_finished_projects }}</h4>
                 <br/>
                 {% for filter in values %}
                     <h4><strong>{{ filter.pfilter }}:</strong></h4>
