@@ -36,9 +36,9 @@ class TransformRunner:
     def finish_project(self, proj, path = None):
         if self.verbosity >= 3:
             if not path:
-                print("project transform failed: " + proj.url)
+                print("project transform failed: " + proj.path)
             else:
-                print("saving project transform: " + proj.url)
+                print("saving project transform for: " + proj.path)
         if self.dry_run:
             return
 

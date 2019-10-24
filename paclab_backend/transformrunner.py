@@ -12,7 +12,10 @@ class TransformRunner(TransformRunner):
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
 
         for project in self.projects():
-            self.transform_project(project)
+            try:
+                self.transform_project(project)
+            except:
+                print('error transforming: ' + project.path)
 
         self.done()
 
