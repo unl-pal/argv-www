@@ -93,7 +93,7 @@ class Command(BaseCommand):
                 # move repo to final location
                 shutil.move(tmp, repo_root)
 
-                project.path = path
+                project.path = host + '/' + project_name
                 project.datetime_processed = timezone.now()
                 project.save()
             else:

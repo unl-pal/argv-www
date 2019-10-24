@@ -53,7 +53,7 @@ class TransformRunner(TransformRunner):
 
         if not self.dry_run:
             if proc.returncode == 0:
-                self.finish_project(project, out_path)
+                self.finish_project(project, host + '/' + project_name)
             else:
                 self.finish_project(project)
 
