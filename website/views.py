@@ -332,4 +332,4 @@ def download(request, slug):
                     archive.write(full_path, arcname)
         archive.close()
 
-    return redirect(f'{settings.MEDIA_URL}/downloads/{download_filename}')
+    return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
