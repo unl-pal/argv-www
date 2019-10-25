@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
         if len(options['slug']) == 0:
             while True:
-                transforms = ProjectTransformer.objects.filter(status=READY)
+                transforms = ProjectTransformer.objects.filter(status=READY)[:1]
                 for transform in transforms:
                     self.process_transform(transform)
 
