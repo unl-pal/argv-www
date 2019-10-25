@@ -145,7 +145,7 @@ def project_detail(request, slug):
     else:
         form = EmailForm()
         values = FilterDetail.objects.all().filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : model.project.exclude(host__isnull=True).exclude(path__isnull=True).count() })
 
 @email_required
 def project_delete(request, slug):
