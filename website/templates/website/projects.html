@@ -1,6 +1,7 @@
 {% extends 'website/base.html' %}
 {% load calc_finished_projects %}
 {% load project_done %}
+{% load humanize %}
 {% block title %}Project Selections{% endblock %}
 {% block projectsactive %}active{% endblock %}
 {% block style %}
@@ -30,8 +31,8 @@
                 <thead>
                     <tr>
                         <th>Project Selection</th>
-                        <th>Created</th>
-                        <th># Projects Transformed</th>
+                        <th>Submitted</th>
+                        <th># Benchmark Projects</th>
                         <th>Options</th>
                     </tr>
                 </thead>
@@ -40,11 +41,11 @@
                     {% for project in projects %}
                         <tr>
                             <td><a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
-                            <td>{{ project.created }}</td>
+                            <td>{{ project.created|naturalday }}</td>
                             <td>{% if not project|project_done %}
                                 <span class="glyphicon glyphicon-refresh spinning"></span> processing...
                             {% else %}
-                                {{ project|calc_finished_projects }}
+                                {{ project|calc_finished_projects|intcomma }}
                             {% endif %}</td>
                             <td>
                                 <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>

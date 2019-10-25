@@ -1,6 +1,7 @@
 {% extends 'website/base.html' %}
 {% load calc_finished_projects %}
 {% load staticfiles %}
+{% load humanize %}
 {% block title %}Project Selection{% endblock %}
 {% block body %}
     <div class="container">
@@ -11,31 +12,36 @@
         {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h1 class="panel-title"><strong>Project Selection:</strong> <em>{{ project.slug }}</em></h1>
+                <h1 class="panel-title"><strong>Project Selection</strong><div class="pull-right"><em>{{ project.slug }}</em></div></h1>
             </div>
             <div class="panel-body">
-                <h4><strong>Selection Submitted:</strong> {{ project.submitted }}</h4>
-                {% if is_done %}<h4><strong>Dataset Generated:</strong> {{ project.fin_process }}</h4>{% endif %}
+                <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
+                {% if is_done %}<h4><strong>Dataset Generated:</strong> {{ project.fin_process|naturaltime }}</h4>{% endif %}
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
-                <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
-                <h4><strong>Projects Cloned:</strong> {{ cloned }}</h4>
-                <h4><strong>Projects Transformed:</strong> {{ project|calc_finished_projects }}{% if not is_done %} ({{ project|calc_remaining_projects }} still processing){% endif %}</h4>
+                <h4><strong>Discovered Projects:</strong> {{ project.project.all|length|intcomma }}</h4>
+                <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
+                <h4><strong>Benchmark Projects:</strong> {{ project|calc_finished_projects|intcomma }}{% if not is_done %} ({{ project|calc_remaining_projects }} still processing){% endif %}</h4>
                 <br/>
+                <h4><strong>Selection Criteria:</strong></h4>
                 {% for filter in values %}
-                    <h5><strong>{{ filter.pfilter }}:</strong> {{ filter }}</h5>
+                    <h5 style="padding-left: 20px;"><strong>{{ filter.pfilter }}:</strong> {{ filter }}</h5>
                     {% if filter.status != 'PROCESSED' %}
-                    <p>Status: <em>{{ filter.status }}</em></p>
+                    <p style="padding-left: 20px;">Status: <em>{{ filter.status }}</em></p>
                     {% endif %}
                 {% endfor %}
                 {% if is_done %}
-                {% if project|calc_finished_projects > 0 %}
                     <br/>
-                    <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
-                {% else %}
-                    <br/>
-                    <h3><strong>No download available - no projects match criteria</strong></h3>
-                {% endif %}
+                    {% if project|calc_finished_projects > 0 %}
+                        <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
+                        {% if download_size > 0 %}
+                            <h4>({{ download_size|filesizeformat }})</h4>
+                        {% else %}
+                            <h4>(archive is not generated - please be patient and only click the above link once)</h4>
+                        {% endif %}
+                    {% else %}
+                        <h3><strong>No download available - no projects match criteria</strong></h3>
+                    {% endif %}
                 {% endif %}
 
                 {% comment %}

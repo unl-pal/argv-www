@@ -17,14 +17,14 @@ class Command(BaseCommand):
         backend = options['backend']
         try:
             call_command('loaddata', backend + '_filters')
-            for myfilter in Filter.objects.all().filter(associated_backend__name=backend):
+            for myfilter in Filter.objects.filter(associated_backend__name=backend):
                 myfilter.enabled = True
                 myfilter.save()
         except:
             pass
         try:
             call_command('loaddata', backend + '_transforms')
-            for mytransform in Transform.objects.all().filter(associated_backend__name=backend):
+            for mytransform in Transform.objects.filter(associated_backend__name=backend):
                 mytransform.enabled = True
                 mytransform.save()
         except:

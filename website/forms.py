@@ -79,7 +79,7 @@ class EmailForm(forms.Form):
     email = forms.CharField(label='')
 
 class FilterDetailForm(forms.Form):
-    pfilter = forms.ModelChoiceField(Filter.objects.all().filter(enabled=True).order_by('name'))
+    pfilter = forms.ModelChoiceField(Filter.objects.filter(enabled=True).order_by('name'))
     value = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={

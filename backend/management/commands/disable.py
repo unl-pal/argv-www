@@ -14,9 +14,9 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         backend = options['backend']
-        for myfilter in Filter.objects.all().filter(associated_backend__name=backend):
+        for myfilter in Filter.objects.filter(associated_backend__name=backend):
             myfilter.enabled = False
             myfilter.save()
-        for mytransform in Transform.objects.all().filter(associated_backend__name=backend):
+        for mytransform in Transform.objects.filter(associated_backend__name=backend):
             mytransform.enabled = False
             mytransform.save()

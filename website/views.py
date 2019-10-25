@@ -108,7 +108,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        objects = ProjectSelector.objects.all().filter(user=self.request.user)
+        objects = ProjectSelector.objects.filter(user=self.request.user)
         if not self.request.user.has_perm('website.view_disabled'):
             objects = objects.filter(enabled=True)
         return objects.order_by('-created')
@@ -144,8 +144,8 @@ def project_detail(request, slug):
             messages.warning(request, 'Invalid form entry')
     else:
         form = EmailForm()
-        values = FilterDetail.objects.all().filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : model.project.exclude(host__isnull=True).exclude(path__isnull=True).count() })
+        values = FilterDetail.objects.filter(project_selector=model)
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
 
 @email_required
 def project_delete(request, slug):
@@ -299,6 +299,15 @@ def send_email_verify(request, user, title):
     email.send()
     messages.info(request, "If an account exists with the email you entered, we've emailed you a link for verifying the email address. You should receive the email shortly. If you don't receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.")
     return redirect('website:index')
+
+def download_size(slug):
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_filename = slug + '.zip'
+    zipfile_path = os.path.join(download_path, download_filename)
+
+    if not os.path.exists(zipfile_path):
+        return -1
+    return os.stat(zipfile_path).st_size
 
 def download(request, slug):
     paths = []
