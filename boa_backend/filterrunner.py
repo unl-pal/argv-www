@@ -113,10 +113,13 @@ filtered := false;
         elif job.exec_status == 'Error':
             print('job ' + str(job.id) + ' had exec error')
         else:
-            output = job.output().decode('utf-8')
+            try:
+                output = job.output().decode('utf-8')
 
-            for line in output.splitlines(False):
-                self.save_result(line[6:])
+                for line in output.splitlines(False):
+                    self.save_result(line[6:])
+            except:
+                pass
 
             for f in self.filters():
                 self.filter_done(f)
