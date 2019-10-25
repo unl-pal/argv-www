@@ -15,22 +15,23 @@
             </div>
             <div class="panel-body">
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted }}</h4>
-                {% if is_done %}<h4><strong>Dataset Generated:</strong>{{ project.fin_process }}</h4>{% endif %}
-                <h4><strong>Input Dataset:</strong> {{ project.input_dataset }}</h4>
+                {% if is_done %}<h4><strong>Dataset Generated:</strong> {{ project.fin_process }}</h4>{% endif %}
+                <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
                 <h4><strong>Candidate Projects:</strong> {{ project.project.all|length }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ project|calc_finished_projects }}</h4>
                 <br/>
-                {% if is_done %}
-                    <h3><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</h3>
-                    <br/>
-                {% endif %}
                 {% for filter in values %}
-                    <h4><strong>{{ filter.pfilter }}:</strong></h4>
-                    <p><em>Value:</em> {{ filter }}</p>
-                    <p><em>Status: </em>{{ filter.status }}</p>
+                    <h5><strong>{{ filter.pfilter }}:</strong> {{ filter }}</h5>
+                    {% if filter.status != 'PROCESSED' %}
+                    <p>Status: <em>{{ filter.status }}</em></p>
+                    {% endif %}
                 {% endfor %}
+                {% if is_done %}
+                    <br/>
+                    <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
+                {% endif %}
 
                 {% comment %}
                 {% for url in project.project.all %}
@@ -46,25 +47,23 @@
                     {% endif %}
                 {% endfor %}
                 {% endcomment %}
-                
-                {% if user.profile.active_email %}
-                    <br/>
-                    <div class="panel panel-warning">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Share this project selection</h3>
-                        </div>
-                        <div class="panel-body">
-                            <p>Enter a PAClab username or email address to share this project selection.</p>
-                            <form method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                {% include 'website/form.html' with form=form %}
-                                <button class="btn btn-primary">Share</button>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
             </div>
         </div>
+        {% if user.profile.active_email %}
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Share this project selection</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Enter a PAClab username or email address to share this project selection.</p>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include 'website/form.html' with form=form %}
+                        <button class="btn btn-primary">Share</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 
