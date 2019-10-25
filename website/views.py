@@ -32,14 +32,14 @@ from .decorators import email_required, email_verify_warning
 from .choices import *
 
 class PapersView(ListView):
-    template_name='website/papers.html'
-    context_object_name='allPapers'
+    template_name = 'website/papers.html'
+    context_object_name = 'allPapers'
     paginate_by = 25
     queryset = Paper.objects.all()
     ordering = ['-date']
 
 class PeopleView(ListView):
-    template_name='website/people.html'
+    template_name = 'website/people.html'
     context_object_name = 'allPeople'
     paginate_by = 10
     queryset = User.objects.exclude(profile__staffStatus=USER)
@@ -103,9 +103,10 @@ class LoginView(View):
         return render(request, self.template_name, { 'form' : form })
 
 class ProjectListView(EmailRequiredMixin, ListView):
-    template_name='website/projects.html'
-    context_object_name='projects'
+    template_name = 'website/projects.html'
+    context_object_name = 'projects'
     paginate_by = 20
+
     def get_queryset(self):
         objects = ProjectSelector.objects.all().filter(user=self.request.user)
         if not self.request.user.has_perm('website.view_disabled'):
@@ -144,7 +145,7 @@ def project_detail(request, slug):
     else:
         form = EmailForm()
         values = FilterDetail.objects.all().filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.status == PROCESSED, 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : len(model.project.exclude(host__isnull=True).exclude(path__isnull=True)) })
 
 @email_required
 def project_delete(request, slug):

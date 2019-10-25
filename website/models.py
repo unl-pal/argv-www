@@ -164,6 +164,11 @@ class ProjectSelector(models.Model):
     def __str__(self):
         return self.slug
 
+    def isDone(self):
+        if self.status != PROCESSED:
+            return False
+        return not ProjectTransformer.objects.filter(project_selector=self.pk).exclude(status=PROCESSED).exists()
+
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

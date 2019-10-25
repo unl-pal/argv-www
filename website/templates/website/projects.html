@@ -1,5 +1,6 @@
 {% extends 'website/base.html' %}
 {% load calc_finished_projects %}
+{% load project_done %}
 {% block title %}Project Selections{% endblock %}
 {% block projectsactive %}active{% endblock %}
 {% block style %}
@@ -40,7 +41,7 @@
                         <tr>
                             <td><a href="{% url 'website:project_detail' slug=project.slug %}">{{ project.slug }}</a></td>
                             <td>{{ project.created }}</td>
-                            <td>{% if project.status != 'PROCESSED' %}
+                            <td>{% if not project|project_done %}
                                 <span class="glyphicon glyphicon-refresh spinning"></span> processing...
                             {% else %}
                                 {{ project|calc_finished_projects }}
