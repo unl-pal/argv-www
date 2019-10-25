@@ -24,6 +24,13 @@ class FilterRunner:
             self.selector.fin_process = timezone.now()
             self.selector.save()
 
+            # handle case where filters were too restrictive and nothing matched
+            if self.selector.project.count() == 0:
+                for t in self.selector.projecttransformer_set.all():
+                    t.status = PROCESSED
+                    t.datetime_processed = timezone.now()
+                    t.save()
+
     def all_filters(self):
         return self.selector.filterdetail_set.filter(pfilter__associated_backend=self.backend_id)
 
