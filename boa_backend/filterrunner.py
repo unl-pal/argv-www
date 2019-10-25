@@ -16,10 +16,18 @@ filtered := false;
 
     def translate_filter(self, filtr):
         s = "if (!filtered) {\n";
-        if filtr.pfilter.pk == 1:
+
+        #
+        if filtr.pfilter.name == 'Minimum number of commits':
             s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n"
-        elif filtr.pfilter.pk == 2:
-            s += """    file_count := 0;
+
+        #
+        elif filtr.pfilter.name == 'Maximum number of commits':
+            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n"
+
+        #
+        elif filtr.pfilter.name == 'Minimum number of source files':
+            s += """    min_file_count := 0;
     visit(input, visitor {
         before node: CodeRepository -> {
             snapshot := getsnapshot(node);
@@ -29,13 +37,51 @@ filtered := false;
         }
         before n: ChangedFile ->
             if (iskind("SOURCE_", n.kind))
-                file_count = file_count + 1;
+                min_file_count = min_file_count + 1;
     });
-    if (file_count < """ + str(filtr.value) + """)
+    if (min_file_count < """ + str(filtr.value) + """)
         filtered = true;
 """
-        s += "}\n\n"
-        return s
+
+        #
+        elif filtr.pfilter.name == 'Maximum number of source files':
+            s += """    max_file_count := 0;
+    visit(input, visitor {
+        before node: CodeRepository -> {
+            snapshot := getsnapshot(node);
+            foreach (i: int; def(snapshot[i]))
+                visit(snapshot[i]);
+            stop;
+        }
+        before n: ChangedFile ->
+            if (iskind("SOURCE_", n.kind))
+                max_file_count = max_file_count + 1;
+    });
+    if (max_file_count > """ + str(filtr.value) + """)
+        filtered = true;
+"""
+
+        #
+        elif filtr.pfilter.name == 'Minimum number of committers':
+            s += """    min_committers: set of string;
+    visit(input, visitor {
+        before n: Revision -> add(min_committers, n.committer.username);
+    });
+    if (len(min_committers) < """ + str(filtr.value) + """)
+        filtered = true;
+"""
+
+        #
+        elif filtr.pfilter.name == 'Maximum number of committers':
+            s += """    max_committers: set of string;
+    visit(input, visitor {
+        before n: Revision -> add(max_committers, n.committer.username);
+    });
+    if (len(max_committers) < """ + str(filtr.value) + """)
+        filtered = true;
+"""
+
+        return s + "}\n\n"
 
     def run(self):
         if self.verbosity >= 1:
