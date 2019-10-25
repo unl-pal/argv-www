@@ -77,7 +77,7 @@ filtered := false;
     visit(input, visitor {
         before n: Revision -> add(max_committers, n.committer.username);
     });
-    if (len(max_committers) < """ + str(filtr.value) + """)
+    if (len(max_committers) > """ + str(filtr.value) + """)
         filtered = true;
 """
 
