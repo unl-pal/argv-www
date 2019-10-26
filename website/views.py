@@ -333,7 +333,7 @@ def download(request, slug):
 
         transformed_path = config('TRANSFORMED_PATH')
 
-        archive = zipfile.ZipFile(zipfile_path, 'a', compression=ZIP_DEFLATED, compresslevel=6)
+        archive = zipfile.ZipFile(zipfile_path, 'a', compression=zipfile.ZIP_DEFLATED)
         for path in paths:
             for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
                 for filename in files:
