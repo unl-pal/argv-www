@@ -306,6 +306,8 @@ def download_size(slug):
     zipfile_path = os.path.join(download_path, download_filename)
 
     if not os.path.exists(zipfile_path):
+        if os.path.exists(zipfile_path + '.tmp'):
+            return 0
         return -1
     return os.stat(zipfile_path).st_size
 

@@ -39,8 +39,13 @@
                             <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
                             <h4>({{ download_size|filesizeformat }})</h4>
                         {% else %}
-                            <h3><strong><a href="{% url 'website:download' project.slug %}">Generate Benchmark</a> (zip)</strong></h3>
-                            <h4>(please be patient and only click the above link once)</h4>
+                            {% if download_size == 0 %}
+                                <h3><strong>Benchmark currently generating (zip)</strong></h3>
+                                <h4>(please be patient - this may take a few minutes)</h4>
+                            {% else %}
+                                <h3><strong><a href="{% url 'website:download' project.slug %}">Generate Benchmark</a> (zip)</strong></h3>
+                                <h4>(please be patient and only click the above link once)</h4>
+                            {% endif %}
                         {% endif %}
                     {% else %}
                         <h3><strong>No download available - no projects match criteria</strong></h3>
