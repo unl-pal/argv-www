@@ -310,24 +310,24 @@ def download_size(slug):
     return os.stat(zipfile_path).st_size
 
 def download(request, slug):
-    paths = []
-
-    try:
-        for project in ProjectSelector.objects.get(slug=slug).project.exclude(path__isnull=True):
-            transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
-            if transformed_project:
-                paths.append((transformed_project.host, transformed_project.path))
-    except:
-        raise Http404
-
-    if not paths:
-        raise Http404
-
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
 
     if not os.path.exists(zipfile_path):
+        paths = []
+
+        try:
+            for project in ProjectSelector.objects.get(slug=slug).project.exclude(path__isnull=True):
+                transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
+                if transformed_project:
+                    paths.append((transformed_project.host, transformed_project.path))
+
+            if not paths:
+                raise RuntimeError('empty benchmark')
+        except:
+            raise Http404
+
         if not os.path.exists(download_path):
             os.mkdir(download_path, 0o755)
 
