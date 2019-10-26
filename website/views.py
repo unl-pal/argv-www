@@ -331,15 +331,18 @@ def download(request, slug):
         if not os.path.exists(download_path):
             os.mkdir(download_path, 0o755)
 
-        transformed_path = config('TRANSFORMED_PATH')
-
-        archive = zipfile.ZipFile(zipfile_path, 'a', compression=zipfile.ZIP_DEFLATED)
-        for path in paths:
-            for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
-                for filename in files:
-                    full_path = os.path.join(dirname, filename)
-                    first, arcname = full_path.split(os.path.join(transformed_path, path[0]))
-                    archive.write(full_path, arcname)
-        archive.close()
+        if not os.path.exists(zipfile_path + '.tmp'):
+            transformed_path = config('TRANSFORMED_PATH')
+            archive = zipfile.ZipFile(zipfile_path + '.tmp', 'w', compression=zipfile.ZIP_DEFLATED)
+            for path in paths:
+                for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
+                    for filename in files:
+                        full_path = os.path.join(dirname, filename)
+                        first, arcname = full_path.split(os.path.join(transformed_path, path[0]))
+                        archive.write(full_path, arcname)
+            archive.close()
+            os.path.rename(zipfile_path + '.tmp', zipfile_path)
+        else:
+            return redirect(reverse_lazy('website:project_detail', args=(slug,)))
 
     return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
