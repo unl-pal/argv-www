@@ -2,6 +2,7 @@ import json
 
 import os
 import zipfile
+import subprocess
 from decouple import config
 
 from django.http import HttpResponse, JsonResponse, Http404
@@ -302,11 +303,11 @@ def send_email_verify(request, user, title):
 
 def download_size(slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
-    download_filename = slug + '.zip'
-    zipfile_path = os.path.join(download_path, download_filename)
+    zipfile_path = os.path.join(download_path, slug + '.zip')
+    tmpdir = os.path.join(download_path, slug + '.tmp')
 
     if not os.path.exists(zipfile_path):
-        if os.path.exists(zipfile_path + '.tmp'):
+        if os.path.exists(tmpdir):
             return 0
         return -1
     return os.stat(zipfile_path).st_size
@@ -315,15 +316,21 @@ def download(request, slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
+    tmpdir = os.path.join(download_path, slug + '.tmp')
 
     if not os.path.exists(zipfile_path):
-        paths = []
+        if os.path.exists(tmpdir):
+            return redirect(reverse_lazy('website:project_detail', args=(slug,)))
+
+        paths = {}
 
         try:
             for project in ProjectSelector.objects.get(slug=slug).project.exclude(path__isnull=True):
                 transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
                 if transformed_project:
-                    paths.append((transformed_project.host, transformed_project.path))
+                    if not transformed_project.host in paths:
+                        paths[transformed_project.host] = []
+                    paths[transformed_project.host].append(transformed_project.path)
 
             if not paths:
                 raise RuntimeError('empty benchmark')
@@ -332,19 +339,20 @@ def download(request, slug):
 
         if not os.path.exists(download_path):
             os.mkdir(download_path, 0o755)
+        os.mkdir(tmpdir, 0o755)
 
-        if not os.path.exists(zipfile_path + '.tmp'):
-            transformed_path = config('TRANSFORMED_PATH')
-            archive = zipfile.ZipFile(zipfile_path + '.tmp', 'w', compression=zipfile.ZIP_DEFLATED)
-            for path in paths:
-                for dirname, subdirs, files in os.walk(os.path.join(transformed_path, os.path.join(path[0], path[1]))):
-                    for filename in files:
-                        full_path = os.path.join(dirname, filename)
-                        first, arcname = full_path.split(os.path.join(transformed_path, path[0]))
-                        archive.write(full_path, arcname)
-            archive.close()
-            os.path.rename(zipfile_path + '.tmp', zipfile_path)
-        else:
-            return redirect(reverse_lazy('website:project_detail', args=(slug,)))
+        transformed_path = config('TRANSFORMED_PATH')
+
+        for host in paths:
+            s = ""
+            for path in paths[host]:
+                s = s + path + '\n'
+            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(transformed_path, host), stdin=subprocess.PIPE)
+            p.communicate(input=str.encode(s))
+            p.stdin.close()
+            p.wait()
+
+        if os.path.exists(tmpdir):
+            shutil.rmtree(tmpdir)
 
     return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
