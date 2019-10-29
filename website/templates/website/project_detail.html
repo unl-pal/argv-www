@@ -9,6 +9,9 @@
         {% if user.is_authenticated %}
             <a href="{% url 'website:project_list' %}">Back to all project selections</a><br/><br/>
         {% endif %}
+        {% if not project.enabled %}
+            <div class="alert alert-danger">NOTE: this selector is deleted</div>
+        {% endif %}
         {% if not is_done %}
             <div class="alert alert-warning">This selector is still processing</div>
         {% endif %}
