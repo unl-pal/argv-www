@@ -27,7 +27,7 @@
                 <h4><strong>Discovered Projects:</strong> {{ project.project.all|length|intcomma }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
                 {% if project|calc_finished_projects > 0 %}
-                    <h4><strong>Benchmark Projects:</strong> {{ project|calc_finished_projects|intcomma }}{% if not is_done %} ({{ project|calc_remaining_projects }} still processing){% endif %}</h4>
+                    <h4><strong>Benchmark Projects:</strong> {{ project|calc_finished_projects|intcomma }}{% if not is_done %} ({{ project|calc_remaining_projects|intcomma }} still processing){% endif %}</h4>
                     <div class="progress">
                         <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: {{ project|calc_remaining_percent }}%">
                             <span class="sr-only">{{ project|calc_remaining_percent }}% Complete</span>
@@ -37,7 +37,7 @@
                 <br/>
                 <h4><strong>Selection Criteria:</strong></h4>
                 {% for filter in values %}
-                    <h5 style="padding-left: 20px;"><strong>{{ filter.pfilter }}:</strong> {{ filter }}</h5>
+                    <h5 style="padding-left: 20px;"><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
                     {% if filter.status != 'PROCESSED' %}
                     <p style="padding-left: 20px;">Status: <em>{{ filter.status }}</em></p>
                     {% endif %}
@@ -48,7 +48,7 @@
                     {% if project|calc_finished_projects > 0 %}
                         {% if download_size > 0 %}
                             <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
-                            <h4>({{ download_size|filesizeformat }})</h4>
+                            <h4>({{ download_size|filesizeformat|intcomma }})</h4>
                         {% else %}
                             {% if download_size == 0 %}
                                 <h3><strong>Benchmark currently generating (zip)</strong></h3>
