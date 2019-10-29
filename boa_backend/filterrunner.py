@@ -9,6 +9,21 @@ class FilterRunner(FilterRunner):
     template_start = """o: output collection of string;
 filtered := false;
 
+needs_source := 0;
+visit(input, visitor {
+    before node: CodeRepository -> {
+        snapshot := getsnapshot(node);
+        foreach (i: int; def(snapshot[i]))
+            visit(snapshot[i]);
+        stop;
+    }
+    before n: ChangedFile ->
+        if (iskind("SOURCE_", n.kind))
+            needs_source = needs_source + 1;
+});
+if (needs_source == 0)
+    filtered = true;
+
 """
 
     template_end = """if (!filtered)
