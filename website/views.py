@@ -109,10 +109,7 @@ class ProjectListView(EmailRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        objects = ProjectSelector.objects.filter(user=self.request.user)
-        if not self.request.user.has_perm('website.view_disabled'):
-            objects = objects.filter(enabled=True)
-        return objects.order_by('-created')
+        return ProjectSelector.objects.filter(user=self.request.user).exclude(enabled=False).order_by('-created')
 
 def project_detail(request, slug):
     try:
