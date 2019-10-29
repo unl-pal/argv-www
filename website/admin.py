@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.html import mark_safe, format_html
+from django.urls import reverse_lazy
 from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -28,11 +30,21 @@ class ProfileAdmin(admin.ModelAdmin):
 
 class FilterDetailSelectionInline(admin.TabularInline):
     model = FilterDetail
-    exclude = ['value', 'val_type']
     extra = 1
 
 class SelectionAdmin(admin.ModelAdmin):
+    list_display = ['enabled', 'slug', 'user', 'display_url', ]
+    list_display_links = ['slug', ]
+    list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
     inlines = (FilterDetailSelectionInline,)
+    search_fields = ['slug', ]
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def display_url(self, obj):
+        return format_html('<a href="{0}">details page</a>', reverse_lazy('website:project_detail', args=(obj.slug,)))
+    display_url.short_description = 'Details Page'
 
 class UserAuthAuditEntryAdmin(admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
