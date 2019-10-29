@@ -17,7 +17,7 @@
                 <h1 class="panel-title"><strong>Project Selection</strong><div class="pull-right"><em>{{ project.slug }}</em></div></h1>
             </div>
             <div class="panel-body">
-                {% if project.enabled %}
+                {% if not project.enabled %}
                     <div class="alert alert-danger">NOTE: this selector is deleted</div>
                 {% endif %}
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
