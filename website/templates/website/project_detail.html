@@ -21,7 +21,7 @@
             </div>
             <div class="panel-body">
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
-                {% if is_done %}<h4><strong>Dataset Generated:</strong> {{ project.fin_process|naturaltime }}</h4>{% endif %}
+                <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
                 <h4><strong>Discovered Projects:</strong> {{ project.project.all|length|intcomma }}</h4>
@@ -37,6 +37,7 @@
                 {% endfor %}
                 {% if is_done %}
                     <br/>
+                    <h4><strong>Dataset Generated:</strong> {{ project.fin_process|naturaltime }}</h4>
                     {% if project|calc_finished_projects > 0 %}
                         {% if download_size > 0 %}
                             <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
