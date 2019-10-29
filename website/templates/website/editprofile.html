@@ -104,7 +104,7 @@
                     <div class="alert alert-danger">
                         <h4>Email Not Verified</h4>
                         <span>Your email address is currently not verified. Most features of the website will not be available unto you verify a valid email address.<br><br>
-                        You can <a href="{% url 'website:verify_email_link' %}">re-send the email verification</a> to the email listed below. If the email below is incorrect, please update it.</span>
+                        You can <a href="{% url 'website:verify_email_link' %}" class="alert-link">re-send the email verification</a> to the email listed below. If the email below is incorrect, please update it.</span>
                     </div>
                 {% endif %}
                 <form class="form form-default" method="post" enctype="multipart/form-data">
