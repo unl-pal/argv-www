@@ -116,9 +116,6 @@
                     {% include 'website/messages.html' %}
                     {% include 'website/form.html' with form=userForm %}
                     {% include 'website/form.html' with form=profileForm %}
-                    {% if user.profile.staffStatus == 'Admin' %}
-                        {% include 'website/form.html' with form=adminForm %}
-                    {% endif %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
