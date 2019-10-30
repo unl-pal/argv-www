@@ -57,7 +57,7 @@
                     </li>
                 {% else %}
                     <li class="dropdown profile-dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img alt="profile photo for {{ user.usrename }}" class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img alt="profile photo for {{ user.username }}" class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
