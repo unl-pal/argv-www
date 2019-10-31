@@ -205,7 +205,7 @@ class ProjectTransformer(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
-    transforms = models.ManyToManyField(Transform)
+    transforms = models.ManyToManyField(Transform, blank=True, through='TransformDetail')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
@@ -231,12 +231,12 @@ class TransformedProject(models.Model):
     def __str__(self):
         return self.project.url
 
-class Analysis(models.Model):
-    input_selection = models.ForeignKey(Selection, on_delete=models.PROTECT)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+class TransformDetail(models.Model):
+    transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
+    transform = models.ForeignKey(Transform, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.input_selection
+        return self.transformer.slug
 
 class UserAuthAuditEntry(models.Model):
     action = models.CharField(max_length=16)
