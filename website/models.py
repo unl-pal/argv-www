@@ -199,6 +199,16 @@ class Transform(models.Model):
     def __str__(self):
         return self.name
 
+class TransformedProject(models.Model):
+    host = models.CharField(max_length=255)
+    path = models.CharField(max_length=5000, null=True, blank=True)
+    datetime_processed = models.DateTimeField(null=True, blank=True)
+    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.project.url
+
 class ProjectTransformer(models.Model):
     slug = models.SlugField(unique=True)
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
@@ -206,6 +216,7 @@ class ProjectTransformer(models.Model):
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
     transforms = models.ManyToManyField(Transform, blank=True, through='TransformDetail')
+    transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
@@ -221,15 +232,12 @@ class ProjectTransformer(models.Model):
         slug = slug.replace('-','')
         return slug
 
-class TransformedProject(models.Model):
-    host = models.CharField(max_length=255)
-    path = models.CharField(max_length=5000, null=True, blank=True)
-    datetime_processed = models.DateTimeField(null=True, blank=True)
-    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+class TransformSelection(models.Model):
+    transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
+    transformed_project = models.ForeignKey(TransformedProject, on_delete = models.CASCADE)
 
     def __str__(self):
-        return self.project.url
+        return self.transformer.slug
 
 class TransformDetail(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
