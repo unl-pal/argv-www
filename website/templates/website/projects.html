@@ -45,7 +45,8 @@
                             <td>{% if not project|project_done %}
                                 <span class="glyphicon glyphicon-refresh spinning"></span> processing...
                             {% else %}
-                                {{ project|calc_finished_projects|intcomma }}
+                                {% calc_finished_projects project as finished_count %}
+                                {{ finished_count|intcomma }}
                             {% endif %}</td>
                             <td>
                                 <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>
