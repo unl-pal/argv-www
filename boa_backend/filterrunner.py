@@ -84,7 +84,7 @@ visit(input, visitor {
         return s + "}\n\n"
 
     def build_query(self):
-        query = '# ' + self.selector.slug + '\n' + self.template_start
+        query = '# PAClab project selection\n' + self.template_start
         for f in self.filters():
             query += self.translate_filter(f)
         return query + self.template_end
