@@ -7,9 +7,11 @@ from website.choices import *
 
 class FilterRunner(FilterRunner):
     template_start = """o: output collection of string;
-filtered := false;
-snapshot: array of Revision;
 
+filtered := false;
+snapshot: array of ChangedFile;
+
+# ensure there is at least 1 source file in the snapshot
 visit(input, visitor {
     before node: CodeRepository -> {
         snapshot = getsnapshot(node, "SOURCE_");
@@ -39,11 +41,8 @@ visit(input, visitor {
         elif filtr.pfilter.name == 'Minimum number of source files':
             s += """    min_file_count := 0;
     foreach (i: int; def(snapshot[i]))
-        visit(snapshot[i], visitor {
-            before n: ChangedFile ->
-                if (iskind("SOURCE_", n.kind))
-                    min_file_count = min_file_count + 1;
-        });
+        if (iskind("SOURCE_", snapshot[i].kind))
+            min_file_count = min_file_count + 1;
     if (min_file_count < """ + str(filtr.value) + """)
         filtered = true;
 """
@@ -52,11 +51,8 @@ visit(input, visitor {
         elif filtr.pfilter.name == 'Maximum number of source files':
             s += """    max_file_count := 0;
     foreach (i: int; def(snapshot[i]))
-        visit(snapshot[i], visitor {
-            before n: ChangedFile ->
-                if (iskind("SOURCE_", n.kind))
-                    max_file_count = max_file_count + 1;
-        });
+        if (iskind("SOURCE_", snapshot[i].kind))
+            max_file_count = max_file_count + 1;
     if (max_file_count > """ + str(filtr.value) + """)
         filtered = true;
 """
@@ -83,9 +79,9 @@ visit(input, visitor {
 
         return s + "}\n\n"
 
-    def build_query(self):
+    def build_query(self, flters):
         query = '# PAClab project selection\n' + self.template_start
-        for f in self.filters():
+        for f in flters:
             query += self.translate_filter(f)
         return query + self.template_end
 
@@ -93,14 +89,14 @@ visit(input, visitor {
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
 
-        self.build_query()
+        self.build_query(self.filters())
         if self.verbosity >= 3:
             print(query)
 
         client = BoaClient()
         client.login(config('BOA_USER'), config('BOA_PW'))
 
-        job = client.query(query, client.get_dataset('2015 September/GitHub'))
+        job = client.query(query, client.get_dataset('2019 October/GitHub'))
         if self.verbosity >= 2:
             print('            -> boa job: http://boa.cs.iastate.edu/boa/index.php?q=boa/job/' + str(job.id))
 
@@ -132,4 +128,4 @@ visit(input, visitor {
         client.close()
 
     def debug(self):
-        print(self.build_query())
+        print(self.build_query(self.all_filters()))
