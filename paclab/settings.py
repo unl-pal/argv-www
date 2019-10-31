@@ -45,6 +45,11 @@ INSTALLED_APPS = [
     'django_countries',
 ]
 
+if DEBUG == True:
+    INSTALLED_APPS += [
+        'django_extensions',
+    ]
+
 # SSL-only websites can increase security settings
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
