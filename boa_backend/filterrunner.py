@@ -8,21 +8,16 @@ from website.choices import *
 class FilterRunner(FilterRunner):
     template_start = """o: output collection of string;
 filtered := false;
+snapshot: array of Revision;
 
-needs_source := 0;
 visit(input, visitor {
     before node: CodeRepository -> {
-        snapshot := getsnapshot(node);
-        foreach (i: int; def(snapshot[i]))
-            visit(snapshot[i]);
+        snapshot = getsnapshot(node, "SOURCE_");
+        if (len(snapshot) == 0)
+            filtered = true;
         stop;
     }
-    before n: ChangedFile ->
-        if (iskind("SOURCE_", n.kind))
-            needs_source = needs_source + 1;
 });
-if (needs_source == 0)
-    filtered = true;
 
 """
 
@@ -43,17 +38,12 @@ if (needs_source == 0)
         #
         elif filtr.pfilter.name == 'Minimum number of source files':
             s += """    min_file_count := 0;
-    visit(input, visitor {
-        before node: CodeRepository -> {
-            snapshot := getsnapshot(node);
-            foreach (i: int; def(snapshot[i]))
-                visit(snapshot[i]);
-            stop;
-        }
-        before n: ChangedFile ->
-            if (iskind("SOURCE_", n.kind))
-                min_file_count = min_file_count + 1;
-    });
+    foreach (i: int; def(snapshot[i]))
+        visit(snapshot[i], visitor {
+            before n: ChangedFile ->
+                if (iskind("SOURCE_", n.kind))
+                    min_file_count = min_file_count + 1;
+        });
     if (min_file_count < """ + str(filtr.value) + """)
         filtered = true;
 """
@@ -61,17 +51,12 @@ if (needs_source == 0)
         #
         elif filtr.pfilter.name == 'Maximum number of source files':
             s += """    max_file_count := 0;
-    visit(input, visitor {
-        before node: CodeRepository -> {
-            snapshot := getsnapshot(node);
-            foreach (i: int; def(snapshot[i]))
-                visit(snapshot[i]);
-            stop;
-        }
-        before n: ChangedFile ->
-            if (iskind("SOURCE_", n.kind))
-                max_file_count = max_file_count + 1;
-    });
+    foreach (i: int; def(snapshot[i]))
+        visit(snapshot[i], visitor {
+            before n: ChangedFile ->
+                if (iskind("SOURCE_", n.kind))
+                    max_file_count = max_file_count + 1;
+        });
     if (max_file_count > """ + str(filtr.value) + """)
         filtered = true;
 """
@@ -98,14 +83,17 @@ if (needs_source == 0)
 
         return s + "}\n\n"
 
+    def build_query(self):
+        query = '# ' + self.selector.slug + '\n' + self.template_start
+        for f in self.filters():
+            query += self.translate_filter(f)
+        return query + self.template_end
+
     def run(self):
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
 
-        query = '# ' + self.selector.slug + '\n' + self.template_start
-        for f in self.filters():
-            query += self.translate_filter(f)
-        query += self.template_end
+        self.build_query()
         if self.verbosity >= 3:
             print(query)
 
@@ -142,3 +130,6 @@ if (needs_source == 0)
             self.done()
 
         client.close()
+
+    def debug(self):
+        print(self.build_query())

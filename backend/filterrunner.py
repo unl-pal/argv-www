@@ -47,6 +47,9 @@ class FilterRunner:
             flter.status = PROCESSED
             flter.save()
 
+    def debug(self):
+        self.run()
+
     def run(self):
         raise NotImplementedError('filter runners must override the run() method')
 
