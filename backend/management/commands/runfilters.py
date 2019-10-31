@@ -52,7 +52,7 @@ class Command(BaseCommand):
 
                 if self.no_poll:
                     break
-                time.sleep(POLL_INTERVAL)
+                time.sleep(self.POLL_INTERVAL)
 
     def process_selection(self, selector):
         self.stdout.write('processing ProjectSelection: ' + selector.slug)
