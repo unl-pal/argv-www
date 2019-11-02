@@ -1,5 +1,6 @@
 import time
 import importlib
+import tempfile
 import pytz
 import subprocess
 import socket
@@ -8,7 +9,7 @@ import os
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from website.models import Project
+from website.models import Project, Dataset
 from django.conf import settings
 from decouple import config
 
@@ -21,8 +22,10 @@ Runs a poller in the background to grab project URLs and clone them
 '''
 class Command(BaseCommand):
     help = 'Runs a poller in the background to grab project URLs and clone them'
+    POLL_INTERVAL = 3
     
     def add_arguments(self, parser):
+        parser.add_argument('url', nargs='*', help='Clone specific URL(s)', type=str)
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database or disk)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
 
@@ -35,17 +38,32 @@ class Command(BaseCommand):
             self.stderr.write('repository storage path does not exist: ' + config('REPO_PATH'))
             return
 
-        while True:
-            projects = Project.objects.filter(host=None)[:10]
-            for project in projects:
-                try:
-                    self.process_project(project)
-                except:
-                    self.stderr.write('problem processing Project: ' + project.url)
+        for url in options['url']:
+            try:
+                project = Project.objects.get(url=url)
+            except Project.DoesNotExist:
+                if not self.dry_run:
+                    project = Project.objects.create(dataset=Dataset.objects.first(),url=url)
+                else:
+                    project = Project(url=url)
 
-            if self.no_poll:
-                break
-            time.sleep(3)
+            try:
+                self.process_project(project)
+            except:
+                self.stdout.write('error processing: ' + project.url)
+
+        if len(options['url']) == 0:
+            while True:
+                projects = Project.objects.filter(host=None)[:10]
+                for project in projects:
+                    try:
+                        self.process_project(project)
+                    except:
+                        self.stderr.write('problem processing Project: ' + project.url)
+
+                if self.no_poll:
+                    break
+                time.sleep(self.POLL_INTERVAL)
 
     def process_project(self, project):
         self.stdout.write('processing Project: ' + project.url)
@@ -61,10 +79,11 @@ class Command(BaseCommand):
 
         repo_root = os.path.join(config('REPO_PATH'), host)
         path = os.path.join(repo_root, project_name)
-        tmp = '/tmp/'
+        tmp = tempfile.gettempdir()
 
         if self.verbosity >= 3:
             self.stdout.write('    -> root: ' + repo_root)
+            self.stdout.write('    -> tmp:  ' + tmp)
             self.stdout.write('    -> path: ' + path)
             self.stdout.write('    -> name: ' + project_name)
             self.stdout.write('    -> base: ' + project_base)
@@ -108,5 +127,5 @@ class Command(BaseCommand):
             project.save()
 
         # cleanup temp files
-        if os.path.exists(src_dir):
-            shutil.rmtree(src_dir)
+        if os.path.exists(os.path.join(tmp, project_base)):
+            shutil.rmtree(os.path.join(tmp, project_base))
