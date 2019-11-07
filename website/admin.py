@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import mark_safe, format_html
 from django.urls import reverse_lazy
-from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, TransformDetail, FilterDetail, UserAuthAuditEntry, TransformSelection
+from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, TransformOption, FilterDetail, UserAuthAuditEntry, TransformSelection
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -81,7 +81,7 @@ admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Transform)
-admin.site.register(TransformDetail)
+admin.site.register(TransformOption)
 admin.site.register(TransformSelection)
 admin.site.register(TransformedProject)
 admin.site.register(UserAuthAuditEntry, UserAuthAuditEntryAdmin)

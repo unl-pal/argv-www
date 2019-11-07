@@ -199,11 +199,17 @@ class Transform(models.Model):
     def __str__(self):
         return self.name
 
+class TransformOption(models.Model):
+    transform = models.ForeignKey(Transform, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.transform.name
+
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)
     path = models.CharField(max_length=5000, null=True, blank=True)
     datetime_processed = models.DateTimeField(null=True, blank=True)
-    transform = models.ForeignKey(Transform, on_delete=models.PROTECT)
+    transform = models.ForeignKey(TransformOption, on_delete=models.PROTECT)
     project = models.ForeignKey(Project, on_delete=models.PROTECT)
 
     def __str__(self):
@@ -215,7 +221,7 @@ class ProjectTransformer(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
-    transforms = models.ManyToManyField(Transform, blank=True, through='TransformDetail')
+    transforms = models.ManyToManyField(TransformOption, blank=True)
     transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
@@ -235,13 +241,6 @@ class ProjectTransformer(models.Model):
 class TransformSelection(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
     transformed_project = models.ForeignKey(TransformedProject, on_delete = models.CASCADE)
-
-    def __str__(self):
-        return self.transformer.slug
-
-class TransformDetail(models.Model):
-    transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
-    transform = models.ForeignKey(Transform, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.transformer.slug
