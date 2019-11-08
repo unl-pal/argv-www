@@ -21,6 +21,11 @@
                 <h1 class="panel-title"><strong>Project Selection</strong><div class="pull-right"><em>{{ project.slug }}</em></div></h1>
             </div>
             <div class="panel-body">
+                <div class="btn-group pull-right clearfix">
+                    <button type="button" class="btn btn-danger" onclick="window.location='{% url 'website:project_delete' slug=project.slug %}'">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </div>
                 {% if not project.enabled %}
                     <div class="alert alert-danger">NOTE: this selector is deleted</div>
                 {% endif %}
