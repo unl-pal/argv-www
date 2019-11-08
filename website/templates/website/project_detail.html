@@ -9,7 +9,7 @@
         {% if user.is_authenticated %}
             <a href="{% url 'website:project_list' %}">Back to all project selections</a><br/><br/>
         {% endif %}
-        {% if project.status == READY %}
+        {% if project.status == "READY" %}
             <div class="alert alert-info" role="alert">This selector is currently in the queue and has not started processing yet.</div>
         {% else %}
             {% if not is_done %}
