@@ -89,7 +89,7 @@ visit(input, visitor {
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
 
-        self.build_query(self.filters())
+        query = self.build_query(self.filters())
         if self.verbosity >= 3:
             print(query)
 
