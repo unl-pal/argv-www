@@ -23,7 +23,7 @@
             <div class="panel-body">
                 <div class="btn-group pull-right clearfix">
                     <button type="button" class="btn btn-danger" onclick="window.location='{% url 'website:project_delete' slug=project.slug %}'">
-                        <span class="glyphicon glyphicon-trash"></span>
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span>
                     </button>
                 </div>
                 {% if not project.enabled %}
