@@ -8,15 +8,15 @@ from website.choices import *
 class FilterRunner(FilterRunner):
     template_start = """o: output collection of string;
 
-filtered := false;
+filtered := true;
 snapshot: array of ChangedFile;
 
 # ensure there is at least 1 source file in the snapshot
 visit(input, visitor {
     before node: CodeRepository -> {
         snapshot = getsnapshot(node, "SOURCE_");
-        if (len(snapshot) == 0)
-            filtered = true;
+        if (len(snapshot) > 0)
+            filtered = false;
         stop;
     }
 });
