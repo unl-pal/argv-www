@@ -21,15 +21,15 @@
                 <h1 class="panel-title"><strong>Project Selection</strong><div class="pull-right"><em>{{ project.slug }}</em></div></h1>
             </div>
             <div class="panel-body">
+                {% if not project.enabled %}
+                    <div class="alert alert-danger">NOTE: this selector is deleted</div>
+                {% endif %}
                 <div class="btn-group pull-right clearfix">
                     {% if user.is_staff %}
                         <a href="{% url 'admin:website_projectselector_change' object_id=project.pk %}" role="button" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="sr-only">Edit</span></a>
                     {% endif %}
                     <a href="{% url 'website:project_delete' slug=project.slug %}" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                 </div>
-                {% if not project.enabled %}
-                    <div class="alert alert-danger">NOTE: this selector is deleted</div>
-                {% endif %}
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
