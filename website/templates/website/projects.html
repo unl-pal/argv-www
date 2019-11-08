@@ -49,8 +49,8 @@
                                 {{ finished_count|intcomma }}
                             {% endif %}</td>
                             <td>
-                                <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary">View</a>
-                                <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}>Delete</a>
+                                <a href="{% url 'website:project_detail' slug=project.slug %}" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open"></span> View</a>
+                                <a href="{% url 'website:project_delete' slug=project.slug %}" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash"></span> Delete</a>
                             </td>
                         </tr>
                     {% empty%}
