@@ -9,8 +9,12 @@
         {% if user.is_authenticated %}
             <a href="{% url 'website:project_list' %}">Back to all project selections</a><br/><br/>
         {% endif %}
-        {% if not is_done %}
-            <div class="alert alert-warning">This selector is still processing</div>
+        {% if project.status == READY %}
+            <div class="alert alert-info" role="alert">This selector is currently in the queue and has not started processing yet.</div>
+        {% else %}
+            {% if not is_done %}
+                <div class="alert alert-warning" role="alert">This selector is still processing.</div>
+            {% endif %}
         {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading">
