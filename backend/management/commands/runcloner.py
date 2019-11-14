@@ -22,8 +22,8 @@ Runs a poller in the background to grab project URLs and clone them
 '''
 class Command(BaseCommand):
     help = 'Runs a poller in the background to grab project URLs and clone them'
-    POLL_INTERVAL = 3
-    
+    POLL_INTERVAL = 10
+
     def add_arguments(self, parser):
         parser.add_argument('url', nargs='*', help='Clone specific URL(s)', type=str)
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database or disk)', action='store_true')
@@ -54,8 +54,8 @@ class Command(BaseCommand):
 
         if len(options['url']) == 0:
             while True:
-                projects = Project.objects.filter(host=None)[:10]
-                for project in projects:
+                project = Project.objects.filter(host=None).first()
+                if project:
                     try:
                         self.process_project(project)
                     except:
@@ -63,7 +63,8 @@ class Command(BaseCommand):
 
                 if self.no_poll:
                     break
-                time.sleep(self.POLL_INTERVAL)
+                if not project:
+                    time.sleep(self.POLL_INTERVAL)
 
     def process_project(self, project):
         self.stdout.write('processing Project: ' + project.url)
