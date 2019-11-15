@@ -20,11 +20,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the disk/database)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
+        parser.add_argument('--threshold', help='Allowable threshold between devices (in percent, default=' + str(self.BALANCE_THRESHOLD) + ')', action='store')
 
     def handle(self, *args, **options):
         self.dry_run = options['dry_run']
         self.no_poll = options['no_poll']
         self.verbosity = options['verbosity']
+        if 'threshold' in options:
+            self.BALANCE_THRESHOLD = int(options['threshold'])
 
         self.repo_path = config('REPO_PATH')
         self.transformed_path = config('TRANSFORMED_PATH')
