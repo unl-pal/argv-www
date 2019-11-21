@@ -38,7 +38,10 @@ class Command(BaseCommand):
         while True:
             host = self.get_src_node()
             if host:
-                self.move_project(Project.objects.filter(host=host).exclude(path__isnull=True).first(), self.get_dest_node())
+                try:
+                    self.move_project(Project.objects.filter(host=host).exclude(path__isnull=True).first(), self.get_dest_node())
+                except:
+                    self.stderr.write('failed moving project')
 
             if self.no_poll:
                 break
@@ -87,7 +90,7 @@ class Command(BaseCommand):
                     self.stdout.write('    ' + srcpath + ' -> ' + destpath)
                 makedirs(destpath, 0o755, True)
                 shutil.rmtree(destpath, True)
-                shutil.copytree(srcpath, destpath, ignore_dangling_symlinks=True)
+                shutil.copytree(srcpath, destpath, symlinks=True, ignore_dangling_symlinks=True)
                 project.host = dest
                 project.save()
                 shutil.rmtree(srcpath)
@@ -111,7 +114,7 @@ class Command(BaseCommand):
                     self.stdout.write('    ' + srcpath + ' -> ' + destpath)
                 makedirs(destpath, 0o755, True)
                 shutil.rmtree(destpath, True)
-                shutil.copytree(srcpath, destpath, ignore_dangling_symlinks=True)
+                shutil.copytree(srcpath, destpath, symlinks=True, ignore_dangling_symlinks=True)
                 transform.host = dest
                 transform.save()
                 shutil.rmtree(srcpath)
