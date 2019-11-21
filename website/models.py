@@ -222,7 +222,7 @@ class ProjectTransformer(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     datetime_processed = models.DateTimeField(auto_now=True)
-    transforms = models.ManyToManyField(TransformOption, blank=True)
+    transforms = models.ForeignKey(TransformOption, on_delete=models.CASCADE, blank=True)
     transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
