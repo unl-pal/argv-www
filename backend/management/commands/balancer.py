@@ -26,7 +26,7 @@ class Command(BaseCommand):
         self.dry_run = options['dry_run']
         self.no_poll = options['no_poll']
         self.verbosity = options['verbosity']
-        if 'threshold' in options:
+        if 'threshold' in options and options['threshold']:
             self.BALANCE_THRESHOLD = int(options['threshold'])
 
         self.repo_path = config('REPO_PATH')
