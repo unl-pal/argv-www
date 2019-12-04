@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from django.conf import settings
-from .models import Profile, UserAuthAuditEntry, ProjectTransformer, ProjectSelector, TransformOption
+from .models import Profile, UserAuthAuditEntry, ProjectTransformer, ProjectSelector, TransformOption, Transform
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
@@ -69,9 +69,10 @@ def user_login_failed_callback(sender, credentials, request, **kwargs):
 @receiver(post_save, sender=ProjectSelector)
 def create_transform(sender, instance, created, **kwargs):
     if created:
-        transformer = ProjectTransformer.objects.create(project_selector=instance, user=instance.user)
-        transform = TransformOption.objects.first()
-        transformer.transforms.add(transform)
+        transform = Transform.objects.first()
+        options = TransformOption.objects.create(transform=transform)
+        options.save()
+        transformer = ProjectTransformer.objects.create(project_selector=instance, user=instance.user, transform=options)
         transformer.save()
 
 if settings.USE_HIJACK:
