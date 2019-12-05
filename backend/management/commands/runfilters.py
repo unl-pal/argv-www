@@ -1,4 +1,5 @@
 import time
+import traceback
 import importlib
 import multiprocessing
 
@@ -40,15 +41,17 @@ class Command(BaseCommand):
                 self.stdout.write('invalid slug: ' + slug)
             except:
                 self.stdout.write('error processing: ' + slug)
+                traceback.print_exc()
 
         if len(options['slug']) == 0:
             while True:
-                selectors = ProjectSelector.objects.filter(status=READY)
-                for selector in selectors:
+                selector = ProjectSelector.objects.filter(status=READY)[0]
+                if selector:
                     try:
                         self.process_selection(selector)
                     except:
                         self.stdout.write('error processing: ' + selector.slug)
+                        traceback.print_exc()
 
                 if self.no_poll:
                     break
