@@ -42,9 +42,13 @@
                             <td><a href="#">{{ transformer.slug }}</a></td>
                             <td>{{ transformer.created|naturalday }}</td>
                             <td>
-                                <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
-                                {% calc_finished_transformedprojects transformer as finished_count %}
-                                {{ finished_count|intcomma }}
+                                {% calc_remaining_transformedprojects transformer as remaining_count %}
+                                {% if remaining_count != 0 %}
+                                    <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
+                                {% else %}
+                                    {% calc_finished_transformedprojects transformer as finished_count %}
+                                    {{ finished_count|intcomma }}
+                                {% endif %}
                             </td>
                             <td>
                                 <div class="btn-group">
