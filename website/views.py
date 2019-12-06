@@ -25,7 +25,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject
+from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject, TransformOption
 from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
 from PIL import Image
 from .tokens import email_verify_token
@@ -152,7 +152,44 @@ def project_detail(request, slug):
     else:
         form = EmailForm()
         values = FilterDetail.objects.filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
+    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
+
+def transformer_detail(request, slug):
+    try:
+        model = ProjectTransformer.objects.get(slug=slug)
+    except:
+        raise Http404
+    if model.enabled == False and request.user.has_perm('website.view_disabled') == False:
+        raise Http404
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projecttransformer'):
+            send_list = form.cleaned_data['email'].split(',')
+            to = []
+            for user in send_list:
+                name, username = user.split('(')
+                username = username.rstrip(')')
+                email = str(User.objects.get(username=username).email)
+                to.append(email)
+            user = str(request.user.username)
+            url = request.build_absolute_uri('/transformer/detail/' + slug)
+            variables = { 'user' : user, 'url' : url }
+            msg_html = get_template('website/transformer_email.html')
+            text_content = 'A project has been shared with you!'
+            html_content = msg_html.render(variables)
+            msg = EmailMultiAlternatives('PAClab Project Transformer', text_content, request.user.email, to)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(request, 'Email invitation(s) sent')
+        else:
+            messages.warning(request, 'Invalid form entry')
+    else:
+        form = EmailForm()
+        done = False
+        count = model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).count()
+        if count == 0 :
+            done = True
+    return render(request, 'website/transformer_detail.html', { 'transformer' : model, 'form' : form, 'done': done, 'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
 
 @email_required
 def project_delete(request, slug):

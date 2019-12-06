@@ -1,0 +1,112 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Project Transformers{% endblock %}
+{% block body %}
+    <div class="container">
+        {% include 'website/messages.html' %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'website:transformer_list' %}">Back to all project transformers</a><br/><br/>
+        {% endif %}
+        {% if transformer.enabled %}
+            {% if transformer.status == "READY" %}
+                <div class="alert alert-info" role="alert">This transformer is currently in the queue and has not started processing yet.</div>
+            {% else %}
+                {% if not done %}
+                    <div class="alert alert-warning" role="alert">This selector is still processing.</div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <div class="panel panel-primary">
+            <div class="panel-heading clearfix">
+                <h1 class="panel-title"><strong>Project Transformer</strong><div class="pull-right"><em>{{ transformer.slug }}</em></div></h1>
+            </div>
+            <div class="panel-body">
+                {% if not transformer.enabled %}
+                    <div class="alert alert-danger">NOTE: this transformer is deleted</div>
+                {% endif %}
+                <div class="btn-group pull-right clearfix">
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin:website_projecttransformer_change' object_id=transformer.pk %}" role="button" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="sr-only">Edit</span></a>
+                    {% endif %}
+                    <a href="#" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                </div>
+                <h4><strong>Transformer Submitted:</strong> {{ transformer.submitted|naturaltime }}</h4>
+                <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
+                <h4><strong>Dataset Origin:</strong> {{ transformer.project_selector }}</h4>
+                <br/>
+                <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
+                <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
+                {% calc_finished_transformedprojects transformer as finished_count %}
+                {% calc_remaining_percent finished_count transformer.transformed_projects.all.count as remaining_count %}
+                {% if finished_count > 0 %}
+                    <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}{% if not done %} ({{ remaining_count|intcomma }} still processing){% endif %}</h4>
+                    {% if not is_done %}
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: {{ calc_remaining_percent }}%">
+                                <span class="sr-only">{{ calc_remaining_percent }}% Complete</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <br/>
+                <h4><strong>Selection Criteria:</strong></h4>
+                <h5 style="padding-left: 20px;"><strong>{{ transformer.transform }}:</strong> {{ transformer.transform|intcomma }}</h5>
+                {% if transformer.transform.status != 'PROCESSED' %}
+                <p style="padding-left: 20px;">Status: <em>{{ transformer.transform.status }}Status is not a field</em></p>
+                {% endif %}
+                {% if is_done %}
+                    <br/>
+                    <h4><strong>Dataset Generated:</strong> {{ transformer.datetime_processed|naturaltime }}</h4>
+                    {% if finished_count > 0 %}
+                        {% if download_size > 0 %}
+                            <h3><strong><a href="{% url 'website:download' transformer.slug %}">Download Benchmark</a> (zip)</strong></h3>
+                            <h4>({{ download_size|filesizeformat|intcomma }})</h4>
+                        {% else %}
+                            {% if download_size == 0 %}
+                                <h3><strong>Benchmark currently generating (zip)</strong></h3>
+                                <h4>(please be patient - this may take a few minutes)</h4>
+                            {% else %}
+                                <h3><strong><a href="{% url 'website:download' transformer.slug %}">Generate Benchmark</a> (zip)</strong></h3>
+                                <h4>(please be patient and only click the above link once)</h4>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <h3><strong>No download available - no projects match criteria</strong></h3>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% if user.profile.active_email %}
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Share this project selection</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Enter any email address or a PAClab username to share this project selection.</p>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include 'website/form.html' with form=form %}
+                        <button class="btn btn-primary">Share</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'website/jquery.tagsinput.css' %}">
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'website/jquery.tagsinput.js' %}"></script>
+    <script>
+        $('input:eq(1)').tagsInput({
+            autocomplete_url: '/api/usernames/',
+            autocomplete: { minLength: 3 },
+            defaultText: 'username/email'
+        });
+    </script>
+{% endblock %}

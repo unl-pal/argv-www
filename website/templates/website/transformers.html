@@ -39,7 +39,7 @@
                 <tbody>
                     {% for transformer in transformers %}
                         <tr>
-                            <td><a href="#">{{ transformer.slug }}</a></td>
+                            <td><a href="{% url 'website:transformer_detail' slug=transformer.slug %}">{{ transformer.slug }}</a></td>
                             <td>{{ transformer.created|naturalday }}</td>
                             <td>
                                 {% calc_remaining_transformedprojects transformer as remaining_count %}
@@ -52,7 +52,7 @@
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="#" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
+                                    <a href="{% url 'website:transformer_detail' slug=transformer.slug %}" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
                                     <a href="#" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                                 </div>
                             </td>
