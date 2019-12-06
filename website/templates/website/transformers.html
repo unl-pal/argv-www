@@ -1,0 +1,66 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% load humanize %}
+{% block title %}Project Selections{% endblock %}
+{% block projectsactive %}active{% endblock %}
+{% block style %}
+<style type="text/css">
+.glyphicon.spinning {
+    animation: spin 2s infinite linear;
+    -webkit-animation: spin2 2s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+{% block body %}
+    <div class="container-fluid" style="width: 80%">
+        {% include 'website/messages.html' %}
+        <h1>Project Transformers</h1>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Project Transformer</th>
+                        <th>Submitted</th>
+                        <th># Benchmark Projects</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for transformer in transformers %}
+                        <tr>
+                            <td><a href="#">{{ transformer.slug }}</a></td>
+                            <td>{{ transformer.created|naturalday }}</td>
+                            <td>
+                                <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
+                                {% calc_finished_transformedprojects transformer as finished_count %}
+                                {{ finished_count|intcomma }}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="#" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
+                                    <a href="#" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">You currently have no project transformers.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'website/pagination.html' %}
+    </div>
+{% endblock %}

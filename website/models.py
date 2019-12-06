@@ -221,10 +221,12 @@ class ProjectTransformer(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
+    created = models.DateTimeField(auto_now_add=True)
     datetime_processed = models.DateTimeField(auto_now=True)
     transform = models.ForeignKey(TransformOption, on_delete=models.CASCADE)
     transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
+    enabled = models.BooleanField(default=True)
 
     def __str__(self):
         return self.slug
