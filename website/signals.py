@@ -66,15 +66,6 @@ def user_login_failed_callback(sender, credentials, request, **kwargs):
         ip = request.META.get('REMOTE_ADDR')
     UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
 
-@receiver(post_save, sender=ProjectSelector)
-def create_transform(sender, instance, created, **kwargs):
-    if created:
-        transform = Transform.objects.first()
-        options = TransformOption.objects.create(transform=transform)
-        options.save()
-        transformer = ProjectTransformer.objects.create(project_selector=instance, user=instance.user, transform=options)
-        transformer.save()
-
 if settings.USE_HIJACK:
     from hijack.signals import hijack_started, hijack_ended
 

@@ -335,7 +335,7 @@ def project_selection(request):
         'formset': formset,
     })
 
-def transformer(request):
+def transformer(request, slug):
     try:
         validate_gh_token(request.user.profile.token)
     except:
@@ -343,6 +343,11 @@ def transformer(request):
         request.user.profile.save()
         messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
         return redirect('website:edit_profile')
+    
+    try:
+        selector = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
 
     template_name = 'website/create_transformer.html'
     if request.method == 'GET':
@@ -351,13 +356,11 @@ def transformer(request):
         t_form = TransformOptionForm(request.POST)
         if t_form.is_valid():
             options = t_form.save()
-            selector = ProjectSelector.objects.first()
             transformer = ProjectTransformer.objects.create(
                 project_selector = selector,
                 user = request.user,
                 transform = options
             )
-            transformer.save()
             messages.success(request, 'Project transformer created successfully.')
             return redirect(reverse_lazy('website:transformer_detail', args=(transformer.slug,)))
         messages.error(request, 'Invalid form entry')

@@ -33,6 +33,7 @@
                         <a href="" role="button" class="btn btn-warning"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span><span class="sr-only">Restart</span></a>
                     {% endif %}
                     <a href="{% url 'website:project_delete' slug=project.slug %}" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                    <a href="{% url 'website:transformer' slug=project.slug %}" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-plus" aria-hidden="true"></span><span class="sr-only">Transformer+</span></a>
                 </div>
                 <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
