@@ -53,7 +53,7 @@
                             <td>
                                 <div class="btn-group">
                                     <a href="{% url 'website:transformer_detail' slug=transformer.slug %}" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
-                                    <a href="#" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                                    <a href="{% url 'website:delete_transformer' slug=transformer.slug %}" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                                 </div>
                             </td>
                         </tr>

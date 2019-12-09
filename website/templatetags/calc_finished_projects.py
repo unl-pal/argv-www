@@ -29,4 +29,7 @@ def calc_remaining_transformedprojects(transformer):
 
 @register.simple_tag(name='calc_remaining_percent')
 def calc_remaining_percent(done, remain):
-    return round(100.0 * remain / (done + remain), 2)
+    try:
+        return round(100.0 * remain / (done + remain), 2)
+    except:
+        return 0

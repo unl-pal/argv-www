@@ -207,6 +207,22 @@ def project_delete(request, slug):
             messages.warning(request, 'You are not the owner of this selection and cannot delete it')
     return render(request, 'website/delete.html')
 
+@email_required
+def delete_transformer(request, slug):
+    try:
+        model = ProjectTransformer.objects.get(slug=slug)
+    except:
+        raise Http404
+    if request.method == 'POST':
+        if request.user == model.user or request.user.has_perm('website.delete_projecttransformer'):
+            model.enabled = False
+            model.save()
+            messages.info(request, 'You have deleted this project transformer')
+            return redirect('website:transformer_list')
+        else:
+            messages.warning(request, 'You are not the owner of this transformer and cannot delete it')
+    return render(request, 'website/delete.html')
+
 def api_usernames(request):
     q = request.GET.get('term', '')
     results = []
@@ -364,6 +380,51 @@ def download(request, slug):
     if not os.path.exists(zipfile_path):
         if os.path.exists(tmpdir):
             return redirect(reverse_lazy('website:project_detail', args=(slug,)))
+
+        paths = {}
+
+        try:
+            for project in ProjectSelector.objects.get(slug=slug).project.exclude(path__isnull=True):
+                transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
+                if transformed_project:
+                    if not transformed_project.host in paths:
+                        paths[transformed_project.host] = []
+                    paths[transformed_project.host].append(transformed_project.path)
+
+            if not paths:
+                raise RuntimeError('empty benchmark')
+        except:
+            raise Http404
+
+        if not os.path.exists(download_path):
+            os.mkdir(download_path, 0o755)
+        os.mkdir(tmpdir, 0o755)
+
+        transformed_path = config('TRANSFORMED_PATH')
+
+        for host in paths:
+            s = ""
+            for path in paths[host]:
+                s = s + path + '\n'
+            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(transformed_path, host), stdin=subprocess.PIPE)
+            p.communicate(input=str.encode(s))
+            p.stdin.close()
+            p.wait()
+
+        if os.path.exists(tmpdir):
+            shutil.rmtree(tmpdir)
+
+    return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
+
+def download_transformed(request, slug):
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_filename = slug + '.zip'
+    zipfile_path = os.path.join(download_path, download_filename)
+    tmpdir = os.path.join(download_path, slug + '.tmp')
+
+    if not os.path.exists(zipfile_path):
+        if os.path.exists(tmpdir):
+            return redirect(reverse_lazy('website:transformer_detail', args=(slug,)))
 
         paths = {}
 

@@ -28,6 +28,8 @@ urlpatterns = [
     path('selection/download/<slug>/', views.download, name='download'),
     path('transformer/list/', views.TransformerListView.as_view(), name='transformer_list'),
     path('transformer/detail/<slug>/', views.transformer_detail, name='transformer_detail'),
+    path('transformer/delete/<slug>/', views.delete_transformer, name='delete_transformer'),
+    path('transformer/download/<slug>/', views.download_transformed, name='download_transformed'),
     path('password/change/', views.password_change, name='password_change'),
     path('password/reset/', auth_views.PasswordResetView.as_view(email_template_name='website/reset/password_reset_email.html', success_url=reverse_lazy('website:password_reset_done'), template_name='website/reset/passwordReset.html'), name='password_reset'),
     path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='website/reset/passwordResetDone.html'), name='password_reset_done'),
