@@ -26,7 +26,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from .mixins import EmailRequiredMixin
 from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject, TransformOption
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm
+from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm, TransformOptionForm
 from PIL import Image
 from .tokens import email_verify_token
 from .validators import validate_gh_token
@@ -333,6 +333,36 @@ def project_selection(request):
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
+    })
+
+def transformer(request):
+    try:
+        validate_gh_token(request.user.profile.token)
+    except:
+        request.user.profile.token = ''
+        request.user.profile.save()
+        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
+        return redirect('website:edit_profile')
+
+    template_name = 'website/create_transformer.html'
+    if request.method == 'GET':
+        t_form = TransformOptionForm()
+    elif request.method == 'POST':
+        t_form = TransformOptionForm(request.POST)
+        if t_form.is_valid():
+            options = t_form.save()
+            selector = ProjectSelector.objects.first()
+            transformer = ProjectTransformer.objects.create(
+                project_selector = selector,
+                user = request.user,
+                transform = options
+            )
+            transformer.save()
+            messages.success(request, 'Project transformer created successfully.')
+            return redirect(reverse_lazy('website:transformer_detail', args=(transformer.slug,)))
+        messages.error(request, 'Invalid form entry')
+    return render(request, template_name, {
+        't_form' : t_form,
     })
 
 def api_filter_default(request):

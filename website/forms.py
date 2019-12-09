@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.utils.safestring import mark_safe
 from django import forms
 from django.forms import formset_factory
-from .models import Profile, ProjectSelector, Filter
+from .models import Profile, ProjectSelector, Filter, TransformOption
 from .validators import validate_gh_token
 
 class UserForm(forms.ModelForm):
@@ -74,6 +74,11 @@ class ProjectSelectionForm(forms.ModelForm):
         labels = {
             'input_dataset' : '',
         }
+
+class TransformOptionForm(forms.ModelForm):
+    class Meta:
+        model = TransformOption
+        fields = '__all__'
 
 class EmailForm(forms.Form):
     email = forms.CharField(label='')

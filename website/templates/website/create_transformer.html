@@ -1,0 +1,18 @@
+{% extends "website/base.html" %}
+{% block title %}Project Transformer{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            {% include 'website/messages.html' %}
+            <h3>Project Transformer</h3>
+            <form class="form form-default" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'website/form.html' with form=p_form %}
+                {% include 'website/form.html' with form=t_form %}
+                <button type="submit" class="btn btn-primary pull-right">Create</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
