@@ -8,6 +8,18 @@
             <form class="form-horizontal" method="POST">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}
+                {% for form in formset %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
                 <div class="row">
                     <div class="col-xs-2 col-sm-4">
                         <label class="pull-right">Input Dataset:</label>
@@ -20,19 +32,31 @@
                 </div>
                 {{ formset.management_form }}
                 {% for form in formset %}
-                <div class="row form-row">
-                    <div class="col-xs-2 col-sm-4">
-                        <label class="pull-right">Filter:</label>
-                    </div>
-                    <div class="col-xs-10 col-sm-8">
-                        <div class="form-inline">
-                            {{form.pfilter}}
-                            {{form.value}}
-                            <button class="btn btn-success add-form-row">+</button>
+                    <div class="row form-row">
+                        <div class="col-xs-2 col-sm-4">
+                            <label class="pull-right">Filter:</label>
                         </div>
+                        <div class="col-xs-10 col-sm-8">
+                            {% if form.is_bound and form.pfilter.errors %}
+                                <div class="form-inline has-error has-feedback">
+                            {% else %}
+                                <div class="form-inline">
+                            {% endif %}
+                                {{form.pfilter}}
+                                {{form.value}}
+                                <button class="btn btn-success add-form-row">+</button>
+                                {% if form.is_bound and form.pfilter.errors %}
+                                    <span class="sr-only">(error)</span>
+                                    {% for error in form.pfilter.errors %}
+                                        <div class="help-block">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <br><br>
                     </div>
-                    <br><br>
-                </div>
                 {% endfor %}
                 <div class="row">
                     <div class="col-xs-4">

@@ -3,12 +3,14 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.utils.safestring import mark_safe
 from django import forms
 from django.forms import formset_factory
+from django.forms import BaseFormSet
+from django.core.exceptions import ValidationError
 from .models import Profile, ProjectSelector, Filter
 from .validators import validate_gh_token
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['email'].required = True
@@ -61,7 +63,7 @@ class ProfileForm(forms.ModelForm):
 
 class BioProfileForm(ProfileForm):
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args,**kwargs)
+        super().__init__(*args,**kwargs)
 
     class Meta(ProfileForm.Meta):
         ProfileForm.Meta.fields.insert(1, 'bio')
@@ -88,4 +90,17 @@ class FilterDetailForm(forms.Form):
         }),
         required=True)
 
-FilterFormSet = formset_factory(FilterDetailForm)
+class BaseFilterFormSet(BaseFormSet):
+    def clean(self):
+        super().clean()
+
+        filters = []
+        for form in self.forms:
+            if form.is_valid():
+                flter = form.cleaned_data['pfilter']
+                if flter not in filters:
+                    filters.append(flter)
+                else:
+                    form.add_error('pfilter', "Filter used multiple times. Filters may only be used once.")
+
+FilterFormSet = formset_factory(FilterDetailForm, formset=BaseFilterFormSet, min_num=1, extra=0)
