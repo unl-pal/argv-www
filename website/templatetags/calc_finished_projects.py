@@ -17,4 +17,6 @@ def calc_remaining_projects(selector):
 
 @register.simple_tag(name='calc_remaining_percent')
 def calc_remaining_percent(done, remain):
+    if done + remain == 0:
+        return 0
     return round(100.0 * remain / (done + remain), 2)
