@@ -48,6 +48,7 @@ class SelectionAdmin(admin.ModelAdmin):
             message_bit = "%s project selectors were" % rows_updated
         self.message_user(request, "%s successfully disabled." % message_bit)
     disable.short_description = "Disable selected project selectors"
+    disable.allowed_permissions = ('change',)
 
     def enable(self, request, queryset):
         rows_updated = queryset.update(enabled=True)
@@ -56,8 +57,8 @@ class SelectionAdmin(admin.ModelAdmin):
         else:
             message_bit = "%s project selectors were" % rows_updated
         self.message_user(request, "%s successfully enabled." % message_bit)
-
     enable.short_description = "Enable selected project selectors"
+    disable.allowed_permissions = ('change',)
 
     def has_add_permission(self, request, obj=None):
         return False
