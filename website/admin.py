@@ -38,6 +38,26 @@ class SelectionAdmin(admin.ModelAdmin):
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
     inlines = (FilterDetailSelectionInline,)
     search_fields = ['slug', ]
+    actions = ['disable', 'enable', ]
+
+    def disable(self, request, queryset):
+        rows_updated = queryset.update(enabled=False)
+        if rows_updated == 1:
+            message_bit = "1 project selector was"
+        else:
+            message_bit = "%s project selectors were" % rows_updated
+        self.message_user(request, "%s successfully disabled." % message_bit)
+    disable.short_description = "Disable selected project selectors"
+
+    def enable(self, request, queryset):
+        rows_updated = queryset.update(enabled=True)
+        if rows_updated == 1:
+            message_bit = "1 project selector was"
+        else:
+            message_bit = "%s project selectors were" % rows_updated
+        self.message_user(request, "%s successfully enabled." % message_bit)
+
+    enable.short_description = "Enable selected project selectors"
 
     def has_add_permission(self, request, obj=None):
         return False
