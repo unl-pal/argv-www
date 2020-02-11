@@ -19,7 +19,7 @@ urlpatterns = [
     path('verify/<uidb64>/<token>/', views.verify_email, name='verify_email'),
     path('policies/privacy/', TemplateView.as_view(template_name='website/privacy.html'), name='privacy_policy'),
     path('policies/terms_of_use/', TemplateView.as_view(template_name='website/terms.html'), name='tos'),
-    path('api/filter_default/', views.api_filter_default, name='api_filter_default'),
+    path('api/filter_detail/', views.api_filter_detail, name='api_filter_detail'),
     path('api/usernames/', views.api_usernames, name='api_usernames'),
     path('project/selection/', views.project_selection, name='project_selection'),
     path('project/list/', views.ProjectListView.as_view(), name='project_list'),

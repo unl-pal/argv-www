@@ -274,13 +274,21 @@ def project_selection(request):
         'formset': formset,
     })
 
-def api_filter_default(request):
+def api_filter_detail(request):
     val = int(request.GET.get('id', 0))
     try:
-        pfilter = Filter.objects.get(pk=val)
+        pfilter = Filter.objects.filter(enabled=True).get(pk=val)
     except:
         raise Http404
-    return JsonResponse({ 'id' : val, 'default' : pfilter.default_val })
+    # associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
+    return JsonResponse({
+        'id' : val,
+        'backend' : pfilter.associated_backend.name,
+        'name' : pfilter.name,
+        'val_type' : pfilter.val_type,
+        'default' : pfilter.default_val,
+        'help_text' : pfilter.help_text,
+        })
 
 def verify_email_link(request):
     return send_email_verify(request, request.user, 'Reconfirm email address')

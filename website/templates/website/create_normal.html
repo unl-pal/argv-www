@@ -44,7 +44,8 @@
                             {% endif %}
                                 {{form.pfilter}}
                                 {{form.value}}
-                                <button class="btn btn-success add-form-row">+</button>
+                                <button class="btn btn-success add-form-row">+</button><br/>
+                                <div class="help-block"></div>
                                 {% if form.is_bound and form.pfilter.errors %}
                                     <span class="sr-only">(error)</span>
                                     {% for error in form.pfilter.errors %}
@@ -89,6 +90,7 @@ function cloneMore(selector, prefix) {
             $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
         }
     });
+    newElement.find('input').first().nextAll('div').first().text('');
     total++;
     $('#id_' + prefix + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
@@ -127,12 +129,16 @@ $('select[name!="input_dataset"]').change(function (){
     var val = $("option:checked", this).val();
     current_input = this;
     $.ajax({
-        url: '/api/filter_default/',
+        url: '/api/filter_detail/',
         data: {
             'id': val
         },
         success: function (data) {
             $(current_input).nextAll('input').first().val(data.default);
+            if (data.help_text)
+                $(current_input).nextAll('div').first().text(data.help_text + ' (backend: ' + data.backend + ')');
+            else
+                $(current_input).nextAll('div').first().text('');
         }
     });
 });
