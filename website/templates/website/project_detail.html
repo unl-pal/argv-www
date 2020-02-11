@@ -35,7 +35,7 @@
                     <a href="{% url 'website:project_delete' slug=project.slug %}" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                     <a href="{% url 'website:transformer' slug=project.slug %}" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-plus" aria-hidden="true"></span><span class="sr-only">Transformer+</span></a>
                 </div>
-                <h4><strong>Selection Submitted:</strong> {{ project.submitted|naturaltime }}</h4>
+                <h4><strong>Selection Submitted:</strong> <span title="{{ project.submitted }}">{{ project.submitted|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
@@ -64,7 +64,7 @@
                 {% endfor %}
                 {% if is_done %}
                     <br/>
-                    <h4><strong>Dataset Generated:</strong> {{ project.fin_process|naturaltime }}</h4>
+                    <h4><strong>Dataset Generated:</strong> <span title="{{ project.fin_process }}">{{ project.fin_process|naturaltime }}</span></h4>
                     {% if finished_count > 0 %}
                         {% if download_size > 0 %}
                             <h3><strong><a href="{% url 'website:download' project.slug %}">Download Benchmark</a> (zip)</strong></h3>

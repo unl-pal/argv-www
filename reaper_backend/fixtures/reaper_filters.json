@@ -5,6 +5,7 @@
             "name": "Minimum number of stars",
             "val_type": "Integer",
             "default_val": "100",
+            "help_text": "",
             "enabled": false,
             "associated_backend": ["reaper"]
         }

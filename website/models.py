@@ -92,6 +92,7 @@ class Filter(models.Model):
     name = models.CharField(max_length=200, default='')
     val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
     default_val = models.CharField(max_length=100, default='Enter value here')
+    help_text = models.CharField(max_length=200, default='')
     enabled = models.BooleanField(default=False)
     associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
 
