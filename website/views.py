@@ -368,7 +368,7 @@ def transformer(request, slug):
         't_form' : t_form,
     })
 
-def api_filter_default(request):
+def api_filter_detail(request):
     val = int(request.GET.get('id', 0))
     try:
         pfilter = Filter.objects.filter(enabled=True).get(pk=val)
