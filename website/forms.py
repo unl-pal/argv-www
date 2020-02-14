@@ -30,6 +30,7 @@ class UserPasswordForm(PasswordChangeForm):
         fields = '__all__'
 
 class UserFormRegister(UserCreationForm):
+    token = forms.CharField(max_length=40, validators=[validate_gh_token], help_text=Profile._meta.get_field('token').help_text, required=True)
     terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#termsModal">Terms of Use</a>'), required=True)
     privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#privacyModal">Privacy Policy</a>'), required=True)
     age_confirmation = forms.BooleanField(label='I am 13 years or older', required=True)
