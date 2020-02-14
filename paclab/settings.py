@@ -211,15 +211,19 @@ FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+if DEBUG == True:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
+
 SEND_BROKEN_LINK_EMAILS = True
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
-EMAIL_HOST_USER = config('EMAIL_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')
