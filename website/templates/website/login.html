@@ -21,6 +21,9 @@
                 <form class="form form-default" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% include 'website/messages.html' %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    {% endif %}
                     {% include 'website/form.html' with form=form %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>

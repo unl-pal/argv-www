@@ -88,10 +88,11 @@ class LoginView(View):
 
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, { 'form' : form, 'next' : request.GET.get('next') })
 
     def post(self, request):
         form = self.form_class(request.POST)
+        next = request.POST.get('next')
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -101,8 +102,10 @@ class LoginView(View):
                     login(request, user)
                     if not user.profile.active_email:
                         return email_verify_warning(request)
+                    if next:
+                        return redirect(next)
                     return redirect('website:index')
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, { 'form' : form, 'next' : next })
 
 class ProjectListView(EmailRequiredMixin, ListView):
     template_name = 'website/projects.html'
@@ -232,6 +235,7 @@ def password_change(request):
         form = UserPasswordForm(request.user)
     return render(request, 'website/password_change.html', { 'form' : form })
 
+@email_required
 def project_selection(request):
     try:
         validate_gh_token(request.user.profile.token)
