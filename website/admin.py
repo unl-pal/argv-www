@@ -76,6 +76,10 @@ class FilterAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
     list_filter = ['enabled', 'associated_backend', ]
 
+class TransformAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['name', 'enabled', 'associated_backend', ]
+    list_filter = ['enabled', 'associated_backend', ]
+
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
@@ -84,7 +88,7 @@ admin.site.register(Project)
 admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
-admin.site.register(Transform)
+admin.site.register(Transform, TransformAdmin)
 admin.site.register(Analysis)
 admin.site.register(TransformedProject)
 admin.site.register(UserAuthAuditEntry, UserAuthAuditEntryAdmin)
