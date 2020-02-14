@@ -12,8 +12,7 @@ class EmailRequiredMixin(LoginRequiredMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            self.permission_denied_message = 'Please login to access this page.'
-            return redirect('website:login')
+            return self.handle_no_permission()
         if not request.user.profile.active_email:
             self.permission_denied_message = 'You must have a verified email address to view this page.'
             return email_verify_warning(request)
