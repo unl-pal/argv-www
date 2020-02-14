@@ -32,8 +32,6 @@ ADMINS = (('Robert Dyer', 'rdyer@bgsu.edu'), )
 # Application definition
 
 INSTALLED_APPS = [
-    'website.apps.WebsiteConfig',
-    'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,10 +43,28 @@ INSTALLED_APPS = [
     'django_countries',
 ]
 
+# Set this setting to true in your env file if you would like to use the hijack app
+USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
+
+HIJACK_ALLOW_GET_REQUESTS = True # enable Hijack admin page
+HIJACK_USE_BOOTSTRAP = True
+
+if USE_HIJACK == True:
+    INSTALLED_APPS += [
+        'hijack',
+        'compat',
+        'hijack_admin',
+    ]
+
 if DEBUG == True:
     INSTALLED_APPS += [
         'django_extensions',
     ]
+
+INSTALLED_APPS += [
+    'website.apps.WebsiteConfig',
+    'backend.apps.BackendConfig',
+]
 
 LOGGING_CONFIG = None
 logging.config.dictConfig({
@@ -110,19 +126,6 @@ SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
 X_FRAME_OPTIONS = 'DENY'
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# Set this setting to true in your env file if you would like to use the hijack app
-USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
-
-HIJACK_ALLOW_GET_REQUESTS = True # enable Hijack admin page
-HIJACK_USE_BOOTSTRAP = True
-
-if USE_HIJACK == True:
-    INSTALLED_APPS += [
-        'hijack',
-        'compat',
-        'hijack_admin',
-    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
