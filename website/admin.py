@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import mark_safe, format_html
 from django.urls import reverse_lazy
 from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
+from .mixins import ReadOnlyAdminMixin
 
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
@@ -36,7 +37,7 @@ class SelectionAdmin(admin.ModelAdmin):
     list_display = ['enabled', 'slug', 'user', 'display_url', ]
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
-    inlines = (FilterDetailSelectionInline,)
+    inlines = (FilterDetailSelectionInline, )
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
@@ -48,7 +49,7 @@ class SelectionAdmin(admin.ModelAdmin):
             message_bit = "%s project selectors were" % rows_updated
         self.message_user(request, "%s successfully disabled." % message_bit)
     disable.short_description = "Disable selected project selectors"
-    disable.allowed_permissions = ('change',)
+    disable.allowed_permissions = ('change', )
 
     def enable(self, request, queryset):
         rows_updated = queryset.update(enabled=True)
@@ -58,7 +59,7 @@ class SelectionAdmin(admin.ModelAdmin):
             message_bit = "%s project selectors were" % rows_updated
         self.message_user(request, "%s successfully enabled." % message_bit)
     enable.short_description = "Enable selected project selectors"
-    disable.allowed_permissions = ('change',)
+    disable.allowed_permissions = ('change', )
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -67,31 +68,13 @@ class SelectionAdmin(admin.ModelAdmin):
         return format_html('<a href="{0}">details page</a>', reverse_lazy('website:project_detail', args=(obj.slug,)))
     display_url.short_description = 'Details Page'
 
-class UserAuthAuditEntryAdmin(admin.ModelAdmin):
+class UserAuthAuditEntryAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
     list_filter = ['action', 'hijacker', 'hijacked', ]
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-class FilterAdmin(admin.ModelAdmin):
+class FilterAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
     list_filter = ['enabled', 'associated_backend', ]
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-    
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 admin.site.register(Paper)
 admin.site.register(Profile, ProfileAdmin)
