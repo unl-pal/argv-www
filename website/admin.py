@@ -4,8 +4,8 @@ from django.urls import reverse_lazy
 from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 from .mixins import ReadOnlyAdminMixin
 
+@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    model = Profile
     list_display = ['get_username', 'get_email', 'get_firstname', 'get_lastname', ]
     search_fields = ['user__first_name', 'user__last_name', 'user__email', ]
 
@@ -33,6 +33,7 @@ class FilterDetailSelectionInline(admin.TabularInline):
     model = FilterDetail
     extra = 1
 
+@admin.register(ProjectSelector)
 class SelectionAdmin(admin.ModelAdmin):
     list_display = ['enabled', 'slug', 'user', 'display_url', ]
     list_display_links = ['slug', ]
@@ -68,27 +69,25 @@ class SelectionAdmin(admin.ModelAdmin):
         return format_html('<a href="{0}">details page</a>', reverse_lazy('website:project_detail', args=(obj.slug,)))
     display_url.short_description = 'Details Page'
 
+@admin.register(UserAuthAuditEntry)
 class UserAuthAuditEntryAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
     list_filter = ['action', 'hijacker', 'hijacked', ]
 
+@admin.register(Filter)
 class FilterAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
     list_filter = ['enabled', 'associated_backend', ]
 
+@admin.register(Transform)
 class TransformAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['name', 'enabled', 'associated_backend', ]
     list_filter = ['enabled', 'associated_backend', ]
 
 admin.site.register(Paper)
-admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Dataset)
-admin.site.register(ProjectSelector, SelectionAdmin)
 admin.site.register(Project)
-admin.site.register(Filter, FilterAdmin)
 admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
-admin.site.register(Transform, TransformAdmin)
 admin.site.register(Analysis)
 admin.site.register(TransformedProject)
-admin.site.register(UserAuthAuditEntry, UserAuthAuditEntryAdmin)
