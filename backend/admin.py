@@ -2,7 +2,9 @@ from django.contrib import admin
 from .models import Backend
 
 class BackendAdmin(admin.ModelAdmin):
-    readonly_fields = ['name','enabled']
+    list_display = ['enabled', 'name', ]
+    list_filter = ['enabled', ]
+    readonly_fields = ['name', 'enabled', ]
 
     def has_add_permission(self, request, obj=None):
         return False
