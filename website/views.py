@@ -159,10 +159,10 @@ def project_delete(request, slug):
         if request.user == model.user or request.user.has_perm('website.delete_projectselector'):
             model.enabled = False
             model.save()
-            messages.info(request, 'You have deleted this project selection')
+            messages.info(request, 'Project selection \'' + slug + '\' was deleted')
             return redirect('website:project_list')
         else:
-            messages.warning(request, 'You are not the owner of this selection and cannot delete it')
+            messages.warning(request, 'You do not have access to delete this project selection')
     return render(request, 'website/delete.html')
 
 def api_usernames(request):
