@@ -69,7 +69,9 @@ class Profile(models.Model):
         return self.staffStatus == RETIRED
 
     def __str__(self):
-        return self.user.first_name + ' ' + self.user.last_name
+        if self.user.first_name or self.user.last_name:
+            return self.user.first_name + ' ' + self.user.last_name
+        return self.user.username
 
     class Meta:
         permissions = (
