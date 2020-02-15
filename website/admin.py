@@ -3,31 +3,25 @@ from django.utils.html import format_html
 from django.urls import reverse_lazy
 from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 from .mixins import ReadOnlyAdminMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from paclab.settings import USE_HIJACK
+if USE_HIJACK:
+    from hijack_admin.admin import HijackUserAdmin
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['get_username', 'get_email', 'get_firstname', 'get_lastname', ]
-    search_fields = ['user__first_name', 'user__last_name', 'user__email', ]
+class ProfileAdmin(admin.StackedInline):
+    model = Profile
+    can_delete = False
 
-    def get_username(self, obj):
-        return obj.user.username
-    get_username.admin_order_field  = 'user__username'
-    get_username.short_description = 'Username'
+if USE_HIJACK:
+    class UserProfileAdmin(HijackUserAdmin):
+        inlines = [ProfileAdmin, ]
+else:
+    class UserProfileAdmin(UserAdmin):
+        inlines = [ProfileAdmin, ]
 
-    def get_firstname(self, obj):
-        return obj.user.first_name
-    get_firstname.admin_order_field  = 'user__first_name'
-    get_firstname.short_description = 'First Name'
-
-    def get_lastname(self, obj):
-        return obj.user.last_name
-    get_lastname.admin_order_field  = 'user__last_name'
-    get_lastname.short_description = 'Last Name'
-
-    def get_email(self, obj):
-        return obj.user.email
-    get_email.admin_order_field  = 'user__email'
-    get_email.short_description = 'Email Address'
+admin.site.unregister(User)
+admin.site.register(User, UserProfileAdmin)
 
 class FilterDetailSelectionInline(admin.TabularInline):
     model = FilterDetail

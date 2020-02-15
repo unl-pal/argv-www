@@ -5,19 +5,29 @@ from django import forms
 from django.forms import formset_factory
 from django.forms import BaseFormSet
 from django.core.exceptions import ValidationError
+from django_countries.fields import CountryField
 from .models import Profile, ProjectSelector, Filter
 from .validators import validate_gh_token
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
         self.fields['email'].required = True
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email']
+        fields = ['email', ]
+
+class StaffUserForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', ]
 
 class UserFormLogin(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username', 'autofocus': 'autofocus'}))
@@ -30,7 +40,7 @@ class UserPasswordForm(PasswordChangeForm):
         fields = '__all__'
 
 class UserFormRegister(UserCreationForm):
-    token = forms.CharField(max_length=40, validators=[validate_gh_token], label='Github Personal Access Token', help_text=Profile._meta.get_field('token').help_text, required=True)
+    country = CountryField().formfield(required=True)
     terms_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#termsModal">Terms of Use</a>'), required=True)
     privacy_agreement = forms.BooleanField(label=mark_safe('I agree to the <a role="button" data-toggle="modal" data-target="#privacyModal">Privacy Policy</a>'), required=True)
     age_confirmation = forms.BooleanField(label='I am 13 years or older', required=True)
@@ -38,12 +48,10 @@ class UserFormRegister(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].required = True
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'token', 'terms_agreement', 'privacy_agreement', 'age_confirmation']
+        fields = ['username', 'email', 'password1', 'password2', 'country', 'terms_agreement', 'privacy_agreement', 'age_confirmation']
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -51,7 +59,7 @@ class ProfileForm(forms.ModelForm):
             template_name = 'website/photoinput.html'
 
         model = Profile
-        fields = ['photo', 'token', 'sharetoken', 'country']
+        fields = ['country', 'photo', 'token', 'sharetoken', ]
         labels = {
             'token' : 'Github Personal Access Token',
             'sharetoken' : 'Allow using token for system jobs',
@@ -62,9 +70,6 @@ class ProfileForm(forms.ModelForm):
         }
 
 class BioProfileForm(ProfileForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
-
     class Meta(ProfileForm.Meta):
         ProfileForm.Meta.fields.insert(1, 'bio')
         ProfileForm.Meta.labels['bio'] = 'Biography'

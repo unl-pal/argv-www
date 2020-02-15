@@ -32,6 +32,7 @@ from .tokens import email_verify_token
 from .validators import validate_gh_token
 from .decorators import email_required, email_verify_warning
 from .choices import *
+from website.forms import StaffUserForm
 
 class PapersView(ListView):
     template_name = 'website/papers.html'
@@ -61,7 +62,6 @@ class RegisterView(View):
             user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
             user.profile.terms_agreement = form.cleaned_data['terms_agreement']
             user.profile.age_confirmation = form.cleaned_data['age_confirmation']
-            user.profile.token = form.cleaned_data['token']
             user.profile.save()
             login(request, user)
             send_email_verify(request, user, 'Verify your email with PAClab')
@@ -181,10 +181,11 @@ def logoutView(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        userForm = UserForm(request.POST, instance=request.user)
         if request.user.profile.hasBio():
+            userForm = StaffUserForm(request.POST, instance=request.user)
             profileForm = BioProfileForm(request.POST, request.FILES, instance=request.user.profile)
         else:
+            userForm = UserForm(request.POST, instance=request.user)
             profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
@@ -215,10 +216,11 @@ def profile(request):
         else:
             messages.error(request, 'Invalid form entry')
     else:
-        userForm = UserForm(instance=request.user)
         if request.user.profile.hasBio():
+            userForm = StaffUserForm(instance=request.user)
             profileForm = BioProfileForm(instance=request.user.profile)
         else:
+            userForm = UserForm(instance=request.user)
             profileForm = ProfileForm(instance=request.user.profile)
     return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
 
