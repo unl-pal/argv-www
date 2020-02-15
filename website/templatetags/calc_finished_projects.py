@@ -15,8 +15,8 @@ def calc_remaining_projects(selector):
     qs2 = TransformedProject.objects.filter(host__isnull=False).values_list('project')
     return qs1.difference(qs2).count()
 
-@register.simple_tag(name='calc_remaining_percent')
-def calc_remaining_percent(done, remain):
+@register.simple_tag(name='calc_finished_percent')
+def calc_finished_percent(done, remain):
     if done + remain == 0:
-        return 0
-    return round(100.0 * remain / (done + remain), 2)
+        return 100
+    return round(100.0 * done / (done + remain), 2)
