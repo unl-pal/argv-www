@@ -107,7 +107,7 @@
                     <p>Enter any email address or a PAClab username to share this project selection.</p>
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'website/form.html' with form=form %}
+                        {% include 'website/form.html' %}
                         <button class="btn btn-primary">Share</button>
                     </form>
                 </div>
