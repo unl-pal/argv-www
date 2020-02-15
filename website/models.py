@@ -239,6 +239,9 @@ class Analysis(models.Model):
     def __str__(self):
         return self.input_selection
 
+    class Meta:
+        verbose_name_plural = "Analyses"
+
 class UserAuthAuditEntry(models.Model):
     action = models.CharField(max_length=16)
     ip = models.GenericIPAddressField(null=True)
