@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.html import mark_safe, format_html
+from django.utils.html import format_html
 from django.urls import reverse_lazy
 from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, Analysis, FilterDetail, UserAuthAuditEntry
 from .mixins import ReadOnlyAdminMixin
@@ -38,7 +38,7 @@ class SelectionAdmin(admin.ModelAdmin):
     list_display = ['enabled', 'slug', 'user', 'display_url', ]
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
-    inlines = (FilterDetailSelectionInline, )
+    inlines = [FilterDetailSelectionInline, ]
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
@@ -91,3 +91,7 @@ admin.site.register(ProjectTransformer)
 admin.site.register(Selection)
 admin.site.register(Analysis)
 admin.site.register(TransformedProject)
+
+admin.site.site_header = 'PAClab Admin'
+admin.site.site_title = 'PAClab Admin'
+admin.site.index_title = ''
