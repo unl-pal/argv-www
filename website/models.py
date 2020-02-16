@@ -208,6 +208,17 @@ class TransformOption(models.Model):
     def __str__(self):
         return self.transform.name
 
+class TransformedProject(models.Model):
+    host = models.CharField(max_length=255)
+    path = models.CharField(max_length=5000, null=True, blank=True)
+    datetime_processed = models.DateTimeField(null=True, blank=True)
+    transform = models.ForeignKey(TransformOption, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.project.url
+
 class ProjectTransformer(models.Model):
     slug = models.SlugField(unique=True)
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
@@ -232,17 +243,6 @@ class ProjectTransformer(models.Model):
         slug = str(uuid.uuid4())
         slug = slug.replace('-','')
         return slug
-
-class TransformedProject(models.Model):
-    host = models.CharField(max_length=255)
-    path = models.CharField(max_length=5000, null=True, blank=True)
-    datetime_processed = models.DateTimeField(null=True, blank=True)
-    transform = models.ForeignKey(TransformOption, on_delete=models.PROTECT)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
-
-    def __str__(self):
-        return self.project.url
 
 class TransformSelection(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
