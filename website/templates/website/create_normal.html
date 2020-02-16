@@ -136,9 +136,9 @@ $('select[name!="input_dataset"]').change(function (){
         success: function (data) {
             $(current_input).nextAll('input').first().val(data.default);
             if (data.help_text)
-                $(current_input).nextAll('div').first().text(data.help_text + ' (backend: ' + data.backend + ')');
+                $(current_input).nextAll('div').first().html(data.help_text + ' (backend: ' + data.backend + ')');
             else
-                $(current_input).nextAll('div').first().text('');
+                $(current_input).nextAll('div').first().html('');
         }
     });
 });

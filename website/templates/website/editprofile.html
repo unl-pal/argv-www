@@ -94,7 +94,7 @@
 </script>
 {% endblock %}
 {% block body %}
-    <div class="container-fluid">
+    <div class="container">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Editing profile for {{ user.username }}</h3>
@@ -114,8 +114,42 @@
                     <input type="hidden" name="crop_w" id="id_crop_w"/>
                     <input type="hidden" name="crop_h" id="id_crop_h"/>
                     {% include 'website/messages.html' %}
-                    {% include 'website/form.html' with form=userForm %}
-                    {% include 'website/form.html' with form=profileForm %}
+
+                    {% for hidden_field in userForm.hidden_fields %}
+                        {{ hidden_field }}
+                    {% endfor %}
+                    {% for hidden_field in profileForm.hidden_fields %}
+                        {{ hidden_field }}
+                    {% endfor %}
+
+                    {% if userForm.non_field_errors or profileForm.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in userForm.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                            {% for error in profileForm.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-xs-6">
+                            {% include 'website/form-field.html' with form=userForm field=userForm.first_name %}
+                        </div>
+                        <div class="col-xs-6">
+                            {% include 'website/form-field.html' with form=userForm field=userForm.last_name %}
+                        </div>
+                    </div>
+                    {% for field in userForm.visible_fields %}
+                        {% if not field == userForm.first_name and not field == userForm.last_name %}
+                            {% include 'website/form-field.html' with form=userForm %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for field in profileForm.visible_fields %}
+                        {% include 'website/form-field.html' with form=profileForm %}
+                    {% endfor %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>

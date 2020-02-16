@@ -14,12 +14,11 @@ import os
 from glob import glob
 from decouple import config, Csv
 import dj_database_url
+import logging.config
+from django.utils.log import DEFAULT_LOGGING
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
@@ -28,12 +27,11 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ADMINS = ((config('ADMIN_NAME', default='PAClab Admin'), config('ADMIN_EMAIL', default='')), )
 
 # Application definition
 
 INSTALLED_APPS = [
-    'website.apps.WebsiteConfig',
-    'backend.apps.BackendConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,23 +42,6 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_countries',
 ]
-
-if DEBUG == True:
-    INSTALLED_APPS += [
-        'django_extensions',
-    ]
-
-# SSL-only websites can increase security settings
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
-CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
-SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
-SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
-SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
-
-X_FRAME_OPTIONS = 'DENY'
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Set this setting to true in your env file if you would like to use the hijack app
 USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
@@ -74,6 +55,77 @@ if USE_HIJACK == True:
         'compat',
         'hijack_admin',
     ]
+
+if DEBUG == True:
+    INSTALLED_APPS += [
+        'django_extensions',
+    ]
+
+INSTALLED_APPS += [
+    'website.apps.WebsiteConfig',
+    'backend.apps.BackendConfig',
+]
+
+LOGGING_CONFIG = None
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'formatters': {
+        'django.server': DEFAULT_LOGGING['formatters']['django.server'],
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true', ],
+            'class': 'logging.StreamHandler',
+        },
+        'django.server': DEFAULT_LOGGING['handlers']['django.server'],
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false', ],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false', ],
+            'class': 'logging.FileHandler',
+            'filename': config('ERROR_LOG', default='error.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'mail_admins', 'error_file', ],
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console', ],
+            'propagate': False,
+        },
+        'django.server': DEFAULT_LOGGING['loggers']['django.server'],
+    }
+})
+
+# SSL-only websites can increase security settings
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
+SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
+
+X_FRAME_OPTIONS = 'DENY'
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,13 +195,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -166,14 +214,19 @@ FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+if DEBUG == True:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_HOST_USER = config('EMAIL_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
+
+SEND_BROKEN_LINK_EMAILS = True
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
-# These need to be set in the .env file
-EMAIL_HOST_USER = config('EMAIL_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Login Required Redirect URLs
 LOGIN_REDIRECT_URL = config('LOGIN_REDIRECT_URL', default='website:index')

@@ -32,6 +32,7 @@ from .tokens import email_verify_token
 from .validators import validate_gh_token
 from .decorators import email_required, email_verify_warning
 from .choices import *
+from website.forms import StaffUserForm
 
 class PapersView(ListView):
     template_name = 'website/papers.html'
@@ -61,7 +62,6 @@ class RegisterView(View):
             user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
             user.profile.terms_agreement = form.cleaned_data['terms_agreement']
             user.profile.age_confirmation = form.cleaned_data['age_confirmation']
-            user.profile.token = form.cleaned_data['token']
             user.profile.save()
             login(request, user)
             send_email_verify(request, user, 'Verify your email with PAClab')
@@ -88,10 +88,11 @@ class LoginView(View):
 
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, { 'form' : form, 'next' : request.GET.get('next') })
 
     def post(self, request):
         form = self.form_class(request.POST)
+        next = request.POST.get('next')
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -101,8 +102,10 @@ class LoginView(View):
                     login(request, user)
                     if not user.profile.active_email:
                         return email_verify_warning(request)
+                    if next:
+                        return redirect(next)
                     return redirect('website:index')
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, { 'form' : form, 'next' : next })
 
 class ProjectListView(EmailRequiredMixin, ListView):
     template_name = 'website/projects.html'
@@ -201,10 +204,10 @@ def project_delete(request, slug):
         if request.user == model.user or request.user.has_perm('website.delete_projectselector'):
             model.enabled = False
             model.save()
-            messages.info(request, 'You have deleted this project selection')
+            messages.info(request, 'Project selection \'' + slug + '\' was deleted')
             return redirect('website:project_list')
         else:
-            messages.warning(request, 'You are not the owner of this selection and cannot delete it')
+            messages.warning(request, 'You do not have access to delete this project selection')
     return render(request, 'website/delete.html')
 
 @email_required
@@ -239,10 +242,11 @@ def logoutView(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        userForm = UserForm(request.POST, instance=request.user)
         if request.user.profile.hasBio():
+            userForm = StaffUserForm(request.POST, instance=request.user)
             profileForm = BioProfileForm(request.POST, request.FILES, instance=request.user.profile)
         else:
+            userForm = UserForm(request.POST, instance=request.user)
             profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
@@ -273,10 +277,11 @@ def profile(request):
         else:
             messages.error(request, 'Invalid form entry')
     else:
-        userForm = UserForm(instance=request.user)
         if request.user.profile.hasBio():
+            userForm = StaffUserForm(instance=request.user)
             profileForm = BioProfileForm(instance=request.user.profile)
         else:
+            userForm = UserForm(instance=request.user)
             profileForm = ProfileForm(instance=request.user.profile)
     return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
 
@@ -293,6 +298,7 @@ def password_change(request):
         form = UserPasswordForm(request.user)
     return render(request, 'website/password_change.html', { 'form' : form })
 
+@email_required
 def project_selection(request):
     try:
         validate_gh_token(request.user.profile.token)
