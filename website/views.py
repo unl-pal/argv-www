@@ -220,10 +220,10 @@ def delete_transformer(request, slug):
         if request.user == model.user or request.user.has_perm('website.delete_projecttransformer'):
             model.enabled = False
             model.save()
-            messages.info(request, 'You have deleted this project transformer')
+            messages.info(request, 'Project transform was deleted')
             return redirect('website:transformer_list')
         else:
-            messages.warning(request, 'You are not the owner of this transformer and cannot delete it')
+            messages.warning(request, 'You are not the owner of this transform and cannot delete it')
     return render(request, 'website/delete.html')
 
 def api_usernames(request):
@@ -351,27 +351,27 @@ def transformer(request, slug):
         return redirect('website:edit_profile')
     
     try:
-        selector = ProjectSelector.objects.get(slug=slug)
+        selector = ProjectTransformer.objects.get(slug=slug)
     except:
         raise Http404
 
     template_name = 'website/create_transformer.html'
     if request.method == 'GET':
-        t_form = TransformOptionForm()
+        form = TransformOptionForm()
     elif request.method == 'POST':
-        t_form = TransformOptionForm(request.POST)
-        if t_form.is_valid():
-            options = t_form.save()
+        form = TransformOptionForm(request.POST)
+        if form.is_valid():
+            options = form.save()
             transformer = ProjectTransformer.objects.create(
                 project_selector = selector,
                 user = request.user,
                 transform = options
             )
-            messages.success(request, 'Project transformer created successfully.')
+            messages.success(request, 'Project transform created successfully.')
             return redirect(reverse_lazy('website:transformer_detail', args=(transformer.slug,)))
         messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
-        't_form' : t_form,
+        'form' : form,
     })
 
 def api_filter_detail(request):

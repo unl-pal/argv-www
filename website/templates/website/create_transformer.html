@@ -8,7 +8,7 @@
             <h3>Project Transform</h3>
             <form class="form form-default" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% include 'website/form.html' with form=t_form %}
+                {% include 'website/form.html' %}
                 <button type="submit" class="btn btn-primary pull-right">Create</button>
             </form>
         </div>

@@ -28,12 +28,12 @@
                 {% endif %}
                 <div class="btn-group pull-right clearfix">
                     <a href="" role="button" class="btn btn-default"><span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span><span class="sr-only">Duplicate</span></a>
+                    <a href="{% url 'website:transformer' slug=project.slug %}" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-random" aria-hidden="true"></span><span class="sr-only">Transform</span></a>
                     {% if user.is_staff %}
                         <a href="{% url 'admin:website_projectselector_change' object_id=project.pk %}" role="button" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="sr-only">Edit</span></a>
                         <a href="" role="button" class="btn btn-warning"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span><span class="sr-only">Restart</span></a>
                     {% endif %}
                     <a href="{% url 'website:project_delete' slug=project.slug %}" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
-                    <a href="{% url 'website:transformer' slug=project.slug %}" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-plus" aria-hidden="true"></span><span class="sr-only">Transformer+</span></a>
                 </div>
                 <h4><strong>Selection Submitted:</strong> <span title="{{ project.submitted }}">{{ project.submitted|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
