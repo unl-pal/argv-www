@@ -7,11 +7,11 @@
     <div class="container">
         {% include 'website/messages.html' %}
         {% if user.is_authenticated %}
-            <a href="{% url 'website:transformer_list' %}">Back to all project transformers</a><br/><br/>
+            <a href="{% url 'website:transformer_list' %}">Back to all project transforms</a><br/><br/>
         {% endif %}
         {% if transformer.enabled %}
             {% if transformer.status == "READY" %}
-                <div class="alert alert-info" role="alert">This transformer is currently in the queue and has not started processing yet.</div>
+                <div class="alert alert-info" role="alert">This transform is currently in the queue and has not started processing yet.</div>
             {% else %}
                 {% if not done %}
                     <div class="alert alert-warning" role="alert">This selector is still processing.</div>
@@ -20,11 +20,11 @@
         {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading clearfix">
-                <h1 class="panel-title"><strong>Project Transformer</strong><div class="pull-right"><em>{{ transformer.slug }}</em></div></h1>
+                <h1 class="panel-title"><strong>Project Transform</strong><div class="pull-right"><em>{{ transformer.slug }}</em></div></h1>
             </div>
             <div class="panel-body">
                 {% if not transformer.enabled %}
-                    <div class="alert alert-danger">NOTE: this transformer is deleted</div>
+                    <div class="alert alert-danger">NOTE: this transform is deleted</div>
                 {% endif %}
                 <div class="btn-group pull-right clearfix">
                     {% if user.is_staff %}
@@ -32,20 +32,21 @@
                     {% endif %}
                     <a href="{% url 'website:delete_transformer' slug=transformer.slug %}" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                 </div>
-                <h4><strong>Transformer Submitted:</strong> {{ transformer.submitted|naturaltime }}</h4>
+                <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.submitted }}">{{ transformer.submitted|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ transformer.project_selector }}</h4>
                 <br/>
                 <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
-                {% calc_finished_transformedprojects transformer as finished_count %}
-                {% calc_remaining_percent finished_count transformer.transformed_projects.all.count as remaining_count %}
+                {% calc_finished_projects project as finished_count %}
+                {% calc_remaining_projects project as remaining_count %}
+                {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
-                    <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}{% if not done %} ({{ remaining_count|intcomma }} still processing){% endif %}</h4>
+                    <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}</h4>
                     {% if not done %}
                         <div class="progress">
-                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: {{ calc_remaining_percent }}%">
-                                <span class="sr-only">{{ calc_remaining_percent }}% Complete</span>
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
+                                <span class="sr-only">{{ finished_pct }}% Complete</span>
                             </div>
                         </div>
                     {% endif %}
@@ -54,11 +55,11 @@
                 <h4><strong>Selection Criteria:</strong></h4>
                 <h5 style="padding-left: 20px;"><strong>{{ transformer.transform }}:</strong> {{ transformer.transform|intcomma }}</h5>
                 {% if transformer.transform.status != 'PROCESSED' %}
-                <p style="padding-left: 20px;">Status: <em>{{ transformer.transform.status }}Status is not a field</em></p>
+                    <p style="padding-left: 20px;">Status: <em>{{ transformer.transform.status }}Status is not a field</em></p>
                 {% endif %}
                 {% if done %}
                     <br/>
-                    <h4><strong>Dataset Generated:</strong> {{ transformer.datetime_processed|naturaltime }}</h4>
+                    <h4><strong>Dataset Generated:</strong> <span title="{{ transformer.datetime_processed }}">{{ transformer.datetime_processed|naturaltime }}</span></h4>
                     {% if finished_count > 0 %}
                         {% if download_size > 0 %}
                             <h3><strong><a href="{% url 'website:download_transformer' transformer.slug %}">Download Benchmark</a> (zip)</strong></h3>
@@ -68,7 +69,7 @@
                                 <h3><strong>Benchmark currently generating (zip)</strong></h3>
                                 <h4>(please be patient - this may take a few minutes)</h4>
                             {% else %}
-                                <h3><strong><a href="{% url 'website:download' transformer.slug %}">Generate Benchmark</a> (zip)</strong></h3>
+                                <h3><strong><a href="{% url 'website:download_transformer' transformer.slug %}">Generate Benchmark</a> (zip)</strong></h3>
                                 <h4>(please be patient and only click the above link once)</h4>
                             {% endif %}
                         {% endif %}
@@ -87,7 +88,7 @@
                     <p>Enter any email address or a PAClab username to share this project selection.</p>
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'website/form.html' with form=form %}
+                        {% include 'website/form.html' %}
                         <button class="btn btn-primary">Share</button>
                     </form>
                 </div>
