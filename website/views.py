@@ -178,9 +178,9 @@ def transformer_detail(request, slug):
             url = request.build_absolute_uri('/transformer/detail/' + slug)
             variables = { 'user' : user, 'url' : url }
             msg_html = get_template('website/transformer_email.html')
-            text_content = 'A project has been shared with you!'
+            text_content = 'A project transform has been shared with you!'
             html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives('PAClab Project Transformer', text_content, request.user.email, to)
+            msg = EmailMultiAlternatives('PAClab Project Transform', text_content, request.user.email, to)
             msg.attach_alternative(html_content, "text/html")
             msg.send()
             messages.success(request, 'Email invitation(s) sent')

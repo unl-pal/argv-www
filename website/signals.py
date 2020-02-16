@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from django.conf import settings
-from .models import Profile, UserAuthAuditEntry, ProjectTransformer, ProjectSelector, TransformOption, Transform
+from .models import Profile, UserAuthAuditEntry
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
