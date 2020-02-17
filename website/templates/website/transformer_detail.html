@@ -32,14 +32,14 @@
                     {% endif %}
                     <a href="{% url 'website:delete_transformer' slug=transformer.slug %}" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
                 </div>
-                <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.submitted }}">{{ transformer.submitted|naturaltime }}</span></h4>
+                <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.created }}">{{ transformer.created|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ transformer.project_selector }}</h4>
                 <br/>
                 <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
-                {% calc_finished_projects project as finished_count %}
-                {% calc_remaining_projects project as remaining_count %}
+                {% calc_finished_transformedprojects transformer as finished_count %}
+                {% calc_remaining_transformedprojects transformer as remaining_count %}
                 {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
                     <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}</h4>
@@ -54,8 +54,8 @@
                 <br/>
                 <h4><strong>Selection Criteria:</strong></h4>
                 <h5 style="padding-left: 20px;"><strong>{{ transformer.transform }}:</strong> {{ transformer.transform|intcomma }}</h5>
-                {% if transformer.transform.status != 'PROCESSED' %}
-                    <p style="padding-left: 20px;">Status: <em>{{ transformer.transform.status }}Status is not a field</em></p>
+                {% if transformer.status != 'PROCESSED' %}
+                    <p style="padding-left: 20px;">Status: <em>{{ transformer.status }}Status is not a field</em></p>
                 {% endif %}
                 {% if done %}
                     <br/>
