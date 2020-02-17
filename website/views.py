@@ -137,10 +137,8 @@ def project_detail(request, slug):
                     to.add(email)
             user = str(request.user.username)
             url = request.build_absolute_uri('/project/detail/' + slug)
-            variables = { 'user' : user, 'url' : url }
-            msg_html = get_template('website/project_selection_email.html')
-            text_content = 'A project has been shared with you!'
-            html_content = msg_html.render(variables)
+            text_content = user + ' has shared a project selection with you on PAClab: ' + url
+            html_content = get_template('website/project_selection_email.html').render({ 'user' : user, 'url' : url })
             msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
