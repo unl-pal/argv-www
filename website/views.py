@@ -126,19 +126,22 @@ def project_detail(request, slug):
         form = EmailForm(request.POST)
         if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projectselector'):
             send_list = form.cleaned_data['email'].split(',')
-            to = []
+            to = set()
             for user in send_list:
-                name, username = user.split('(')
-                username = username.rstrip(')')
-                email = str(User.objects.get(username=username).email)
-                to.append(email)
+                if '@' in user:
+                    to.add(user)
+                else:
+                    name, username = user.split('(')
+                    username = username.rstrip(')')
+                    email = str(User.objects.get(username=username).email)
+                    to.add(email)
             user = str(request.user.username)
             url = request.build_absolute_uri('/project/detail/' + slug)
             variables = { 'user' : user, 'url' : url }
             msg_html = get_template('website/project_selection_email.html')
             text_content = 'A project has been shared with you!'
             html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, to)
+            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
             messages.success(request, 'Email invitation(s) sent')
