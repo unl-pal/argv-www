@@ -147,9 +147,8 @@ def project_detail(request, slug):
             messages.success(request, 'Email invitation(s) sent')
         else:
             messages.warning(request, 'Invalid form entry')
-    else:
-        form = EmailForm()
-        values = FilterDetail.objects.filter(project_selector=model)
+    form = EmailForm()
+    values = FilterDetail.objects.filter(project_selector=model)
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned' : model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
 
 @email_required
