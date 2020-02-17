@@ -187,12 +187,8 @@ def transformer_detail(request, slug):
             messages.success(request, 'Email invitation(s) sent')
         else:
             messages.warning(request, 'Invalid form entry')
-    else:
-        form = EmailForm()
-        done = False
-        count = model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).count()
-        if count == 0 :
-            done = True
+    form = EmailForm()
+    done = not model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).exists()
     return render(request, 'website/transformer_detail.html', { 'transformer' : model, 'form' : form, 'done': done, 'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
 
 @email_required
