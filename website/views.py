@@ -134,27 +134,27 @@ def project_detail(request, slug):
         form = EmailForm(request.POST)
         if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projectselector'):
             send_list = form.cleaned_data['email'].split(',')
-            to = []
+            to = set()
             for user in send_list:
-                name, username = user.split('(')
-                username = username.rstrip(')')
-                email = str(User.objects.get(username=username).email)
-                to.append(email)
+                if '@' in user:
+                    to.add(user)
+                else:
+                    name, username = user.split('(')
+                    username = username.rstrip(')')
+                    email = str(User.objects.get(username=username).email)
+                    to.add(email)
             user = str(request.user.username)
             url = request.build_absolute_uri('/project/detail/' + slug)
-            variables = { 'user' : user, 'url' : url }
-            msg_html = get_template('website/project_selection_email.html')
-            text_content = 'A project has been shared with you!'
-            html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, to)
+            text_content = user + ' has shared a project selection with you on PAClab: ' + url
+            html_content = get_template('website/project_selection_email.html').render({ 'user' : user, 'url' : url })
+            msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
             messages.success(request, 'Email invitation(s) sent')
         else:
             messages.warning(request, 'Invalid form entry')
-    else:
-        form = EmailForm()
-        values = FilterDetail.objects.filter(project_selector=model)
+    form = EmailForm()
+    values = FilterDetail.objects.filter(project_selector=model)
     return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
 
 def transformer_detail(request, slug):
@@ -168,19 +168,20 @@ def transformer_detail(request, slug):
         form = EmailForm(request.POST)
         if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projecttransformer'):
             send_list = form.cleaned_data['email'].split(',')
-            to = []
+            to = set()
             for user in send_list:
-                name, username = user.split('(')
-                username = username.rstrip(')')
-                email = str(User.objects.get(username=username).email)
-                to.append(email)
+                if '@' in user:
+                    to.add(user)
+                else:
+                    name, username = user.split('(')
+                    username = username.rstrip(')')
+                    email = str(User.objects.get(username=username).email)
+                    to.add(email)
             user = str(request.user.username)
             url = request.build_absolute_uri('/transformer/detail/' + slug)
-            variables = { 'user' : user, 'url' : url }
-            msg_html = get_template('website/transformer_email.html')
-            text_content = 'A project transform has been shared with you!'
-            html_content = msg_html.render(variables)
-            msg = EmailMultiAlternatives('PAClab Project Transform', text_content, request.user.email, to)
+            text_content = user + ' has shared a project transform with you on PAClab: ' + url
+            html_content = get_template('website/transformer_email.html').render({ 'user' : user, 'url' : url })
+            msg = EmailMultiAlternatives('PAClab Project Transform', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
             messages.success(request, 'Email invitation(s) sent')
