@@ -348,7 +348,7 @@ def transformer(request, slug):
         return redirect('website:edit_profile')
     
     try:
-        selector = ProjectTransformer.objects.get(slug=slug)
+        selector = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
 
