@@ -1,38 +1,40 @@
-import json
-
 import os
-import zipfile
 import shutil
 import subprocess
-from decouple import config
 
-from django.http import HttpResponse, JsonResponse, Http404
-from django.urls import reverse_lazy
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, DetailView, View
-from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from PIL import Image
+from decouple import config
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
+from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage
+from django.http import Http404, JsonResponse
+from django.shortcuts import redirect, render
+from django.template.loader import get_template
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views.generic import ListView, View
+
+from website.forms import StaffUserForm
+
+from .choices import *
+from .decorators import email_required, email_verify_warning
+from .forms import (
+    BioProfileForm, EmailForm, FilterFormSet, ProfileForm,
+    ProjectSelectionForm, TransformOptionForm, UserForm, UserFormLogin,
+    UserFormRegister, UserPasswordForm)
 from .mixins import EmailRequiredMixin
-from .models import Paper, Profile, FilterDetail, Filter, ProjectSelector, ProjectTransformer, TransformedProject, TransformOption
-from .forms import UserForm, UserPasswordForm, UserFormLogin, UserFormRegister, BioProfileForm, ProfileForm, ProjectSelectionForm, FilterDetailForm, FilterFormSet, EmailForm, TransformOptionForm
-from PIL import Image
+from .models import (
+    Filter, FilterDetail, Paper, ProjectSelector, ProjectTransformer,
+    )
 from .tokens import email_verify_token
 from .validators import validate_gh_token
-from .decorators import email_required, email_verify_warning
-from .choices import *
-from website.forms import StaffUserForm
 
 class PapersView(ListView):
     template_name = 'website/papers.html'
@@ -50,10 +52,10 @@ class PeopleView(ListView):
 
 class RegisterView(View):
     form_class = UserFormRegister
-    template_name = 'website/register.html'
+    template_name = 'website/user/register.html'
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, {'form' : form})
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -67,7 +69,7 @@ class RegisterView(View):
             send_email_verify(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
-        return render(request, self.template_name, { 'form' : form })
+        return render(request, self.template_name, {'form' : form})
 
 def verify_email(request, uidb64, token):
     try:
@@ -84,11 +86,11 @@ def verify_email(request, uidb64, token):
 
 class LoginView(View):
     form_class = UserFormLogin
-    template_name = 'website/login.html'
+    template_name = 'website/user/login.html'
 
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, { 'form' : form, 'next' : request.GET.get('next') })
+        return render(request, self.template_name, {'form' : form, 'next' : request.GET.get('next')})
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -105,30 +107,30 @@ class LoginView(View):
                     if next:
                         return redirect(next)
                     return redirect('website:index')
-        return render(request, self.template_name, { 'form' : form, 'next' : next })
+        return render(request, self.template_name, {'form' : form, 'next' : next})
 
-class ProjectListView(EmailRequiredMixin, ListView):
-    template_name = 'website/projects.html'
+class SelectionListView(EmailRequiredMixin, ListView):
+    template_name = 'website/selections/list.html'
     context_object_name = 'projects'
     paginate_by = 20
 
     def get_queryset(self):
         return ProjectSelector.objects.filter(user=self.request.user).exclude(enabled=False).order_by('-created')
 
-class TransformerListView(EmailRequiredMixin, ListView):
-    template_name = 'website/transformers.html'
+class TransformListView(EmailRequiredMixin, ListView):
+    template_name = 'website/transforms/list.html'
     context_object_name = 'transformers'
     paginate_by = 20
 
     def get_queryset(self):
         return ProjectTransformer.objects.filter(user=self.request.user).exclude(enabled=False).order_by('-created')
 
-def project_detail(request, slug):
+def selection_detail(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
-    if model.enabled == False and request.user.has_perm('website.view_disabled') == False:
+    if not model.enabled and not request.user.has_perm('website.view_disabled'):
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
@@ -144,9 +146,9 @@ def project_detail(request, slug):
                     email = str(User.objects.get(username=username).email)
                     to.add(email)
             user = str(request.user.username)
-            url = request.build_absolute_uri('/project/detail/' + slug)
+            url = request.build_absolute_uri('/selection/' + slug+ '/')
             text_content = user + ' has shared a project selection with you on PAClab: ' + url
-            html_content = get_template('website/project_selection_email.html').render({ 'user' : user, 'url' : url })
+            html_content = get_template('website/selections/shared_email.html').render({'user' : user, 'url' : url})
             msg = EmailMultiAlternatives('PAClab Project Selection', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -155,14 +157,14 @@ def project_detail(request, slug):
             messages.warning(request, 'Invalid form entry')
     form = EmailForm()
     values = FilterDetail.objects.filter(project_selector=model)
-    return render(request, 'website/project_detail.html', { 'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
+    return render(request, 'website/selections/detail.html', {'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug)})
 
-def transformer_detail(request, slug):
+def transform_detail(request, slug):
     try:
         model = ProjectTransformer.objects.get(slug=slug)
     except:
         raise Http404
-    if model.enabled == False and request.user.has_perm('website.view_disabled') == False:
+    if not model.enabled and not request.user.has_perm('website.view_disabled'):
         raise Http404
     if request.method == 'POST':
         form = EmailForm(request.POST)
@@ -178,9 +180,9 @@ def transformer_detail(request, slug):
                     email = str(User.objects.get(username=username).email)
                     to.add(email)
             user = str(request.user.username)
-            url = request.build_absolute_uri('/transformer/detail/' + slug)
+            url = request.build_absolute_uri('/transform/' + slug + '/')
             text_content = user + ' has shared a project transform with you on PAClab: ' + url
-            html_content = get_template('website/transformer_email.html').render({ 'user' : user, 'url' : url })
+            html_content = get_template('website/transforms/shared_email.html').render({'user' : user, 'url' : url})
             msg = EmailMultiAlternatives('PAClab Project Transform', text_content, request.user.email, list(to))
             msg.attach_alternative(html_content, "text/html")
             msg.send()
@@ -189,10 +191,10 @@ def transformer_detail(request, slug):
             messages.warning(request, 'Invalid form entry')
     form = EmailForm()
     done = not model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).exists()
-    return render(request, 'website/transformer_detail.html', { 'transformer' : model, 'form' : form, 'done': done, 'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug) })
+    return render(request, 'website/transforms/detail.html', {'transformer' : model, 'form' : form, 'done': done, 'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug)})
 
 @email_required
-def project_delete(request, slug):
+def delete_selection(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
     except:
@@ -202,13 +204,13 @@ def project_delete(request, slug):
             model.enabled = False
             model.save()
             messages.info(request, 'Project selection \'' + slug + '\' was deleted')
-            return redirect('website:project_list')
+            return redirect('website:list_selections')
         else:
             messages.warning(request, 'You do not have access to delete this project selection')
-    return render(request, 'website/delete.html')
+    return render(request, 'website/delete.html', {'asset' : 'project selection', 'cancel' : reverse_lazy('website:selection_detail', args=(slug,))})
 
 @email_required
-def delete_transformer(request, slug):
+def delete_transform(request, slug):
     try:
         model = ProjectTransformer.objects.get(slug=slug)
     except:
@@ -218,10 +220,10 @@ def delete_transformer(request, slug):
             model.enabled = False
             model.save()
             messages.info(request, 'Project transform was deleted')
-            return redirect('website:transformer_list')
+            return redirect('website:list_transforms')
         else:
             messages.warning(request, 'You are not the owner of this transform and cannot delete it')
-    return render(request, 'website/delete.html')
+    return render(request, 'website/delete.html', {'asset' : 'project transform', 'cancel' : reverse_lazy('website:transform_detail', args=(slug,))})
 
 def api_usernames(request):
     q = request.GET.get('term', '')
@@ -280,7 +282,7 @@ def profile(request):
         else:
             userForm = UserForm(instance=request.user)
             profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/editprofile.html', { 'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE })
+    return render(request, 'website/user/editprofile.html', {'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE})
 
 @login_required
 def password_change(request):
@@ -293,10 +295,10 @@ def password_change(request):
         messages.error(request, 'Invalid form entry')
     else:
         form = UserPasswordForm(request.user)
-    return render(request, 'website/password_change.html', { 'form' : form })
+    return render(request, 'website/user/password_change.html', {'form' : form})
 
 @email_required
-def project_selection(request):
+def create_selection(request):
     try:
         validate_gh_token(request.user.profile.token)
     except:
@@ -305,7 +307,7 @@ def project_selection(request):
         messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
         return redirect('website:edit_profile')
 
-    template_name = 'website/create_normal.html'
+    template_name = 'website/selections/create.html'
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None)
         formset = FilterFormSet(request.GET or None)
@@ -331,14 +333,14 @@ def project_selection(request):
                     except:
                         pass
             messages.success(request, 'Project selection created successfully.')
-            return redirect(reverse_lazy('website:project_detail', args=(selector.slug,)))
+            return redirect(reverse_lazy('website:selection_detail', args=(selector.slug,)))
         messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
         'p_form' : p_form,
         'formset': formset,
     })
 
-def transformer(request, slug):
+def create_transform_selection(request, slug):
     try:
         validate_gh_token(request.user.profile.token)
     except:
@@ -346,26 +348,59 @@ def transformer(request, slug):
         request.user.profile.save()
         messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
         return redirect('website:edit_profile')
-    
+
     try:
         selector = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
 
-    template_name = 'website/create_transformer.html'
+    template_name = 'website/transforms/create.html'
     if request.method == 'GET':
-        form = TransformOptionForm()
+        form = TransformOptionForm(request.GET or None)
     elif request.method == 'POST':
         form = TransformOptionForm(request.POST)
         if form.is_valid():
             options = form.save()
-            transformer = ProjectTransformer.objects.create(
-                project_selector = selector,
-                user = request.user,
-                transform = options
+            create_transform = ProjectTransformer.objects.create(
+                project_selector=selector,
+                user=request.user,
+                transform=options
             )
             messages.success(request, 'Project transform created successfully.')
-            return redirect(reverse_lazy('website:transformer_detail', args=(transformer.slug,)))
+            return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
+        messages.error(request, 'Invalid form entry')
+    return render(request, template_name, {
+        'form' : form,
+    })
+
+def create_transform_transform(request, slug):
+    try:
+        validate_gh_token(request.user.profile.token)
+    except:
+        request.user.profile.token = ''
+        request.user.profile.save()
+        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
+        return redirect('website:edit_profile')
+
+    try:
+        parent = ProjectTransformer.objects.get(slug=slug)
+    except:
+        raise Http404
+
+    template_name = 'website/transforms/create.html'
+    if request.method == 'GET':
+        form = TransformOptionForm(request.GET or None)
+    elif request.method == 'POST':
+        form = TransformOptionForm(request.POST)
+        if form.is_valid():
+            options = form.save()
+            create_transform = ProjectTransformer.objects.create(
+                parent=parent,
+                user=request.user,
+                transform=options
+            )
+            messages.success(request, 'Project transform created successfully.')
+            return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
         messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
         'form' : form,
@@ -377,7 +412,6 @@ def api_filter_detail(request):
         pfilter = Filter.objects.filter(enabled=True).get(pk=val)
     except:
         raise Http404
-    # associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
     return JsonResponse({
         'id' : val,
         'backend' : pfilter.associated_backend.name,
@@ -392,7 +426,7 @@ def verify_email_link(request):
 
 def send_email_verify(request, user, title):
     current_site = get_current_site(request)
-    message = render_to_string('website/email_verification_email.html', {
+    message = render_to_string('website/user/verification_email.html', {
         'user' : user,
         'domain' : current_site.domain,
         'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
@@ -415,7 +449,7 @@ def download_size(slug):
         return -1
     return os.stat(zipfile_path).st_size
 
-def download(request, slug):
+def download_selection(request, slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
@@ -423,7 +457,7 @@ def download(request, slug):
 
     if not os.path.exists(zipfile_path):
         if os.path.exists(tmpdir):
-            return redirect(reverse_lazy('website:project_detail', args=(slug,)))
+            return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
 
         paths = {}
 
@@ -460,7 +494,7 @@ def download(request, slug):
 
     return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
 
-def download_transformed(request, slug):
+def download_transform(request, slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
@@ -468,7 +502,7 @@ def download_transformed(request, slug):
 
     if not os.path.exists(zipfile_path):
         if os.path.exists(tmpdir):
-            return redirect(reverse_lazy('website:transformer_detail', args=(slug,)))
+            return redirect(reverse_lazy('website:transform_detail', args=(slug,)))
 
         paths = {}
 

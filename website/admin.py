@@ -1,11 +1,16 @@
 from django.contrib import admin
-from django.utils.html import format_html
-from django.urls import reverse_lazy
-from .models import TransformedProject, Paper, Profile, Dataset, ProjectSelector, Project, Filter, ProjectTransformer, Selection, Transform, TransformOption, FilterDetail, UserAuthAuditEntry, TransformSelection
-from .mixins import ReadOnlyAdminMixin
-from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from django.urls import reverse_lazy
+from django.utils.html import format_html
+
 from paclab.settings import USE_HIJACK
+
+from .mixins import ReadOnlyAdminMixin
+from .models import (
+    Dataset, Filter, FilterDetail, Paper, Profile, Project, ProjectSelector,
+    ProjectTransformer, Selection, Transform, TransformOption,
+    TransformSelection, TransformedProject, UserAuthAuditEntry)
 if USE_HIJACK:
     from hijack_admin.admin import HijackUserAdmin
 
@@ -60,7 +65,7 @@ class SelectionAdmin(admin.ModelAdmin):
         return False
 
     def display_url(self, obj):
-        return format_html('<a href="{0}">details page</a>', reverse_lazy('website:project_detail', args=(obj.slug,)))
+        return format_html('<a href="{0}">details page</a>', reverse_lazy('website:selection_detail', args=(obj.slug,)))
     display_url.short_description = 'Details Page'
 
 @admin.register(ProjectTransformer)
@@ -95,7 +100,7 @@ class TransformerAdmin(admin.ModelAdmin):
         return False
 
     def display_url(self, obj):
-        return format_html('<a href="{0}">details page</a>', reverse_lazy('website:transformer_detail', args=(obj.slug,)))
+        return format_html('<a href="{0}">details page</a>', reverse_lazy('website:transform_detail', args=(obj.slug,)))
     display_url.short_description = 'Details Page'
 
 @admin.register(UserAuthAuditEntry)

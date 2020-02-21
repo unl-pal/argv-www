@@ -11,9 +11,19 @@ def email_verify_warning(request):
 def email_required(function):
     @login_required
     def wrap(request, *args, **kwargs):
-        if request.user.profile.active_email:
-            return function(request, *args, **kwargs)
-        return email_verify_warning(request)
+        if not request.user.profile.active_email:
+            return email_verify_warning(request)
+        return function(request, *args, **kwargs)
+    wrap.__doc__ = function.__doc__
+    wrap.__name__ = function.__name__
+    return wrap
+
+def ghtoken_required(function):
+    @login_required
+    def wrap(request, *args, **kwargs):
+        if not request.user.profile.active_email:
+            return email_verify_warning(request)
+        return function(request, *args, **kwargs)
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
     return wrap

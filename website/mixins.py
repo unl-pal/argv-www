@@ -1,8 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.safestring import mark_safe
-from django.shortcuts import redirect
-from django.contrib import messages
-from .models import Profile
+
 from .decorators import email_verify_warning
 
 class EmailRequiredMixin(LoginRequiredMixin):

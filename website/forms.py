@@ -1,13 +1,12 @@
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-from django.utils.safestring import mark_safe
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.contrib.auth.models import User
 from django.forms import formset_factory
 from django.forms import BaseFormSet
-from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
-from .models import Profile, ProjectSelector, Filter, TransformOption
-from .validators import validate_gh_token
+
+from .models import Filter, Profile, ProjectSelector, TransformOption
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -56,7 +55,7 @@ class UserFormRegister(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         class PhotoInput(forms.widgets.ClearableFileInput):
-            template_name = 'website/photoinput.html'
+            template_name = 'website/user/photoinput.html'
 
         model = Profile
         fields = ['country', 'photo', 'token', 'sharetoken', ]

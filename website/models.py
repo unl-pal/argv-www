@@ -1,22 +1,24 @@
-import uuid
 import datetime
 import os
+import uuid
 
-from django.db import models
 from django.contrib.auth.models import User
-from django.utils.safestring import mark_safe
+from django.db import models
 from django.utils import timezone
-from backend.models import Backend
+from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
+
+from backend.models import Backend
+
+from .choices import 
 from .validators import validate_file_size, validate_gh_token
-from .choices import *
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses
 User._meta.get_field('email')._unique = True
 
 # This function was added to prevent a weird duplication issue where any file uploaded without spaces would create duplicates even with signals
-# checking filenames.  For some reason, files with spaces in their names would work correctly.  This function adds a _1 to the end of each 
-# filename.
+# checking filenames.  For some reason, files with spaces in their names would work correctly.  This function converts each
+# filename into a UUID based (hopefully unique) filename.
 def get_filename(instance, filename):
     filename, ext = os.path.splitext(filename)
     filename = str(uuid.uuid4())
@@ -221,7 +223,7 @@ class TransformedProject(models.Model):
 
 class ProjectTransformer(models.Model):
     slug = models.SlugField(unique=True)
-    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT)
+    project_selector = models.ForeignKey(ProjectSelector, on_delete=models.PROTECT, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     created = models.DateTimeField(auto_now_add=True)
