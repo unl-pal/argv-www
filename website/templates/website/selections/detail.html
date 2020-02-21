@@ -11,10 +11,10 @@
         {% endif %}
         {% if project.enabled %}
             {% if project.status == "READY" %}
-                <div class="alert alert-info" role="alert">This selector is currently in the queue and has not started processing yet.</div>
+                <div class="alert alert-info" role="alert">This selection is currently in the queue and has not started processing yet.</div>
             {% else %}
                 {% if not is_done %}
-                    <div class="alert alert-warning" role="alert">This selector is still processing.</div>
+                    <div class="alert alert-warning" role="alert">This selection is still processing.</div>
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -24,7 +24,7 @@
             </div>
             <div class="panel-body">
                 {% if not project.enabled %}
-                    <div class="alert alert-danger">NOTE: this selector is deleted</div>
+                    <div class="alert alert-danger">NOTE: this selection is marked deleted</div>
                 {% endif %}
                 <div class="pull-right clearfix">
                     <div class="btn-group">

@@ -337,6 +337,9 @@ def create_transform_selection(request, slug):
         selector = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
+    if not selector.isDone():
+        messages.error(request, 'Project selection is still processing. You can\'t run a transform on it until it finishes.')
+        return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
 
     template_name = 'website/transforms/create.html'
     if request.method == 'GET':
