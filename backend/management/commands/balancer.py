@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Runs a balancer on the head node to balance data on the slaves'
     POLL_INTERVAL = 600
     BALANCE_THRESHOLD = 20
-    
+
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the disk/database)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')

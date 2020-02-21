@@ -14,7 +14,7 @@ class EmailRequiredMixin(LoginRequiredMixin):
             self.permission_denied_message = 'You must have a verified email address to view this page.'
             return email_verify_warning(request)
         return super().dispatch(request, *args, **kwargs)
- 
+
     def get_permission_denied_message(self):
         return self.permission_denied_message
 

@@ -15,7 +15,7 @@ Runs a poller in the background to grab unprocessed project transforms from data
 '''
 class Command(BaseCommand):
     help = 'Runs a poller in the background to grab unprocessed project transforms from database'
-    
+
     def add_arguments(self, parser):
         parser.add_argument('slug', nargs='*', help='Specific project transformer slug(s) to process', type=str)
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database)', action='store_true')

@@ -6,7 +6,7 @@ import requests
 
 def validate_file_size(value):
     filesize = value.size
-    
+
     if filesize > settings.MAX_FILE_UPLOAD:
         raise ValidationError('The maximum file size for profile photos is ' + str(settings.MAX_FILE_UPLOAD))
     return value

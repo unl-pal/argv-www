@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('backend')
-    
+
     def handle(self, *args, **options):
         backend = options['backend']
         backend = Backend.objects.get(name=backend)

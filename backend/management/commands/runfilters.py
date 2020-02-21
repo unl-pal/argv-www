@@ -17,7 +17,7 @@ Runs a poller in the background to grab unprocessed project selections from data
 class Command(BaseCommand):
     help = 'Runs a poller in the background to grab unprocessed project selections from database'
     POLL_INTERVAL = 3
-    
+
     def add_arguments(self, parser):
         parser.add_argument('slug', nargs='*', help='Specific project selection slug(s) to process', type=str)
         parser.add_argument('--debug', help='Debug filtering specific slug(s) (implies --dry-run --no-poll -v 3)', action='store_true')

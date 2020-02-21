@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('backend')
-    
+
     def handle(self, *args, **options):
         backend = options['backend']
         for myfilter in Filter.objects.filter(associated_backend__name=backend):

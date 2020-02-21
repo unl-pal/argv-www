@@ -159,7 +159,7 @@ class ProjectSelector(models.Model):
         Creates a unique id to be used for project sharing.
         Uses primary key to generate unique key.
         Checks for collisions using check_collision(slug).
-        Does not return until unique slug is generated.    
+        Does not return until unique slug is generated.
     """
     def gen_slug(self):
         slug = str(uuid.uuid4())
@@ -180,7 +180,7 @@ class Selection(models.Model):
 
     def __str__(self):
         return self.project_selector.slug
-    
+
     class Meta:
         indexes = [
             models.Index(fields=['project_selector'], name='project_selector_key'),
@@ -235,7 +235,7 @@ class ProjectTransformer(models.Model):
 
     def __str__(self):
         return self.slug
-    
+
     def save(self, **kwargs):
         if self.pk == None:
             self.slug = self.gen_slug()
