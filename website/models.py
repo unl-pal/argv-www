@@ -170,9 +170,7 @@ class ProjectSelector(models.Model):
         return self.slug
 
     def isDone(self):
-        if self.status != PROCESSED:
-            return False
-        return not ProjectTransformer.objects.filter(project_selector=self.pk).exclude(status=PROCESSED).exists()
+        return self.status == PROCESSED
 
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
@@ -245,6 +243,9 @@ class ProjectTransformer(models.Model):
         slug = str(uuid.uuid4())
         slug = slug.replace('-','')
         return slug
+
+    def isDone(self):
+        return self.status == PROCESSED
 
 class TransformSelection(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
