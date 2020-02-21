@@ -10,7 +10,7 @@ from django_countries.fields import CountryField
 
 from backend.models import Backend
 
-from .choices import 
+from .choices import *
 from .validators import validate_file_size, validate_gh_token
 
 # This line checks for duplicate email addresses when submiting forms that register/update email addresses

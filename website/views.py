@@ -24,17 +24,15 @@ from django.views.generic import ListView, View
 from website.forms import StaffUserForm
 
 from .choices import *
-from .decorators import email_required, email_verify_warning
+from .decorators import email_required, email_verify_warning, ghtoken_required
 from .forms import (
-    BioProfileForm, EmailForm, FilterFormSet, ProfileForm,
-    ProjectSelectionForm, TransformOptionForm, UserForm, UserFormLogin,
-    UserFormRegister, UserPasswordForm)
+    BioProfileForm, EmailForm, FilterFormSet, ProfileForm, ProjectSelectionForm,
+    TransformOptionForm, UserForm, UserFormLogin, UserFormRegister,
+    UserPasswordForm)
 from .mixins import EmailRequiredMixin
 from .models import (
-    Filter, FilterDetail, Paper, ProjectSelector, ProjectTransformer,
-    )
+    Filter, FilterDetail, Paper, ProjectSelector, ProjectTransformer)
 from .tokens import email_verify_token
-from .validators import validate_gh_token
 
 class PapersView(ListView):
     template_name = 'website/papers.html'
@@ -298,15 +296,8 @@ def password_change(request):
     return render(request, 'website/user/password_change.html', {'form' : form})
 
 @email_required
+@ghtoken_required
 def create_selection(request):
-    try:
-        validate_gh_token(request.user.profile.token)
-    except:
-        request.user.profile.token = ''
-        request.user.profile.save()
-        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
-        return redirect('website:edit_profile')
-
     template_name = 'website/selections/create.html'
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None)
@@ -340,15 +331,8 @@ def create_selection(request):
         'formset': formset,
     })
 
+@ghtoken_required
 def create_transform_selection(request, slug):
-    try:
-        validate_gh_token(request.user.profile.token)
-    except:
-        request.user.profile.token = ''
-        request.user.profile.save()
-        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
-        return redirect('website:edit_profile')
-
     try:
         selector = ProjectSelector.objects.get(slug=slug)
     except:
@@ -373,15 +357,8 @@ def create_transform_selection(request, slug):
         'form' : form,
     })
 
+@ghtoken_required
 def create_transform_transform(request, slug):
-    try:
-        validate_gh_token(request.user.profile.token)
-    except:
-        request.user.profile.token = ''
-        request.user.profile.save()
-        messages.error(request, 'Your GitHub token is no longer valid. You must fix it.')
-        return redirect('website:edit_profile')
-
     try:
         parent = ProjectTransformer.objects.get(slug=slug)
     except:
