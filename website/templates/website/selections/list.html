@@ -49,9 +49,17 @@
                                 {{ finished_count|intcomma }}
                             {% endif %}</td>
                             <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'website:selection_detail' slug=project.slug %}" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
-                                    <a href="{% url 'website:delete_selection' slug=project.slug %}" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                                <div class="pull-right clearfix">
+                                    <div class="btn-group">
+                                        <a href="{% url 'website:selection_detail' slug=project.slug %}" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
+                                        <a href="" title="Duplicate" role="button" class="btn btn-default"><span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span><span class="sr-only">Duplicate</span></a>
+                                        {% if project|project_done %}
+                                            <a href="{% url 'website:create_transform_selection' slug=project.slug %}" title="Transform" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-random" aria-hidden="true"></span><span class="sr-only">Transform</span></a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="{% url 'website:delete_selection' slug=project.slug %}" title="Delete" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
