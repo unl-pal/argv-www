@@ -41,13 +41,23 @@
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
+                <h4><strong>Selection Criteria:</strong></h4>
+                <div style="padding-left: 20px">
+                    {% for filter in values %}
+                        <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
+                        {% if filter.status != 'PROCESSED' %}
+                        <p>Status: <em>{{ filter.status }}</em></p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <br/>
                 <h4><strong>Discovered Projects:</strong> {{ project.project.all|length|intcomma }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
                 {% calc_finished_projects project as finished_count %}
                 {% calc_remaining_projects project as remaining_count %}
                 {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
-                    <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}</h4>
+                    <h4><strong>Projects Retained:</strong> {{ finished_count|intcomma }}</h4>
                     {% if not is_done %}
                         <div class="progress">
                             <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
@@ -56,27 +66,19 @@
                         </div>
                     {% endif %}
                 {% endif %}
-                <br/>
-                <h4><strong>Selection Criteria:</strong></h4>
-                {% for filter in values %}
-                    <h5 style="padding-left: 20px;"><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
-                    {% if filter.status != 'PROCESSED' %}
-                    <p style="padding-left: 20px;">Status: <em>{{ filter.status }}</em></p>
-                    {% endif %}
-                {% endfor %}
                 {% if is_done %}
                     <br/>
                     <h4><strong>Dataset Generated:</strong> <span title="{{ project.fin_process }}">{{ project.fin_process|naturaltime }}</span></h4>
                     {% if finished_count > 0 %}
                         {% if download_size > 0 %}
-                            <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Download Benchmark</a> (zip)</strong></h3>
+                            <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Download Dataset</a> (zip)</strong></h3>
                             <h4>({{ download_size|filesizeformat|intcomma }})</h4>
                         {% else %}
                             {% if download_size == 0 %}
-                                <h3><strong>Benchmark currently generating (zip)</strong></h3>
+                                <h3><strong>Dataset currently generating (zip)</strong></h3>
                                 <h4>(please be patient - this may take a few minutes)</h4>
                             {% else %}
-                                <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Generate Benchmark</a> (zip)</strong></h3>
+                                <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Generate Dataset</a> (zip)</strong></h3>
                                 <h4>(please be patient and only click the above link once)</h4>
                             {% endif %}
                         {% endif %}
@@ -86,7 +88,7 @@
                 {% endif %}
             </div>
         </div>
-        {% if user.profile.active_email %}
+        {% if is_done and user.profile.active_email %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">Share this project selection</h3>
