@@ -214,7 +214,7 @@ def transform_detail(request, slug):
     return render(request, 'website/transforms/detail.html', {
         'transformer': model,
         'form': EmailForm(),
-        'done': not model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).exists(),
+        'done': model.status == PROCESSED,
         'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_size(model.slug)
     })
