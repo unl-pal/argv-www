@@ -51,12 +51,14 @@ class PeopleView(ListView):
 class RegisterView(View):
     form_class = UserFormRegister
     template_name = 'website/user/register.html'
+
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, {'form' : form})
 
     def post(self, request):
         form = self.form_class(request.POST)
+
         if form.is_valid():
             user = form.save()
             user.profile.privacy_agreement = form.cleaned_data['privacy_agreement']
@@ -67,6 +69,7 @@ class RegisterView(View):
             send_email_verify(request, user, 'Verify your email with PAClab')
             messages.info(request, 'Please check and confirm your email to complete registration.')
             return redirect('website:index')
+
         return render(request, self.template_name, {'form' : form})
 
 def verify_email(request, uidb64, token):
@@ -75,10 +78,12 @@ def verify_email(request, uidb64, token):
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
+
     if user is not None and email_verify_token.check_token(user, token):
         user.profile.active_email = True
         user.profile.save()
         login(request, user)
+
     messages.info(request, 'If you followed a valid email verification link, your email is now verified.')
     return redirect('website:index')
 
@@ -88,11 +93,15 @@ class LoginView(View):
 
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, {'form' : form, 'next' : request.GET.get('next')})
+        return render(request, self.template_name, {
+            'form': form,
+            'next': request.GET.get('next')
+        })
 
     def post(self, request):
         form = self.form_class(request.POST)
         next = request.POST.get('next')
+
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -105,7 +114,11 @@ class LoginView(View):
                     if next:
                         return redirect(next)
                     return redirect('website:index')
-        return render(request, self.template_name, {'form' : form, 'next' : next})
+
+        return render(request, self.template_name, {
+            'form': form,
+            'next': next
+        })
 
 class SelectionListView(EmailRequiredMixin, ListView):
     template_name = 'website/selections/list.html'
@@ -126,16 +139,17 @@ class TransformListView(EmailRequiredMixin, ListView):
 def selection_detail(request, slug):
     try:
         model = ProjectSelector.objects.get(slug=slug)
+        if not model.enabled and not request.user.has_perm('website.view_disabled'):
+            raise Exception
     except:
         raise Http404
-    if not model.enabled and not request.user.has_perm('website.view_disabled'):
-        raise Http404
+
     if request.method == 'POST':
         form = EmailForm(request.POST)
+
         if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projectselector'):
-            send_list = form.cleaned_data['email'].split(',')
             to = set()
-            for user in send_list:
+            for user in form.cleaned_data['email'].split(','):
                 if '@' in user:
                     to.add(user)
                 else:
@@ -143,6 +157,7 @@ def selection_detail(request, slug):
                     username = username.rstrip(')')
                     email = str(User.objects.get(username=username).email)
                     to.add(email)
+
             user = str(request.user.username)
             url = request.build_absolute_uri('/selection/' + slug+ '/')
             text_content = user + ' has shared a project selection with you on PAClab: ' + url
@@ -153,23 +168,30 @@ def selection_detail(request, slug):
             messages.success(request, 'Email invitation(s) sent')
         else:
             messages.warning(request, 'Invalid form entry')
-    form = EmailForm()
-    values = FilterDetail.objects.filter(project_selector=model)
-    return render(request, 'website/selections/detail.html', {'project' : model, 'form' : form, 'values' : values, 'is_done' : model.isDone(), 'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug)})
+
+    return render(request, 'website/selections/detail.html', {
+        'project': model,
+        'form': EmailForm(),
+        'values': FilterDetail.objects.filter(project_selector=model),
+        'is_done': model.isDone(),
+        'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(),
+        'download_size': download_size(model.slug)
+    })
 
 def transform_detail(request, slug):
     try:
         model = ProjectTransformer.objects.get(slug=slug)
+        if not model.enabled and not request.user.has_perm('website.view_disabled'):
+            raise Exception
     except:
         raise Http404
-    if not model.enabled and not request.user.has_perm('website.view_disabled'):
-        raise Http404
+
     if request.method == 'POST':
         form = EmailForm(request.POST)
+
         if form.is_valid() and request.user == model.user or request.user.has_perm('website.view_projecttransformer'):
-            send_list = form.cleaned_data['email'].split(',')
             to = set()
-            for user in send_list:
+            for user in form.cleaned_data['email'].split(','):
                 if '@' in user:
                     to.add(user)
                 else:
@@ -177,6 +199,7 @@ def transform_detail(request, slug):
                     username = username.rstrip(')')
                     email = str(User.objects.get(username=username).email)
                     to.add(email)
+
             user = str(request.user.username)
             url = request.build_absolute_uri('/transform/' + slug + '/')
             text_content = user + ' has shared a project transform with you on PAClab: ' + url
@@ -187,9 +210,14 @@ def transform_detail(request, slug):
             messages.success(request, 'Email invitation(s) sent')
         else:
             messages.warning(request, 'Invalid form entry')
-    form = EmailForm()
-    done = not model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).exists()
-    return render(request, 'website/transforms/detail.html', {'transformer' : model, 'form' : form, 'done': done, 'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(), 'download_size' : download_size(model.slug)})
+
+    return render(request, 'website/transforms/detail.html', {
+        'transformer': model,
+        'form': EmailForm(),
+        'done': not model.transformed_projects.exclude(host__isnull=False).exclude(path__isnull=False).exists(),
+        'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
+        'download_size': download_size(model.slug)
+    })
 
 @email_required
 def delete_selection(request, slug):
@@ -197,15 +225,19 @@ def delete_selection(request, slug):
         model = ProjectSelector.objects.get(slug=slug)
     except:
         raise Http404
+
     if request.method == 'POST':
         if request.user == model.user or request.user.has_perm('website.delete_projectselector'):
             model.enabled = False
             model.save()
             messages.info(request, 'Project selection \'' + slug + '\' was deleted')
             return redirect('website:list_selections')
-        else:
-            messages.warning(request, 'You do not have access to delete this project selection')
-    return render(request, 'website/delete.html', {'asset' : 'project selection', 'cancel' : reverse_lazy('website:selection_detail', args=(slug,))})
+        messages.warning(request, 'You do not have access to delete this project selection')
+
+    return render(request, 'website/delete.html', {
+        'asset': 'project selection',
+        'cancel': reverse_lazy('website:selection_detail', args=(slug,))
+    })
 
 @email_required
 def delete_transform(request, slug):
@@ -213,15 +245,19 @@ def delete_transform(request, slug):
         model = ProjectTransformer.objects.get(slug=slug)
     except:
         raise Http404
+
     if request.method == 'POST':
         if request.user == model.user or request.user.has_perm('website.delete_projecttransformer'):
             model.enabled = False
             model.save()
             messages.info(request, 'Project transform was deleted')
             return redirect('website:list_transforms')
-        else:
-            messages.warning(request, 'You are not the owner of this transform and cannot delete it')
-    return render(request, 'website/delete.html', {'asset' : 'project transform', 'cancel' : reverse_lazy('website:transform_detail', args=(slug,))})
+        messages.warning(request, 'You are not the owner of this transform and cannot delete it')
+
+    return render(request, 'website/delete.html', {
+        'asset': 'project transform',
+        'cancel': reverse_lazy('website:transform_detail', args=(slug,))
+    })
 
 def api_usernames(request):
     q = request.GET.get('term', '')
@@ -245,9 +281,11 @@ def profile(request):
         else:
             userForm = UserForm(request.POST, instance=request.user)
             profileForm = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+
         if userForm.is_valid() and profileForm.is_valid():
             userForm.save()
             profileForm.save()
+
             if 'email' in userForm.changed_data:
                 request.user.profile.active_email = False
                 request.user.profile.save()
@@ -271,8 +309,8 @@ def profile(request):
 
             messages.success(request, 'Profile successfully updated')
             return redirect('website:edit_profile')
-        else:
-            messages.error(request, 'Invalid form entry')
+
+        messages.error(request, 'Invalid form entry')
     else:
         if request.user.profile.hasBio():
             userForm = StaffUserForm(instance=request.user)
@@ -280,7 +318,13 @@ def profile(request):
         else:
             userForm = UserForm(instance=request.user)
             profileForm = ProfileForm(instance=request.user.profile)
-    return render(request, 'website/user/editprofile.html', {'userForm' : userForm, 'profileForm' : profileForm, 'min_width' : settings.THUMBNAIL_SIZE, 'min_height' : settings.THUMBNAIL_SIZE})
+
+    return render(request, 'website/user/editprofile.html', {
+        'userForm': userForm,
+        'profileForm': profileForm,
+        'min_width': settings.THUMBNAIL_SIZE,
+        'min_height': settings.THUMBNAIL_SIZE
+    })
 
 @login_required
 def password_change(request):
@@ -293,7 +337,10 @@ def password_change(request):
         messages.error(request, 'Invalid form entry')
     else:
         form = UserPasswordForm(request.user)
-    return render(request, 'website/user/password_change.html', {'form' : form})
+
+    return render(request, 'website/user/password_change.html', {
+        'form': form
+    })
 
 @email_required
 @ghtoken_required
@@ -305,11 +352,13 @@ def create_selection(request):
     elif request.method == 'POST':
         p_form = ProjectSelectionForm(request.POST)
         formset = FilterFormSet(request.POST)
+
         if p_form.is_valid() and formset.is_valid():
             selector = ProjectSelector()
             selector.user = request.user
             selector.input_dataset = p_form.cleaned_data['input_dataset']
             selector.save()
+
             for form in formset:
                 pfilter = form.cleaned_data.get('pfilter')
                 value = form.cleaned_data.get('value')
@@ -323,11 +372,14 @@ def create_selection(request):
                         connection.save()
                     except:
                         pass
+
             messages.success(request, 'Project selection created successfully.')
             return redirect(reverse_lazy('website:selection_detail', args=(selector.slug,)))
+
         messages.error(request, 'Invalid form entry')
+
     return render(request, template_name, {
-        'p_form' : p_form,
+        'p_form': p_form,
         'formset': formset,
     })
 
@@ -347,6 +399,7 @@ def create_transform_selection(request, slug):
         form = TransformOptionForm(request.GET or None)
     elif request.method == 'POST':
         form = TransformOptionForm(request.POST)
+
         if form.is_valid():
             options = form.save()
             create_transform = ProjectTransformer.objects.create(
@@ -356,9 +409,11 @@ def create_transform_selection(request, slug):
             )
             messages.success(request, 'Project transform created successfully.')
             return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
+
         messages.error(request, 'Invalid form entry')
+
     return render(request, template_name, {
-        'form' : form,
+        'form': form,
     })
 
 @ghtoken_required
@@ -388,7 +443,7 @@ def create_transform_transform(request, slug):
             return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
         messages.error(request, 'Invalid form entry')
     return render(request, template_name, {
-        'form' : form,
+        'form': form,
     })
 
 def api_filter_detail(request):
@@ -398,13 +453,13 @@ def api_filter_detail(request):
     except:
         raise Http404
     return JsonResponse({
-        'id' : val,
-        'backend' : pfilter.associated_backend.name,
-        'name' : pfilter.name,
-        'val_type' : pfilter.val_type,
-        'default' : pfilter.default_val,
-        'help_text' : pfilter.help_text,
-        })
+        'id': val,
+        'backend': pfilter.associated_backend.name,
+        'name': pfilter.name,
+        'val_type': pfilter.val_type,
+        'default': pfilter.default_val,
+        'help_text': pfilter.help_text,
+    })
 
 def verify_email_link(request):
     return send_email_verify(request, request.user, 'Reconfirm email address')
@@ -412,10 +467,10 @@ def verify_email_link(request):
 def send_email_verify(request, user, title):
     current_site = get_current_site(request)
     message = render_to_string('website/user/verification_email.html', {
-        'user' : user,
-        'domain' : current_site.domain,
-        'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-        'token' : email_verify_token.make_token(user),
+        'user': user,
+        'domain': current_site.domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': email_verify_token.make_token(user),
     })
     to_email = user.email
     email = EmailMessage(title, message, to=[to_email])
