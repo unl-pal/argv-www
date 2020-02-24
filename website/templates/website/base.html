@@ -61,15 +61,18 @@
                         <ul class="dropdown-menu">
                             <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
-                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
+                            <li class="{% block profileactive %}{% endblock %}"><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
+                            <li class="{% block passwordactive %}{% endblock %}"><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
                                 <li><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:create_selection' %}">New project selection</a></li>
-                            <li><a href="{% url 'website:list_selections' %}">List project selections</a></li>
-                            <li><a href="{% url 'website:list_transforms' %}">List project transforms</a></li>
+                            <li class="{% block createselactive %}{% endblock %}"><a href="{% url 'website:create_selection' %}">New project selection</a></li>
+                            <li class="{% block listselectionsactive %}{% endblock %}"><a href="{% url 'website:list_selections' %}">List project selections</a></li>
+                            <li class="{% block listtransformsactive %}{% endblock %}"><a href="{% url 'website:list_transforms' %}">List project transforms</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="{% block tosactive %}{% endblock %}"><a href="{% url 'website:tos' %}">Terms of Use Policy</a></li>
+                            <li class="{% block privacyactive %}{% endblock %}"><a href="{% url 'website:privacy_policy' %}">Privacy Policy</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="{% url 'website:logout' %}">Sign out</a></li>
                         </ul>
