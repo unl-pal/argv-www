@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.template.loader import render_to_string
@@ -126,7 +126,10 @@ class SelectionListView(EmailRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        return ProjectSelector.objects.filter(user=self.request.user).exclude(enabled=False).order_by('-created')
+        p = ProjectSelector.objects.filter(user=self.request.user)
+        if not self.request.user.has_perm('website.view_projectselector'):
+            p = p.exclude(enabled=False)
+        return p.order_by('-created')
 
 class TransformListView(EmailRequiredMixin, ListView):
     template_name = 'website/transforms/list.html'
@@ -173,7 +176,6 @@ def selection_detail(request, slug):
         'project': model,
         'form': EmailForm(),
         'values': FilterDetail.objects.filter(project_selector=model),
-        'is_done': model.isDone(),
         'cloned': model.project.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_size(model.slug)
     })
@@ -214,7 +216,6 @@ def transform_detail(request, slug):
     return render(request, 'website/transforms/detail.html', {
         'transformer': model,
         'form': EmailForm(),
-        'done': model.status == PROCESSED,
         'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_size(model.slug)
     })
@@ -392,7 +393,7 @@ def create_transform_selection(request, slug):
 
     if not selector.isDone():
         messages.error(request, 'Project selection is still processing. You can\'t run a transform on it until it finishes.')
-        return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse_lazy('website:selection_detail', args=(slug,))))
 
     template_name = 'website/transforms/create.html'
     if request.method == 'GET':

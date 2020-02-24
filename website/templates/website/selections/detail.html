@@ -13,7 +13,7 @@
             {% if project.status == "READY" %}
                 <div class="alert alert-info" role="alert">This selection is currently in the queue and has not started processing yet.</div>
             {% else %}
-                {% if not is_done %}
+                {% if not project.isDone %}
                     <div class="alert alert-warning" role="alert">This selection is still processing.</div>
                 {% endif %}
             {% endif %}
@@ -28,13 +28,18 @@
                 {% endif %}
                 <div class="pull-right clearfix">
                     <div class="btn-group">
-                        <a href="" title="Duplicate" role="button" class="btn btn-default"><span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span><span class="sr-only">Duplicate</span></a>
-                        {% if is_done %}
-                            <a href="{% url 'website:create_transform_selection' slug=project.slug %}" title="Transform" role="button" class="btn btn-success"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-random" aria-hidden="true"></span><span class="sr-only">Transform</span></a>
-                        {% endif %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                        {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' %}
                     </div>
                     <div class="btn-group">
-                        <a href="{% url 'website:delete_selection' slug=project.slug %}" title="Delete" role="button" class="btn btn-danger"{% if not project.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                        {% if project.enabled %}
+                            {% url 'website:delete_selection' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' %}
+                        {% else %}
+                            {% url 'website:restore_selection' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' %}
+                        {% endif %}
                     </div>
                 </div>
                 <h4><strong>Selection Submitted:</strong> <span title="{{ project.submitted }}">{{ project.submitted|naturaltime }}</span></h4>
@@ -61,7 +66,7 @@
                 {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
                     <h4><strong>Projects Retained:</strong> {{ finished_count|intcomma }}</h4>
-                    {% if not is_done %}
+                    {% if not project.isDone %}
                         <div class="progress">
                             <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
                                 <span class="sr-only">{{ finished_pct }}% Complete</span>
@@ -69,7 +74,7 @@
                         </div>
                     {% endif %}
                 {% endif %}
-                {% if is_done %}
+                {% if project.isDone %}
                     <br/>
                     <h4><strong>Dataset Generated:</strong> <span title="{{ project.fin_process }}">{{ project.fin_process|naturaltime }}</span></h4>
                     {% if finished_count > 0 %}
@@ -91,7 +96,7 @@
                 {% endif %}
             </div>
         </div>
-        {% if is_done and user.profile.active_email %}
+        {% if project.isDone and user.profile.active_email %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">Share this project selection</h3>

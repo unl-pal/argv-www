@@ -13,8 +13,8 @@
             {% if transformer.status == "READY" %}
                 <div class="alert alert-info" role="alert">This transform is currently in the queue and has not started processing yet.</div>
             {% else %}
-                {% if not done %}
-                    <div class="alert alert-warning" role="alert">This selector is still processing.</div>
+                {% if not transformer.isDone %}
+                    <div class="alert alert-warning" role="alert">This transform is still processing.</div>
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -26,24 +26,37 @@
                 {% if not transformer.enabled %}
                     <div class="alert alert-danger">NOTE: this transform is deleted</div>
                 {% endif %}
-                <div class="btn-group pull-right clearfix">
-                    {% if user.is_staff %}
-                        <a href="{% url 'admin:website_projecttransformer_change' object_id=transformer.pk %}" role="button" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="sr-only">Edit</span></a>
-                    {% endif %}
-                    <a href="{% url 'website:delete_transform' slug=transformer.slug %}" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                <div class="pull-right clearfix">
+                    <div class="btn-group">
+                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                        {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' %}
+                    </div>
+                    <div class="btn-group">
+                        {% if transformer.enabled %}
+                            {% url 'website:delete_transform' slug=transformer.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' %}
+                        {% else %}
+                            {% url 'website:restore_transform' slug=transformer.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' %}
+                        {% endif %}
+                    </div>
                 </div>
                 <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.created }}">{{ transformer.created|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
-                <h4><strong>Dataset Origin:</strong> {{ transformer.project_selector }}</h4>
+                {% if transformer.project_selector %}
+                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:selection_detail' slug=transformer.project_selector %}">selection {{ transformer.project_selector }}</a></h4>
+                {% else %}
+                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:transform_detail' slug=transformer.parent %}">transform {{ transformer.parent }}</a></h4>
+                {% endif %}
                 <br/>
                 <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
-                {% calc_finished_transformedprojects transformer as finished_count %}
                 {% calc_remaining_transformedprojects transformer as remaining_count %}
-                {% calc_finished_percent finished_count remaining_count as finished_pct %}
+                {% calc_finished_percent transformed remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
-                    <h4><strong>Benchmark Projects:</strong> {{ finished_count|intcomma }}</h4>
-                    {% if not done %}
+                    <h4><strong>Projects Transformed:</strong> {{ finished_count|intcomma }}</h4>
+                    {% if not transformer.isDone %}
                         <div class="progress">
                             <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
                                 <span class="sr-only">{{ finished_pct }}% Complete</span>
@@ -51,25 +64,19 @@
                         </div>
                     {% endif %}
                 {% endif %}
-                <br/>
-                <h4><strong>Selection Criteria:</strong></h4>
-                <h5 style="padding-left: 20px;"><strong>{{ transformer.transform }}:</strong> {{ transformer.transform|intcomma }}</h5>
-                {% if transformer.status != 'PROCESSED' %}
-                    <p style="padding-left: 20px;">Status: <em>{{ transformer.status }}Status is not a field</em></p>
-                {% endif %}
-                {% if done %}
+                {% if transformer.isDone %}
                     <br/>
                     <h4><strong>Dataset Generated:</strong> <span title="{{ transformer.datetime_processed }}">{{ transformer.datetime_processed|naturaltime }}</span></h4>
                     {% if finished_count > 0 %}
                         {% if download_size > 0 %}
-                            <h3><strong><a href="{% url 'website:download_transform' transformer.slug %}">Download Benchmark</a> (zip)</strong></h3>
+                            <h3><strong><a href="{% url 'website:download_transform' transformer.slug %}">Download Dataset</a> (zip)</strong></h3>
                             <h4>({{ download_size|filesizeformat|intcomma }})</h4>
                         {% else %}
                             {% if download_size == 0 %}
-                                <h3><strong>Benchmark currently generating (zip)</strong></h3>
+                                <h3><strong>Dataset currently generating (zip)</strong></h3>
                                 <h4>(please be patient - this may take a few minutes)</h4>
                             {% else %}
-                                <h3><strong><a href="{% url 'website:download_transform' transformer.slug %}">Generate Benchmark</a> (zip)</strong></h3>
+                                <h3><strong><a href="{% url 'website:download_transform' transformer.slug %}">Generate Dataset</a> (zip)</strong></h3>
                                 <h4>(please be patient and only click the above link once)</h4>
                             {% endif %}
                         {% endif %}
@@ -79,13 +86,13 @@
                 {% endif %}
             </div>
         </div>
-        {% if user.profile.active_email %}
+        {% if transformer.isDone and user.profile.active_email %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Share this project selection</h3>
+                    <h3 class="panel-title">Share this project transform</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Enter any email address or a PAClab username to share this project selection.</p>
+                    <p>Enter any email address or a PAClab username to share this project transform.</p>
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% include 'website/form.html' %}

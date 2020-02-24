@@ -31,8 +31,8 @@
                     <tr>
                         <th>Project Transform</th>
                         <th>Submitted</th>
-                        <th># Benchmark Projects</th>
-                        <th>Options</th>
+                        <th># Projects in Dataset</th>
+                        <th class="text-right">Options</th>
                     </tr>
                 </thead>
 
@@ -42,8 +42,7 @@
                             <td><a href="{% url 'website:transform_detail' slug=transformer.slug %}">{{ transformer.slug }}</a></td>
                             <td>{{ transformer.created|naturalday }}</td>
                             <td>
-                                {% calc_remaining_transformedprojects transformer as remaining_count %}
-                                {% if remaining_count != 0 %}
+                                {% if not transformer.isDone %}
                                     <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
                                 {% else %}
                                     {% calc_finished_transformedprojects transformer as finished_count %}
@@ -51,9 +50,23 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <div class="btn-group">
-                                    <a href="{% url 'website:transform_detail' slug=transformer.slug %}" role="button" class="btn btn-primary"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</a>
-                                    <a href="{% url 'website:delete_transform' slug=transformer.slug %}" role="button" class="btn btn-danger"{% if not transformer.enabled %} disabled="disabled"{% endif %}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="sr-only">Delete</span></a>
+                                <div class="pull-right clearfix">
+                                    <div class="btn-group">
+                                        {% url 'website:transform_detail' slug=transformer.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                                        {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' %}
+                                    </div>
+                                    <div class="btn-group">
+                                        {% if transformer.enabled %}
+                                            {% url 'website:delete_transform' slug=transformer.slug as targeturl %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' %}
+                                        {% else %}
+                                            {% url 'website:restore_transform' slug=transformer.slug as targeturl %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' %}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </td>
                         </tr>

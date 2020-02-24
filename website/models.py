@@ -170,7 +170,7 @@ class ProjectSelector(models.Model):
         return self.slug
 
     def isDone(self):
-        return self.status == PROCESSED
+        return self.enabled and self.status == PROCESSED
 
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
@@ -245,7 +245,7 @@ class ProjectTransformer(models.Model):
         return slug
 
     def isDone(self):
-        return self.status == PROCESSED
+        return self.enabled and self.status == PROCESSED
 
 class TransformSelection(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
