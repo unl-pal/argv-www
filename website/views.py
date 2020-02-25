@@ -402,7 +402,7 @@ def create_transform_selection(request, slug):
         form = TransformOptionForm(request.POST)
 
         if form.is_valid():
-            options = form.save()
+            options = form.save(request.POST)
             create_transform = ProjectTransformer.objects.create(
                 project_selector=selector,
                 user=request.user,

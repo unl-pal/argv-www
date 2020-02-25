@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 
 from .models import Filter, Profile, ProjectSelector, TransformOption
+from website.models import Transform
 
 class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -81,10 +82,12 @@ class ProjectSelectionForm(forms.ModelForm):
             'input_dataset' : '',
         }
 
-class TransformOptionForm(forms.ModelForm):
-    class Meta:
-        model = TransformOption
-        fields = '__all__'
+class TransformOptionForm(forms.Form):
+    transform = forms.ModelChoiceField(Transform.objects.filter(enabled=True).order_by('name'))
+
+    def save(self, request):
+        tobj, created = TransformOption.objects.get_or_create(transform = request.get('transform'))
+        return tobj
 
 class EmailForm(forms.Form):
     email = forms.CharField(label='')
