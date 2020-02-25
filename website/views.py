@@ -434,7 +434,7 @@ def create_transform_transform(request, slug):
     elif request.method == 'POST':
         form = TransformOptionForm(request.POST)
         if form.is_valid():
-            options = form.save()
+            options = form.save(request.POST)
             create_transform = ProjectTransformer.objects.create(
                 parent=parent,
                 user=request.user,
