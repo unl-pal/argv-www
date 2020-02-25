@@ -52,7 +52,7 @@
                 <br/>
                 <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
-                {% calc_finished_transformedprojects project as finished_count %}
+                {% calc_finished_transformedprojects transformer as finished_count %}
                 {% calc_remaining_transformedprojects transformer as remaining_count %}
                 {% calc_finished_percent transformed remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
