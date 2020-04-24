@@ -6,11 +6,14 @@ from django.utils.html import format_html
 
 from paclab.settings import USE_HIJACK
 
-from .mixins import ReadOnlyAdminMixin
-from .models import (
-    Dataset, Filter, FilterDetail, Paper, Profile, Project, ProjectSelector,
-    ProjectTransformer, Selection, Transform, TransformOption,
-    TransformSelection, TransformedProject, UserAuthAuditEntry)
+from .mixins import DeletableReadOnlyAdminMixin, ReadOnlyAdminMixin
+from .models import (Dataset, Filter, FilterDetail, Paper, Profile, Project,
+                     ProjectSelector, ProjectSnapshot, ProjectTransformer,
+                     Selection, Transform, TransformedProject, TransformOption,
+                     TransformSelection, UserAuthAuditEntry)
+from website.models import BackendFilter
+
+
 if USE_HIJACK:
     from hijack_admin.admin import HijackUserAdmin
 
@@ -108,23 +111,54 @@ class UserAuthAuditEntryAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['action', 'datetime', 'user', 'attempted', 'hijacker', 'hijacked', 'ip', ]
     list_filter = ['action', 'hijacker', 'hijacked', ]
 
+class SnapshotsInline(admin.TabularInline):
+    model = ProjectSnapshot
+    extra = 0
+
+@admin.register(Project)
+class ProjectSnapshotAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['url', 'dataset', ]
+    list_filter = ['dataset', ]
+    inlines = [SnapshotsInline, ]
+
+@admin.register(ProjectSnapshot)
+class ProjectSnapshotAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['project', 'host', 'path', 'datetime_processed', ]
+    list_filter = ['host', ]
+
+@admin.register(Selection)
+class SelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['project_selector', 'snapshot', 'retained', ]
+    list_filter = ['retained', ]
+
 @admin.register(Filter)
 class FilterAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
-    list_display = ['name', 'val_type', 'default_val', 'enabled', 'associated_backend', ]
-    list_filter = ['enabled', 'associated_backend', ]
+    list_display = ['name', 'val_type', 'default_val', 'enabled', ]
+    list_filter = ['enabled', ]
+
+@admin.register(BackendFilter)
+class BackendFilterAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['backend', 'flter', 'enabled', ]
+    list_filter = ['enabled', 'backend', ]
 
 @admin.register(Transform)
 class TransformAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['name', 'enabled', 'associated_backend', ]
     list_filter = ['enabled', 'associated_backend', ]
 
+@admin.register(TransformedProject)
+class TransformedProjectAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['path', 'host', 'src_project', 'src_transform', 'transform', ]
+    list_filter = ['host', 'transform', ]
+
+@admin.register(TransformSelection)
+class TransformSelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['transformer', 'transformed_project', ]
+    search_fields = ['transformer', ]
+
 admin.site.register(Paper)
 admin.site.register(Dataset)
-admin.site.register(Project)
-admin.site.register(Selection)
 admin.site.register(TransformOption)
-admin.site.register(TransformSelection)
-admin.site.register(TransformedProject)
 
 admin.site.site_header = 'PAClab Admin'
 admin.site.site_title = 'PAClab Admin'

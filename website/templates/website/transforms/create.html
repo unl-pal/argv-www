@@ -8,16 +8,19 @@
             <form class="form-horizontal" method="POST">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger alert-dismissible fade in" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
+                {% include 'website/form-header.html' %}
+                <div class="row">
+                    <div class="col-xs-2 col-sm-4">
+                        <label class="pull-right">Dataset Origin:</label>
                     </div>
-                {% endif %}
+                    <div class="col-xs-2 col-sm-4">
+                        {% if src_selector %}
+                            <a target="_blank" href="{% url 'website:selection_detail' slug=src_selector %}">selection {{ src_selector }}</a>
+                        {% else %}
+                            <a target="_blank" href="{% url 'website:transform_detail' slug=src_transformer %}">transform {{ src_transformer }}</a>
+                        {% endif %}
+                        </div>
+                    </div>
                 <div class="row">
                     <div class="col-xs-2 col-sm-4">
                         <label class="pull-right">Transformer:</label>

@@ -17,7 +17,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         backend = options['backend']
+
+        call_command('disable', backend)
+
         backend = Backend.objects.get(name=backend)
         backend.enabled = False
         backend.save()
-        call_command('disable', backend)

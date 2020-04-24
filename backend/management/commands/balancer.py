@@ -1,11 +1,13 @@
 import shutil
 import time
 from os import listdir, makedirs
-from os.path import isdir, join, abspath
+from os.path import abspath, isdir, join
 
-from decouple import config
+from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from website.models import Project, TransformedProject
+
 
 '''Run backend disk balancer
 
@@ -29,8 +31,8 @@ class Command(BaseCommand):
         if 'threshold' in options and options['threshold']:
             self.BALANCE_THRESHOLD = int(options['threshold'])
 
-        self.repo_path = config('REPO_PATH')
-        self.transformed_path = config('TRANSFORMED_PATH')
+        self.repo_path = getattr(settings, 'REPO_PATH')
+        self.transformed_path = getattr(settings, 'TRANSFORMED_PATH')
 
         self.update_hosts()
         self.update_usages()
@@ -95,7 +97,7 @@ class Command(BaseCommand):
                 project.save()
                 shutil.rmtree(srcpath)
 
-        for t in TransformedProject.objects.filter(project=project.id):
+        for t in TransformedProject.objects.filter(project=project):
             self.move_transform(t, dest)
 
         self.update_usages()
@@ -118,3 +120,6 @@ class Command(BaseCommand):
                 transform.host = dest
                 transform.save()
                 shutil.rmtree(srcpath)
+
+        for t in TransformedProject.objects.filter(parent=transform):
+            self.move_transform(t, dest)

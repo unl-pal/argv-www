@@ -22,13 +22,17 @@
             <div class="panel-heading clearfix">
                 <h1 class="panel-title"><strong>Project Transform</strong><div class="pull-right"><em>{{ transformer.slug }}</em></div></h1>
             </div>
+            {% if transformer.parent %}
+                <div class="panel-note clearfix"><div class="pull-right">duplicated from <a href="{% url 'website:transform_detail' slug=transformer.parent %}">{{ transformer.parent }}</a></div></div>
+            {% endif %}
             <div class="panel-body">
                 {% if not transformer.enabled %}
                     <div class="alert alert-danger">NOTE: this transform is deleted</div>
                 {% endif %}
                 <div class="pull-right clearfix">
                     <div class="btn-group">
-                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                        {% url 'website:transform_duplicate' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' %}
                         {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
                         {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' %}
                     </div>
@@ -44,10 +48,10 @@
                 </div>
                 <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.created }}">{{ transformer.created|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
-                {% if transformer.project_selector %}
-                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:selection_detail' slug=transformer.project_selector %}">selection {{ transformer.project_selector }}</a></h4>
+                {% if transformer.src_selector %}
+                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:selection_detail' slug=transformer.src_selector %}">selection {{ transformer.src_selector }}</a></h4>
                 {% else %}
-                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:transform_detail' slug=transformer.parent %}">transform {{ transformer.parent }}</a></h4>
+                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:transform_detail' slug=transformer.src_transformer %}">transform {{ transformer.src_transformer }}</a></h4>
                 {% endif %}
                 <br/>
                 <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
@@ -87,7 +91,7 @@
                 {% endif %}
             </div>
         </div>
-        {% if transformer.isDone and user.profile.active_email %}
+        {% if form %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">Share this project transform</h3>

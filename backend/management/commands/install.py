@@ -15,7 +15,27 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         backend = options['backend']
-        call_command('loaddata', backend + '_install')
+
+        try:
+            call_command('loaddata', backend + '_install')
+        except:
+            pass
+
+        try:
+            call_command('loaddata', 'filters')
+        except:
+            pass
+
+        try:
+            call_command('loaddata', backend + '_filters')
+        except:
+            pass
+
+        try:
+            call_command('loaddata', backend + '_transforms')
+        except:
+            pass
+
         backend = Backend.objects.get(name=backend)
         backend.enabled = True
         backend.save()

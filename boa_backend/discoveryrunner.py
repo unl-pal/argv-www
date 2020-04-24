@@ -1,11 +1,13 @@
 import time
-from backend.filterrunner import FilterRunner
-from boaapi.boa_client import BoaClient
-from decouple import config
 
+from boaapi.boa_client import BoaClient
+from django.conf import settings
+
+from backend.discoveryrunner import DiscoveryRunner
 from website.choices import *
 
-class FilterRunner(FilterRunner):
+
+class DiscoveryRunner(DiscoveryRunner):
     template_start = """o: output collection of string;
 
 filtered := true;
@@ -94,7 +96,7 @@ visit(input, visitor {
             print(query)
 
         client = BoaClient()
-        client.login(config('BOA_USER'), config('BOA_PW'))
+        client.login(getattr(settings, 'BOA_USER'), getattr(settings, 'BOA_PW'))
 
         job = client.query(query, client.get_dataset('2019 October/GitHub'))
         if self.verbosity >= 2:
@@ -116,7 +118,7 @@ visit(input, visitor {
                 output = job.output().decode('utf-8')
 
                 for line in output.splitlines(False):
-                    self.save_result(line[6:])
+                    self.discovered_project(line[6:])
             except:
                 pass
 

@@ -1,17 +1,18 @@
-import time
-import traceback
 import importlib
 import multiprocessing
+import time
+import traceback
 
-from django.core.management.base import BaseCommand
-from website.models import ProjectSelector
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
 from website.choices import *
+from website.models import ProjectSelector
 
-'''Run Filters Poller
 
-Usage: manage.py runfilters
+'''Run Discovery Poller
+
+Usage: manage.py rundiscovery
 Runs a poller in the background to grab unprocessed project selections from database
 '''
 class Command(BaseCommand):
@@ -45,7 +46,7 @@ class Command(BaseCommand):
 
         if len(options['slug']) == 0:
             while True:
-                selector = ProjectSelector.objects.filter(status=READY)[0]
+                selector = ProjectSelector.objects.filter(enabled=True, status=READY).first()
                 if selector:
                     try:
                         self.process_selection(selector)
@@ -70,13 +71,13 @@ class Command(BaseCommand):
             backends.add((associated_backend, pfilter.pfilter.associated_backend))
 
         for (backend, backend_id) in backends:
-            modname = backend + '_backend.filterrunner'
+            modname = backend + '_backend.discoveryrunner'
             backend = importlib.import_module(modname)
-            filterrunner = backend.FilterRunner(selector, backend_id, self.dry_run, self.verbosity)
+            discoveryrunner = backend.DiscoveryRunner(selector, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=filterrunner.run, args=())
+            #process = multiprocessing.Process(target=discoveryrunner.run, args=())
             if self.debug:
-                filterrunner.debug()
+                discoveryrunner.debug()
             else:
-                filterrunner.run()
+                discoveryrunner.run()

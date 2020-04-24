@@ -30,15 +30,19 @@
                 <thead>
                     <tr>
                         <th>Project Transform</th>
-                        <th>Submitted</th>
+                        <th>Submitted <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></th>
                         <th># Projects in Dataset</th>
-                        <th class="text-right">Options</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for transformer in transformers %}
+                        {% if transformer.enabled %}
                         <tr>
+                        {% else %}
+                        <tr class="danger">
+                        {% endif %}
                             <td><a href="{% url 'website:transform_detail' slug=transformer.slug %}">{{ transformer.slug }}</a></td>
                             <td>{{ transformer.created|naturalday }}</td>
                             <td>
@@ -54,7 +58,8 @@
                                     <div class="btn-group">
                                         {% url 'website:transform_detail' slug=transformer.slug as targeturl %}
                                         {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                                        {% url 'website:transform_duplicate' slug=transformer.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' %}
                                         {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
                                         {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' %}
                                     </div>

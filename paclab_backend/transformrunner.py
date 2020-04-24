@@ -1,15 +1,17 @@
-import subprocess
 import os
 import shutil
+import subprocess
+
+from django.conf import settings
 
 from backend.transformrunner import TransformRunner
-from decouple import config
+
 
 class TransformRunner(TransformRunner):
     def run(self):
-        self.repo_path = config('REPO_PATH')
-        self.transformed_path = config('TRANSFORMED_PATH')
-        self.transformer_path = config('PACLAB_TRANSFORM_PATH')
+        self.repo_path = getattr(settings, 'REPO_PATH')
+        self.transformed_path = getattr(settings, 'TRANSFORMED_PATH')
+        self.transformer_path = getattr(settings, 'PACLAB_TRANSFORM_PATH')
 
         for project in self.projects():
             try:
@@ -18,6 +20,9 @@ class TransformRunner(TransformRunner):
                 print('error transforming: ' + project.path)
 
         self.done()
+
+    def generate_config(self):
+        pass
 
     def transform_project(self, project):
         host = project.url[project.url.index("://") + 3:]

@@ -36,6 +36,12 @@ body {
     pointer-events: none;
 }
 
+.panel-note {
+    background-color: #eee;
+    padding: 2px 15px 2px 15px;
+    display: block;
+}
+
 /* for dragging modal dialogs */
 .modal.fade.ui-draggable-dragging {
     -moz-transition: none;

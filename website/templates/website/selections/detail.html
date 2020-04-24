@@ -22,13 +22,17 @@
             <div class="panel-heading clearfix">
                 <h1 class="panel-title"><strong>Project Selection</strong><div class="pull-right"><em>{{ project.slug }}</em></div></h1>
             </div>
+            {% if project.parent %}
+                <div class="panel-note clearfix"><div class="pull-right">duplicated from <a href="{% url 'website:selection_detail' slug=project.parent %}">{{ project.parent }}</a></div></div>
+            {% endif %}
             <div class="panel-body">
                 {% if not project.enabled %}
                     <div class="alert alert-danger">NOTE: this selection is marked deleted</div>
                 {% endif %}
                 <div class="pull-right clearfix">
                     <div class="btn-group">
-                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' targeturl='' %}
+                        {% url 'website:selection_duplicate' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' %}
                         {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
                         {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' %}
                     </div>
@@ -42,6 +46,9 @@
                         {% endif %}
                     </div>
                 </div>
+                {% if project.parent %}
+                    <h4><strong>Parent Selection:</strong> <a href="{% url 'website:selection_detail' project.parent %}">{{ project.parent }}</a></h4>
+                {% endif %}
                 <h4><strong>Selection Submitted:</strong> <span title="{{ project.submitted }}">{{ project.submitted|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
@@ -59,7 +66,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <h4><strong>Discovered Projects:</strong> {{ project.project.all|length|intcomma }}</h4>
+                <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
                 {% calc_finished_projects project as finished_count %}
                 {% calc_remaining_projects project as remaining_count %}
@@ -96,7 +103,7 @@
                 {% endif %}
             </div>
         </div>
-        {% if project.isDone and user.profile.active_email %}
+        {% if form %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">Share this project selection</h3>

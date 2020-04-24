@@ -1,8 +1,10 @@
 import socket
 
 from django.utils import timezone
-from website.models import TransformedProject
+
 from website.choices import *
+from website.models import TransformedProject
+
 
 class TransformRunner:
     def __init__(self, transformed_project, transform, backend_id, dry_run, verbosity):
@@ -17,15 +19,14 @@ class TransformRunner:
         if self.dry_run:
             return
 # TODO only mark done if everything processed?
-        #if not self.transformed_project.transforms_set.exclude(status=PROCESSED).exists():
         self.transformed_project.status = PROCESSED
         self.transformed_project.datetime_processed = timezone.now()
-        #else:
-        #    self.transformed_project.status = READY
         self.transformed_project.save()
 
     def all_projects(self):
-        return self.transformed_project.project_selector.project.filter(path__isnull=False)
+        if self.transformed_project.src_selector:
+            return self.transformed_project.src_selector.project.filter(path__isnull=False)
+        return self.transformed_project.src_transformer.transformed_projects.filter(path__isnull=False)
 
     def projects(self):
         return self.all_projects().filter(host=self.host)

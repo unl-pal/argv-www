@@ -1,12 +1,13 @@
-import time
 import importlib
 import multiprocessing
+import time
 
-from django.core.management.base import BaseCommand
-from website.models import ProjectTransformer
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
 from website.choices import *
+from website.models import ProjectTransformer
+
 
 '''Run Transforms Poller
 
@@ -34,8 +35,8 @@ class Command(BaseCommand):
 
         if len(options['slug']) == 0:
             while True:
-                transforms = ProjectTransformer.objects.filter(status=READY)[:1]
-                for transform in transforms:
+                transform = ProjectTransformer.objects.filter(enabled=True, status=READY).first()
+                if transform:
                     self.process_transform(transform)
 
                 if self.no_poll:
@@ -48,17 +49,13 @@ class Command(BaseCommand):
             transform.status = ONGOING
             transform.save()
 
-        transforms = transform.transforms.exclude(enabled=False)
-        backends = set()
-        for t in transforms:
-            associated_backend = str(t.associated_backend)
-            backends.add((t, associated_backend, t.associated_backend))
+        options = transform.transform
 
-        for (t, backend, backend_id) in backends:
-            modname = backend + '_backend.transformrunner'
-            backend = importlib.import_module(modname)
-            transformrunner = backend.TransformRunner(transform, t, backend_id, self.dry_run, self.verbosity)
-            if self.verbosity >= 2:
-                self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=transformrunner.run, args=())
-            transformrunner.run()
+        modname = str(options.transform.associated_backend) + '_backend.transformrunner'
+        backend = importlib.import_module(modname)
+
+        transformrunner = backend.TransformRunner(transform, options, options.transform.associated_backend, self.dry_run, self.verbosity)
+        if self.verbosity >= 2:
+            self.stdout.write('    -> calling backend: ' + modname)
+        #process = multiprocessing.Process(target=transformrunner.run, args=())
+        transformrunner.run()

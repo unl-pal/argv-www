@@ -36,6 +36,7 @@ urlpatterns = [
     path('selection/<slug>/', views.selection_detail, name='selection_detail'),
     path('selection/<slug>/delete/', views.delete_selection, name='delete_selection'),
     path('selection/<slug>/download/', views.download_selection, name='download_selection'),
+    path('selection/<slug>/duplicate/', views.selection_duplicate, name='selection_duplicate'),
 
     path('transform/list/', views.TransformListView.as_view(), name='list_transforms'),
     path('transform/create/from_selection/<slug>/', views.create_transform_selection, name='create_transform_selection'),
@@ -43,4 +44,5 @@ urlpatterns = [
     path('transform/<slug>/', views.transform_detail, name='transform_detail'),
     path('transform/<slug>/delete/', views.delete_transform, name='delete_transform'),
     path('transform/<slug>/download/', views.download_transform, name='download_transform'),
+    path('transform/<slug>/duplicate/', views.transform_duplicate, name='transform_duplicate'),
 ]

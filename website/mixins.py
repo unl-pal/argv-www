@@ -18,14 +18,14 @@ class EmailRequiredMixin(LoginRequiredMixin):
     def get_permission_denied_message(self):
         return self.permission_denied_message
 
-class ReadOnlyAdminMixin(object):
-    """Makes an ModelAdmin read only and disables adds/edits/deletes."""
+class DeletableReadOnlyAdminMixin(object):
+    """Makes a ModelAdmin read only and disables adds/edits but allows for deletes."""
 
     def has_add_permission(self, request):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -33,8 +33,13 @@ class ReadOnlyAdminMixin(object):
     def save_model(self, request, obj, form, change):
         pass
 
-    def delete_model(self, request, obj):
+    def save_related(self, request, form, formsets, change):
         pass
 
-    def save_related(self, request, form, formsets, change):
+class ReadOnlyAdminMixin(DeletableReadOnlyAdminMixin):
+    """Makes a ModelAdmin read only and disables adds/edits/deletes."""
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    def delete_model(self, request, obj):
         pass

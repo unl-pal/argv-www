@@ -3,6 +3,7 @@
 {% block papersactive %}active{% endblock %}
 {% block body %}
     <div class="container-fluid">
+        {% include 'website/messages.html' %}
         <h1>Publications related to PAClab</h1>
         <p>
             If you have used PAClab in a research paper, please <a href="{% url 'website:people' %}">contact us</a> and let us know so we can include the publication in this list!
