@@ -2,6 +2,10 @@
     border-radius: 0;
 }
 
+.navbar-nav li a {
+    color: #707070;
+}
+
 html, body {
     height: 100%;
 }
@@ -21,6 +25,7 @@ body {
 
 .footer .text-muted {
     margin-bottom: 0;
+    color: #707070;
 }
 
 .top-buffer {
