@@ -31,9 +31,9 @@ else:
 admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
 
-class FilterDetailSelectionInline(admin.TabularInline):
+class FilterDetailSelectionInline(ReadOnlyAdminMixin,admin.TabularInline):
     model = FilterDetail
-    extra = 1
+    extra = 0
 
 @admin.register(ProjectSelector)
 class SelectionAdmin(admin.ModelAdmin):
@@ -41,6 +41,7 @@ class SelectionAdmin(admin.ModelAdmin):
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
     inlines = [FilterDetailSelectionInline, ]
+    readonly_fields = ['parent', ]
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
@@ -62,7 +63,7 @@ class SelectionAdmin(admin.ModelAdmin):
             message_bit = "%s project selectors were" % rows_updated
         self.message_user(request, "%s successfully enabled." % message_bit)
     enable.short_description = "Enable selected project selectors"
-    disable.allowed_permissions = ('change', )
+    enable.allowed_permissions = ('change', )
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -76,6 +77,7 @@ class TransformerAdmin(admin.ModelAdmin):
     list_display = ['enabled', 'slug', 'user', 'display_url', ]
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
+    readonly_fields = ['parent', 'src_selector', 'src_transformer', 'transform', ]
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
@@ -97,7 +99,7 @@ class TransformerAdmin(admin.ModelAdmin):
             message_bit = "%s project transformers were" % rows_updated
         self.message_user(request, "%s successfully enabled." % message_bit)
     enable.short_description = "Enable selected project transformers"
-    disable.allowed_permissions = ('change', )
+    enable.allowed_permissions = ('change', )
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -116,15 +118,22 @@ class SnapshotsInline(admin.TabularInline):
     extra = 0
 
 @admin.register(Project)
-class ProjectSnapshotAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
+class ProjectAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['url', 'dataset', ]
+    search_fields = ['url', ]
     list_filter = ['dataset', ]
     inlines = [SnapshotsInline, ]
 
 @admin.register(ProjectSnapshot)
-class ProjectSnapshotAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
+class ProjectSnapshotAdmin(admin.ModelAdmin):
     list_display = ['project', 'host', 'path', 'datetime_processed', ]
     list_filter = ['host', ]
+    search_fields = ['project__url', ]
+    readonly_fields = ['project', ]
+    fields = ['project', 'host', 'path', 'datetime_processed', ]
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Selection)
 class SelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
@@ -147,18 +156,40 @@ class TransformAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_filter = ['enabled', 'associated_backend', ]
 
 @admin.register(TransformedProject)
-class TransformedProjectAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
-    list_display = ['path', 'host', 'src_project', 'src_transform', 'transform', ]
+class TransformedProjectAdmin(admin.ModelAdmin):
+    list_display = ['path', 'host', 'src_url', 'transform', ]
     list_filter = ['host', 'transform', ]
+    readonly_fields = ['transform', 'src_url', ]
+    search_fields = ['path', 'host', ]
+    fields = ['src_url', 'transform', 'host', 'path', 'datetime_processed', ]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def delete_model(self, request, obj):
+        pass
+
+    def src_url(self, obj):
+        if obj.src_project:
+            return format_html('Project: <a href="{0}">{1}</a>', reverse_lazy('admin:website_project_change', args=(obj.src_project.pk,)), obj.src_project)
+        return format_html('Transform: <a href="{0}">{1}</a>', reverse_lazy('admin:website_transform_change', args=(obj.src_trasnform.pk,)), obj.src_trasnform)
+    src_url.short_description = 'Source'
 
 @admin.register(TransformSelection)
 class TransformSelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['transformer', 'transformed_project', ]
     search_fields = ['transformer', ]
 
+@admin.register(TransformOption)
+class TransformOptionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+    list_display = ['transform', ]
+    list_filter = ['transform', ]
+
 admin.site.register(Paper)
 admin.site.register(Dataset)
-admin.site.register(TransformOption)
 
 admin.site.site_header = 'PAClab Admin'
 admin.site.site_title = 'PAClab Admin'
