@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from backend.management.base.BackendCommand import BackendCommand
 from django.core.management import call_command
 from backend.models import Backend
 from website.models import Filter
@@ -9,15 +9,10 @@ from website.models import Filter
 Usage: manage.py uninstall BACKEND_NAME
 Disables the specified backend in the database.  Does not delete anything.
 '''
-class Command(BaseCommand):
+class Command(BackendCommand):
     help = 'Uninstalls specified backend'
 
-    def add_arguments(self, parser):
-        parser.add_argument('backend')
-
-    def handle(self, *args, **options):
-        backend = options['backend']
-
+    def handle_backend(self, backend):
         call_command('disable', backend)
 
         backend = Backend.objects.get(name=backend)

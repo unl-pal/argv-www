@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from backend.management.base.BackendCommand import BackendCommand
 from django.core.management import call_command
 from backend.models import Backend
 
@@ -7,19 +7,14 @@ from backend.models import Backend
 Usage: manage.py install BACKEND_NAME
 Finds fixture file with BACKEND_NAME value and loads the _install data into the database.
 '''
-class Command(BaseCommand):
+class Command(BackendCommand):
     help = 'Installs specified backend'
 
-    def add_arguments(self, parser):
-        parser.add_argument('backend')
-
-    def handle(self, *args, **options):
+    def handle_backend(self, backend):
         try:
             call_command('loaddata', 'filters')
         except:
             pass
-
-        backend = options['backend']
 
         if not backend == 'none':
             try:

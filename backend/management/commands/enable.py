@@ -1,5 +1,5 @@
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from backend.management.base.BackendCommand import BackendCommand
 
 from website.models import BackendFilter, Filter, Transform
 
@@ -9,15 +9,10 @@ from website.models import BackendFilter, Filter, Transform
 Usage: manage.py enable BACKEND_NAME
 Installs and enables all items in the database associated with the specified backend.
 '''
-class Command(BaseCommand):
+class Command(BackendCommand):
     help = 'Enables the given backend'
 
-    def add_arguments(self, parser):
-        parser.add_argument('backend')
-
-    def handle(self, *args, **options):
-        backend = options['backend']
-
+    def handle_backend(self, backend):
         for myfilter in BackendFilter.objects.filter(backend__name=backend):
             myfilter.enabled = True
             myfilter.save()
