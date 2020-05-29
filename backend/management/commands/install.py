@@ -14,28 +14,29 @@ class Command(BaseCommand):
         parser.add_argument('backend')
 
     def handle(self, *args, **options):
-        backend = options['backend']
-
-        try:
-            call_command('loaddata', backend + '_install')
-        except:
-            pass
-
         try:
             call_command('loaddata', 'filters')
         except:
             pass
 
-        try:
-            call_command('loaddata', backend + '_filters')
-        except:
-            pass
+        backend = options['backend']
 
-        try:
-            call_command('loaddata', backend + '_transforms')
-        except:
-            pass
+        if not backend == 'none':
+            try:
+                call_command('loaddata', backend + '_install')
+            except:
+                pass
 
-        backend = Backend.objects.get(name=backend)
-        backend.enabled = True
-        backend.save()
+            try:
+                call_command('loaddata', backend + '_filters')
+            except:
+                pass
+
+            try:
+                call_command('loaddata', backend + '_transforms')
+            except:
+                pass
+
+            backend = Backend.objects.get(name=backend)
+            backend.enabled = True
+            backend.save()
