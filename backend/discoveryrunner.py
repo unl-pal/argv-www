@@ -56,31 +56,3 @@ class DiscoveryRunner:
 
         p, _ = Project.objects.get_or_create(dataset=self.selector.input_dataset, url=url)
         Selection.objects.get_or_create(project_selector=self.selector, project=p)
-
-    def test_project(self, path):
-        return True
-
-    def try_retain_project(self, p):
-        s = selector.project_set.get(p)
-        if self.test_project(p.path):
-            self.retained_project(p.url, s)
-        else:
-            self.filtered_project(p.url, s)
-
-    def retained_project(self, url, s):
-        if self.verbosity >= 3:
-            print("-> retained project: " + url)
-        if self.dry_run:
-            return
-
-        s.retained = True
-        s.save()
-
-    def filtered_project(self, url, s):
-        if self.verbosity >= 3:
-            print("-> filtered project: " + url)
-        if self.dry_run:
-            return
-
-        s.retained = False
-        s.save()

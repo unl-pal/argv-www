@@ -1,5 +1,4 @@
 import importlib
-import multiprocessing
 import time
 import traceback
 
@@ -76,7 +75,6 @@ class Command(BaseCommand):
             discoveryrunner = backend.DiscoveryRunner(selector, backend_id, self.dry_run, self.verbosity)
             if self.verbosity >= 2:
                 self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=discoveryrunner.run, args=())
             if self.debug:
                 discoveryrunner.debug()
             else:
