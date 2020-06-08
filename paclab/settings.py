@@ -214,6 +214,8 @@ MEDIA_URL = '/media/'
 
 FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
 
+REPO_PATH = config('REPO_PATH', default='.')
+
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)
 
