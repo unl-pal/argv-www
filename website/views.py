@@ -31,6 +31,7 @@ from .mixins import EmailRequiredMixin
 from .models import (Dataset, BackendFilter, FilterDetail, Paper, ProjectSelector,
                      ProjectTransformer, Transform, TransformOption)
 from .tokens import email_verify_token
+from website.models import ProjectSnapshot
 
 
 class PapersView(ListView):
@@ -175,7 +176,7 @@ def selection_detail(request, slug):
         'form': form,
         'values': FilterDetail.objects.filter(project_selector=model),
         'cloned': model.projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
-        'download_size': download_size(model.slug)
+        'download_size': download_selection_size(model.slug)
     })
 
 def transform_detail(request, slug):
@@ -205,7 +206,7 @@ def transform_detail(request, slug):
         'transformer': model,
         'form': form,
         'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
-        'download_size': download_size(model.slug)
+        'download_size': download_transform_size(model.slug)
     })
 
 @email_required
@@ -492,8 +493,8 @@ def send_email_verify(request, user, title):
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
 
-def download_size(slug):
-    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+def download_selection_size(slug):
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/selection')
     zipfile_path = os.path.join(download_path, slug + '.zip')
     tmpdir = os.path.join(download_path, slug + '.tmp')
 
@@ -504,7 +505,7 @@ def download_size(slug):
     return os.stat(zipfile_path).st_size
 
 def download_selection(request, slug):
-    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/selection')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
     tmpdir = os.path.join(download_path, slug + '.tmp')
@@ -516,12 +517,12 @@ def download_selection(request, slug):
         paths = {}
 
         try:
-            for project in ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True):
-                transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
-                if transformed_project:
-                    if not transformed_project.host in paths:
-                        paths[transformed_project.host] = []
-                    paths[transformed_project.host].append(transformed_project.path)
+            selector = ProjectSelector.objects.get(slug=slug)
+
+            for project in ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained=True):
+                if not project.host in paths:
+                    paths[project.host] = []
+                paths[project.host].append(project.path)
 
             if not paths:
                 raise RuntimeError('empty benchmark')
@@ -532,13 +533,13 @@ def download_selection(request, slug):
             os.mkdir(download_path, 0o755)
         os.mkdir(tmpdir, 0o755)
 
-        transformed_path = getattr(settings, 'TRANSFORMED_PATH')
+        repo_path = getattr(settings, 'REPO_PATH')
 
         for host in paths:
             s = ''
             for path in paths[host]:
                 s = s + path + '\n'
-            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(transformed_path, host), stdin=subprocess.PIPE)
+            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(repo_path, host), stdin=subprocess.PIPE)
             p.communicate(input=str.encode(s))
             p.stdin.close()
             p.wait()
@@ -546,10 +547,21 @@ def download_selection(request, slug):
         if os.path.exists(tmpdir):
             shutil.rmtree(tmpdir)
 
-    return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
+    return redirect(settings.MEDIA_URL + '/downloads/selection/' + download_filename)
+
+def download_transform_size(slug):
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/transform')
+    zipfile_path = os.path.join(download_path, slug + '.zip')
+    tmpdir = os.path.join(download_path, slug + '.tmp')
+
+    if not os.path.exists(zipfile_path):
+        if os.path.exists(tmpdir):
+            return 0
+        return -1
+    return os.stat(zipfile_path).st_size
 
 def download_transform(request, slug):
-    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads')
+    download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/transform')
     download_filename = slug + '.zip'
     zipfile_path = os.path.join(download_path, download_filename)
     tmpdir = os.path.join(download_path, slug + '.tmp')
@@ -591,4 +603,4 @@ def download_transform(request, slug):
         if os.path.exists(tmpdir):
             shutil.rmtree(tmpdir)
 
-    return redirect(settings.MEDIA_URL + '/downloads/' + download_filename)
+    return redirect(settings.MEDIA_URL + '/downloads/transform/' + download_filename)
