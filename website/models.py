@@ -155,7 +155,7 @@ class ProjectSnapshot(models.Model):
     datetime_processed = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.host) + ':' + str(self.path)
+        return str(self.project.url) + ' - ' + str(self.host) + ':' + str(self.path)
 
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
