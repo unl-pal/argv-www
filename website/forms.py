@@ -9,7 +9,7 @@ from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 
-from .models import (Filter, Profile, ProjectSelector, Transform,
+from .models import (BackendFilter, Profile, ProjectSelector, Transform,
                      TransformOption)
 
 
@@ -122,7 +122,7 @@ class ProjectSelectionForm(forms.ModelForm):
         }
 
 class FilterDetailForm(forms.Form):
-    pfilter = forms.ModelChoiceField(Filter.objects.filter(enabled=True).order_by('name'))
+    pfilter = forms.ModelChoiceField(BackendFilter.objects.filter(enabled=True).order_by('flter__name'))
     value = forms.CharField(
         max_length=1000,
         widget=forms.TextInput(attrs={
@@ -134,7 +134,7 @@ class FilterDetailForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.is_valid() and 'pfilter' in self.cleaned_data:
-            self.fields['pfilter'].help_text = mark_safe(self.cleaned_data['pfilter'].help_text)
+            self.fields['pfilter'].help_text = mark_safe(self.cleaned_data['pfilter'].flter.help_text)
 
 class BaseFilterFormSet(BaseFormSet):
     def clean(self):

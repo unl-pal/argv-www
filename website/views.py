@@ -28,7 +28,7 @@ from .forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
                     UserForm, UserLoginForm, UserPasswordForm,
                     UserRegisterForm)
 from .mixins import EmailRequiredMixin
-from .models import (Dataset, Filter, FilterDetail, Paper, ProjectSelector,
+from .models import (Dataset, BackendFilter, FilterDetail, Paper, ProjectSelector,
                      ProjectTransformer, Transform, TransformOption)
 from .tokens import email_verify_token
 
@@ -354,7 +354,7 @@ def make_create_selection(request, initial = {}, pinitial = []):
                         connection = FilterDetail()
                         connection.project_selector = ProjectSelector.objects.all().last()
                         pk = form.cleaned_data.get('pfilter').id
-                        connection.pfilter = Filter.objects.get(pk=pk)
+                        connection.pfilter = BackendFilter.objects.get(pk=pk)
                         connection.value = form.cleaned_data['value']
                         connection.save()
                     except:
@@ -466,13 +466,13 @@ def transform_duplicate(request, slug):
 def api_filter_detail(request):
     try:
         val = int(request.GET.get('id', 0))
-        pfilter = Filter.objects.filter(enabled=True).get(pk=val)
+        pfilter = BackendFilter.objects.filter(enabled=True).get(pk=val)
         return JsonResponse({
             'id': val,
-            'name': pfilter.name,
-            'val_type': pfilter.val_type,
-            'default': pfilter.default_val,
-            'help_text': pfilter.help_text,
+            'name': pfilter.flter.name,
+            'val_type': pfilter.flter.val_type,
+            'default': pfilter.flter.default_val,
+            'help_text': pfilter.flter.help_text,
         })
     except:
         raise Http404

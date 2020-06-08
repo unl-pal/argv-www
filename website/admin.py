@@ -136,7 +136,7 @@ class ProjectSnapshotAdmin(admin.ModelAdmin):
         return False
 
 @admin.register(Selection)
-class SelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+class SelectionAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['project_selector', 'snapshot', 'retained', ]
     list_filter = ['retained', ]
 

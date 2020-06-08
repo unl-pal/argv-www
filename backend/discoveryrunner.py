@@ -1,7 +1,7 @@
 from django.utils import timezone
 
 from website.choices import *
-from website.models import Project, ProjectSelector, Selection
+from website.models import Project, ProjectSelector, ProjectSnapshot, Selection
 
 
 class DiscoveryRunner:
@@ -21,10 +21,6 @@ class DiscoveryRunner:
     def done(self):
         if self.dry_run:
             return
-        if not self.filters().exists():
-            self.selector.status = PROCESSED
-            self.selector.fin_process = timezone.now()
-            self.selector.save()
 
     def all_filters(self):
         return self.selector.filterdetail_set.filter(pfilter__associated_backend=self.backend_id)
@@ -55,4 +51,8 @@ class DiscoveryRunner:
             return
 
         p, _ = Project.objects.get_or_create(dataset=self.selector.input_dataset, url=url)
-        Selection.objects.get_or_create(project_selector=self.selector, project=p)
+        if p.snapshots.exists():
+            s = p.snapshots.order_by('-datetime_processed').first()
+        else:
+            s, _ = ProjectSnapshot.objects.get_or_create(project=p)
+        Selection.objects.get_or_create(project_selector=self.selector, snapshot=s)

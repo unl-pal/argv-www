@@ -130,6 +130,9 @@ class BackendFilter(models.Model):
     class Meta:
         unique_together = [['flter', 'backend']]
 
+    def __str__(self):
+        return self.flter.name
+
     def natural_key(self):
         return (self.flter, self.backend)
 
@@ -153,7 +156,7 @@ class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    pfilter = models.ManyToManyField(Filter, blank=True, through='FilterDetail')
+    pfilter = models.ManyToManyField(BackendFilter, blank=True, through='FilterDetail')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     created = models.DateField(auto_now_add=True)
     parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, blank=True, null=True)
@@ -206,7 +209,7 @@ class Selection(models.Model):
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
-    pfilter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    pfilter = models.ForeignKey(BackendFilter, on_delete=models.CASCADE)
     value = models.TextField(max_length=1000, default='1')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     fin_process = models.DateTimeField(auto_now=True)
