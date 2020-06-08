@@ -4,6 +4,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
@@ -142,6 +143,10 @@ class Project(models.Model):
 
     def __str__(self):
         return self.url
+
+@receiver(models.signals.pre_delete, sender=Project)
+def handle_deleted_profile(sender, instance, **kwargs):
+    instance.snapshots.all().delete()
 
 class ProjectSnapshot(models.Model):
     project = models.ForeignKey(Project, related_name='snapshots', on_delete=models.PROTECT)

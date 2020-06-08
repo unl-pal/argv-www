@@ -66,8 +66,8 @@ class Command(BaseCommand):
         filters = selector.filterdetail_set.exclude(pfilter__enabled=False)
         backends = set()
         for pfilter in filters:
-            associated_backend = str(pfilter.pfilter.associated_backend)
-            backends.add((associated_backend, pfilter.pfilter.associated_backend))
+            associated_backend = str(pfilter.pfilter.backend)
+            backends.add((associated_backend, pfilter.pfilter.backend))
 
         for (backend, backend_id) in backends:
             modname = backend + '_backend.discoveryrunner'

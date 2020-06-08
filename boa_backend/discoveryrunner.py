@@ -1,7 +1,8 @@
 import time
 
+from decouple import config
+
 from boaapi.boa_client import BoaClient
-from django.conf import settings
 
 from backend.discoveryrunner import DiscoveryRunner
 from website.choices import *
@@ -32,15 +33,15 @@ visit(input, visitor {
         s = "if (!filtered) {\n";
 
         #
-        if filtr.pfilter.name == 'Minimum number of commits':
+        if filtr.pfilter.flter.name == 'Minimum number of commits':
             s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n"
 
         #
-        elif filtr.pfilter.name == 'Maximum number of commits':
+        elif filtr.pfilter.flter.name == 'Maximum number of commits':
             s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n"
 
         #
-        elif filtr.pfilter.name == 'Minimum number of source files':
+        elif filtr.pfilter.flter.name == 'Minimum number of source files':
             s += """    min_file_count := 0;
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
@@ -50,7 +51,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Maximum number of source files':
+        elif filtr.pfilter.flter.name == 'Maximum number of source files':
             s += """    max_file_count := 0;
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
@@ -60,7 +61,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Minimum number of committers':
+        elif filtr.pfilter.flter.name == 'Minimum number of committers':
             s += """    min_committers: set of string;
     visit(input, visitor {
         before n: Revision -> add(min_committers, n.committer.username);
@@ -70,7 +71,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Maximum number of committers':
+        elif filtr.pfilter.flter.name == 'Maximum number of committers':
             s += """    max_committers: set of string;
     visit(input, visitor {
         before n: Revision -> add(max_committers, n.committer.username);
@@ -96,7 +97,7 @@ visit(input, visitor {
             print(query)
 
         client = BoaClient()
-        client.login(getattr(settings, 'BOA_USER'), getattr(settings, 'BOA_PW'))
+        client.login(config('BOA_USER'), config('BOA_PW'))
 
         job = client.query(query, client.get_dataset('2019 October/GitHub'))
         if self.verbosity >= 2:

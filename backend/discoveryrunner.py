@@ -23,7 +23,7 @@ class DiscoveryRunner:
             return
 
     def all_filters(self):
-        return self.selector.filterdetail_set.filter(pfilter__associated_backend=self.backend_id)
+        return self.selector.filterdetail_set.filter(pfilter__backend=self.backend_id)
 
     def filters(self):
         return self.all_filters().exclude(status=PROCESSED)
