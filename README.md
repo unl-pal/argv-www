@@ -68,17 +68,21 @@ See [requirements.txt](requirements.txt) for full list of Python requirements. N
 
 The backend has several scripts that need to run.  Be sure each of them is running for proper functioning.
 
+#### Discovery Usage
+1. Open terminal in the location of `manage.py`
+2. Run command: `python3 manage.py rundisocvery`
+
 #### Cloner Usage
 1. Open terminal in the location of `manage.py`
-2. Run command: `manage.py runcloner`
+2. Run command: `python3 manage.py runcloner`
 
-#### Poller Usage
+#### Filters Usage
 1. Open terminal in the location of `manage.py`
-2. Run command: `manage.py runpoller`
+2. Run command: `python3 manage.py runfilters`
 
-#### Transformer Usage
+#### Transforms Usage
 1. Open terminal in the location of `manage.py`
-2. Run command: `manage.py runtransformer`
+2. Run command: `python3 manage.py runtransforms`
 
 ### Running the Website
 1. Create an admin user: `python3 manage.py createsuperuser`
@@ -93,14 +97,17 @@ Currently, there is support for the Boa backend.  In the future we hope to also 
 ### About PAClab Backend
 Currently, we have automatic support for a few transformers.  Right now, the transformations to apply to each project are created automatically, however in the future we would like users to be able to specify different transformations to for different project selections.  The transformations are installed just like filters for selectors, using various backends that users deploying PAClab will be able to swap in and out eventually.
 
+### About Discovery Daemon
+The poller runs every few seconds and inherits from a base class in the PAClab repository.  The poller checks the database for unprocessed project selectors, then generates a query based on the filters listed under the selector.  The query is then sent to the appropriate backend, which returns a list of discovered projects.
+
+### About Filtering Daemon
+The poller runs every few seconds and inherits from a base class in the PAClab repository.  The poller checks the database for unprocessed project selectors, then generates a query based on the filters listed under the selector.  The query is then sent to the appropriate backend, which returns a list of discovered projects.
+
 ### About Cloner Daemon
-Structured very similarly to the poller, the cloner runs every few seconds and looks for new urls that have not been processed yet. I then uses the input dataset from the original selector to search for each project and clones them.  After completion of its activities, it sets the url's host and path name so other services can find the location of the donwloaded project.
+The cloner runs every few seconds and looks for new urls that were discovered but not yet cloned. It then uses the input dataset from the original selector to search for each project and clones them.  After completion of its activities, it sets the url's host and path name so other services can find the location in the cluster of the cloned project.
 
-### About Poller Daemon
-The poller runs every few seconds and inherits from a base class in the PAClab repository.  The poller checks the database for unprocessed project selectors, then generates a query based on the filters listed under the selector.  The query is then sent to the appropriate backend, which returns a list of matched projects.
-
-### About Transformer Daemon
-Structured very similarly to the clone, the transformer runs every few seconds and processes downloaded projects.  It uses the set host and path name to find each project directory, then transforms the project source code using the default installed transformations.  It then saves an entry in the database for this fully processed project which is used for zipping the transformed project and downloading it.
+### About Transforms Daemon
+The transformer runs every few seconds and processes downloaded projects.  It uses the set host and path name to find each project directory, then transforms the project source code using the default installed transformations.  It then saves an entry in the database for this fully processed project which is used for zipping the transformed project and downloading it.
 
 ### Other Notes
 
