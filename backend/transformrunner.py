@@ -3,8 +3,8 @@ import socket
 from django.conf import settings
 from django.utils import timezone
 
-from website.choices import *
-from website.models import TransformedProject
+from website.choices import PROCESSED
+from website.models import TransformedProject, TransformSelection
 
 
 class TransformRunner:
@@ -58,3 +58,5 @@ class TransformRunner:
         p.path = path
         p.datetime_processed = timezone.now()
         p.save()
+
+        TransformSelection.objects.get_or_create(transformer=self.transformed_project,transformed_project=p)
