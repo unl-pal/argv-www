@@ -32,13 +32,13 @@ class Command(BaseCommand):
         self.host = socket.gethostname()
 
         while True:
-            selection = Selection.objects.filter(retained__isnull=True).filter(snapshot__host=self.host).first()
-            if selection:
-                try:
-                    self.process_selection(selection)
-                except:
-                    self.stdout.write('error processing: ' + str(selection))
-                    traceback.print_exc()
+            for selection in Selection.objects.filter(retained__isnull=True).filter(snapshot__host=self.host)[:10]:
+                if selection:
+                    try:
+                        self.process_selection(selection)
+                    except:
+                        self.stdout.write('error processing: ' + str(selection))
+                        traceback.print_exc()
 
             if self.no_poll:
                 break
