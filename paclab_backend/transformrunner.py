@@ -24,8 +24,8 @@ class TransformRunner(TransformRunner):
                 print('error transforming: ' + project.path)
                 traceback.print_exc()
 
-        # if os.path.exists(self.config_path):
-        #     os.remove(self.config_path)
+        if os.path.exists(self.config_path):
+            os.remove(self.config_path)
 
         self.done()
 
