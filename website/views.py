@@ -209,7 +209,7 @@ def transform_detail(request, slug):
         'transform': model.transform.transform,
         'values': TransformParameterValue.objects.filter(option=model.transform).all(),
         'input': model.input_project_count(),
-        'transformed': model.transformed_projects.count(),
+        'transformed': model.transformed_projects.exclude(path__isnull=True).count(),
         'retained': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_transform_size(model.slug)
     })
