@@ -92,8 +92,8 @@ class TransformRunner(TR):
         print(['./run.sh', in_path, tmp_path, out_path])
         proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
             cwd=self.transformer_path,
-            stdout=subprocess.PIPE if self.verbosity < 2 else None,
-            stderr=subprocess.PIPE if self.verbosity < 2 else None)
+            stdout=subprocess.PIPE if self.verbosity >= 2 else None,
+            stderr=subprocess.PIPE if self.verbosity >= 2 else None)
         if self.verbosity >= 2:
             print('    -> process id: ' + str(proc.pid))
         proc.wait()
