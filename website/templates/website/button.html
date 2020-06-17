@@ -1,0 +1,18 @@
+{% comment %}
+    - targeturl: url to go to on click
+    - disabled: boolean if the button is disabled or not
+    - enabled: boolean if the button is enabled or not
+    NOTE: only one of disabled/enabled should be used, the other set to its default
+    - type: the bootstrap button kind without 'btn-' prefix
+        e.g. btn-primary => 'primary'
+    - icon: the glyph icon to use, without 'glyphicon-' prefix
+        e.g. glyphicon-add => 'add'
+    - title
+    - text
+    NOTE: only one of title/text should be given (the other should be an empty string)
+        if text is used, it will display on the button
+        if title is used, it will only display on hover
+{% endcomment %}
+{% block body %}
+<a {% if enabled and not disabled %}href="{{ targeturl }}" {% else %}href="#" onclick="javascript:return false;" {% endif %}role="button" class="btn btn-{{ type }}{% if not enabled or disabled %} disabled" tabindex="-1" aria-disabled="true" disabled="disabled{% endif %}"{% if title %} title="{{ title }}"{% endif %}><span class="glyphicon glyphicon-{{ icon }}" aria-hidden="true"></span>{% if not title %} {{ text }}{% else %}<span class="sr-only">{{ title }}</span>{% endif %}</a>
+{% endblock %}

@@ -25,6 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
+MAINTENANCE_MODE = config('MAINTENANCE_MODE', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 ADMINS = ((config('ADMIN_NAME', default='PAClab Admin'), config('ADMIN_EMAIL', default='')), )
@@ -135,6 +136,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'website.middleware.SiteMaintenanceMiddleware',
 ]
 
 ROOT_URLCONF = 'paclab.urls'
@@ -154,6 +156,7 @@ TEMPLATES = [
                 'website.context_processors.moderatorConstant',
                 'website.context_processors.retiredConstant',
                 'website.context_processors.useHijack',
+                'website.context_processors.in_maintenance',
             ],
         },
     },
@@ -210,6 +213,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
+
+REPO_PATH = config('REPO_PATH', default='.')
+TRANSFORMED_PATH = config('TRANSFORMED_PATH', default='.')
 
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)

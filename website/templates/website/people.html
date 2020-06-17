@@ -3,6 +3,7 @@
 {% block peopleactive %}active{% endblock %}
 {% block body %}
     <div class="container">
+        {% include 'website/messages.html' %}
         {% for person in allPeople %}
             {% if person.is_active and person.profile.isAdmin %}
             {% include 'website/person.html' %}

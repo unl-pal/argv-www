@@ -1,11 +1,14 @@
 import shutil
 import time
 from os import listdir, makedirs
-from os.path import isdir, join, abspath
+from os.path import isdir, join
 
-from decouple import config
+from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from website.models import Project, TransformedProject
+import traceback
+
 
 '''Run backend disk balancer
 
@@ -16,7 +19,7 @@ class Command(BaseCommand):
     help = 'Runs a balancer on the head node to balance data on the slaves'
     POLL_INTERVAL = 600
     BALANCE_THRESHOLD = 20
-    
+
     def add_arguments(self, parser):
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the disk/database)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
@@ -29,8 +32,8 @@ class Command(BaseCommand):
         if 'threshold' in options and options['threshold']:
             self.BALANCE_THRESHOLD = int(options['threshold'])
 
-        self.repo_path = config('REPO_PATH')
-        self.transformed_path = config('TRANSFORMED_PATH')
+        self.repo_path = getattr(settings, 'REPO_PATH')
+        self.transformed_path = getattr(settings, 'TRANSFORMED_PATH')
 
         self.update_hosts()
         self.update_usages()
@@ -42,6 +45,7 @@ class Command(BaseCommand):
                     self.move_project(Project.objects.filter(host=host).exclude(path__isnull=True).first(), self.get_dest_node())
                 except:
                     self.stderr.write('failed moving project')
+                    traceback.print_exc()
 
             if self.no_poll:
                 break
@@ -95,7 +99,7 @@ class Command(BaseCommand):
                 project.save()
                 shutil.rmtree(srcpath)
 
-        for t in TransformedProject.objects.filter(project=project.id):
+        for t in TransformedProject.objects.filter(project=project):
             self.move_transform(t, dest)
 
         self.update_usages()
@@ -118,3 +122,6 @@ class Command(BaseCommand):
                 transform.host = dest
                 transform.save()
                 shutil.rmtree(srcpath)
+
+        for t in TransformedProject.objects.filter(parent=transform):
+            self.move_transform(t, dest)

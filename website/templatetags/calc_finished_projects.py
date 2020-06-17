@@ -1,19 +1,23 @@
 from django import template
-from website.models import TransformedProject
+
+from website.models import ProjectSnapshot, TransformedProject
 
 register = template.Library()
 
+#
+# project selections
+#
 @register.simple_tag(name='calc_finished_projects')
 def calc_finished_projects(selector):
-    qs1 = selector.project.filter(path__isnull=False).values_list('id')
-    qs2 = TransformedProject.objects.filter(path__isnull=False).values_list('project')
-    return qs1.intersection(qs2).count()
+    return ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained__isnull=False).count()
 
 @register.simple_tag(name='calc_remaining_projects')
 def calc_remaining_projects(selector):
-    qs1 = selector.project.filter(path__isnull=False).values_list('id')
-    qs2 = TransformedProject.objects.filter(host__isnull=False).values_list('project')
-    return qs1.difference(qs2).count()
+    return ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained__isnull=True).count()
+
+@register.simple_tag(name='calc_retained_projects')
+def calc_retained_projects(selector):
+    return selector.project_count()
 
 @register.simple_tag(name='calc_finished_percent')
 def calc_finished_percent(done, remain):

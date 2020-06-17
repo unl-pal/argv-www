@@ -1,50 +1,62 @@
 import socket
 
+from django.conf import settings
 from django.utils import timezone
-from website.models import TransformedProject
-from website.choices import *
+
+from website.choices import PROCESSED
+from website.models import TransformedProject, TransformSelection
+
 
 class TransformRunner:
-    def __init__(self, transformed_project, transform, backend_id, dry_run, verbosity):
+    def __init__(self, transformed_project, transform, dry_run, verbosity):
         self.transformed_project = transformed_project
         self.transform = transform
-        self.backend_id = backend_id
         self.dry_run = dry_run
         self.verbosity = verbosity
+
         self.host = socket.gethostname()
 
+        self.repo_path = getattr(settings, 'REPO_PATH')
+        self.transformed_path = getattr(settings, 'TRANSFORMED_PATH')
+
     def done(self):
-        if self.dry_run:
-            return
-# TODO only mark done if everything processed?
-        #if not self.transformed_project.transforms_set.exclude(status=PROCESSED).exists():
-        self.transformed_project.status = PROCESSED
-        self.transformed_project.datetime_processed = timezone.now()
-        #else:
-        #    self.transformed_project.status = READY
-        self.transformed_project.save()
+        # TODO only mark done if everything processed?
+        if not self.dry_run:
+            self.transformed_project.status = PROCESSED
+            self.transformed_project.datetime_processed = timezone.now()
+            self.transformed_project.save()
 
     def all_projects(self):
-        return self.transformed_project.project_selector.project.filter(path__isnull=False)
+        if self.transformed_project.src_selector:
+            return self.transformed_project.src_selector.result_projects()
+        return self.transformed_project.src_transformer.result_projects()
 
     def projects(self):
         return self.all_projects().filter(host=self.host)
 
+    def debug(self):
+        self.run()
+
     def run(self):
         raise NotImplementedError('transform runners must override the run() method')
 
-    def finish_project(self, proj, path = None):
+    def finish_project(self, proj, istransformed, path = None):
         if self.verbosity >= 3:
             if not path:
-                print("project transform failed: " + proj.path)
+                print("project transform failed: " + str(proj))
             else:
-                print("saving project transform for: " + proj.path)
+                print("saving project transform for: " + str(proj))
         if self.dry_run:
             return
 
-        p, created = TransformedProject.objects.get_or_create(transform=self.transform, project=proj)
+        if istransformed:
+            p, _ = TransformedProject.objects.get_or_create(transform=self.transform, src_transform=proj)
+        else:
+            p, _ = TransformedProject.objects.get_or_create(transform=self.transform, src_project=proj)
 
         p.host = self.host
         p.path = path
         p.datetime_processed = timezone.now()
         p.save()
+
+        TransformSelection.objects.get_or_create(transformer=self.transformed_project,transformed_project=p)

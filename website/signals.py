@@ -1,11 +1,13 @@
 import os
 
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save, post_delete, pre_save
-from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
-from django.dispatch import receiver
 from django.conf import settings
-from .models import Profile, UserAuthAuditEntry, ProjectTransformer, ProjectSelector, Transform
+from django.contrib.auth.models import User
+from django.contrib.auth.signals import (
+    user_logged_in, user_logged_out, user_login_failed)
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
+
+from .models import Profile, UserAuthAuditEntry
 
 @receiver(post_save, sender=User)
 def createUserProfile(sender, instance, created, **kwargs):
@@ -65,14 +67,6 @@ def user_login_failed_callback(sender, credentials, request, **kwargs):
     if request is not None:
         ip = request.META.get('REMOTE_ADDR')
     UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
-
-@receiver(post_save, sender=ProjectSelector)
-def create_transform(sender, instance, created, **kwargs):
-    if created:
-        transformer = ProjectTransformer.objects.create(project_selector=instance, user=instance.user)
-        transform = Transform.objects.first()
-        transformer.transforms.add(transform)
-        transformer.save()
 
 if settings.USE_HIJACK:
     from hijack.signals import hijack_started, hijack_ended

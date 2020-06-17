@@ -1,26 +1,25 @@
+import socket
 import time
 import traceback
-import importlib
-import multiprocessing
 
 from django.core.management.base import BaseCommand
-from website.models import ProjectSelector
-from django.conf import settings
+from django.utils import timezone
 
-from website.choices import *
+from website.choices import PROCESSED
+from website.models import FilterDetail, Selection
 
-'''Run Filters Poller
+
+'''Run Filter Poller
 
 Usage: manage.py runfilters
-Runs a poller in the background to grab unprocessed project selections from database
+Runs a poller in the background to run filters on cloned repos
 '''
 class Command(BaseCommand):
-    help = 'Runs a poller in the background to grab unprocessed project selections from database'
+    help = 'Runs a poller in the background to run filters on cloned repos'
     POLL_INTERVAL = 3
-    
+
     def add_arguments(self, parser):
-        parser.add_argument('slug', nargs='*', help='Specific project selection slug(s) to process', type=str)
-        parser.add_argument('--debug', help='Debug filtering specific slug(s) (implies --dry-run --no-poll -v 3)', action='store_true')
+        parser.add_argument('--debug', help='Debug filtering (implies --dry-run --no-poll -v 3)', action='store_true')
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
 
@@ -30,53 +29,84 @@ class Command(BaseCommand):
         self.no_poll = options['no_poll'] or self.debug
         self.verbosity = 3 if self.debug else options['verbosity']
 
-        if self.debug and len(options['slug']) == 0:
-            self.stderr.write('--debug requires providing a slug')
-            exit(-1)
+        self.host = socket.gethostname()
 
-        for slug in options['slug']:
-            try:
-                self.process_selection(ProjectSelector.objects.get(slug=slug))
-            except ProjectSelector.DoesNotExist:
-                self.stdout.write('invalid slug: ' + slug)
-            except:
-                self.stdout.write('error processing: ' + slug)
-                traceback.print_exc()
-
-        if len(options['slug']) == 0:
-            while True:
-                selector = ProjectSelector.objects.filter(status=READY)[0]
-                if selector:
+        while True:
+            for selection in Selection.objects.filter(retained__isnull=True).filter(snapshot__host=self.host)[:10]:
+                if selection:
                     try:
-                        self.process_selection(selector)
+                        self.process_selection(selection)
                     except:
-                        self.stdout.write('error processing: ' + selector.slug)
+                        self.stdout.write('error processing: ' + str(selection))
                         traceback.print_exc()
 
-                if self.no_poll:
-                    break
-                time.sleep(self.POLL_INTERVAL)
+            if self.no_poll:
+                break
+            time.sleep(self.POLL_INTERVAL)
 
-    def process_selection(self, selector):
-        self.stdout.write('processing ProjectSelection: ' + selector.slug)
-        if not self.dry_run:
-            selector.status = ONGOING
-            selector.save()
+    def process_selection(self, selection):
+        self.stdout.write('processing Selection: ' + str(selection))
 
-        filters = selector.filterdetail_set.exclude(pfilter__enabled=False)
-        backends = set()
-        for pfilter in filters:
-            associated_backend = str(pfilter.pfilter.associated_backend)
-            backends.add((associated_backend, pfilter.pfilter.associated_backend))
+        if selection.snapshot.path and self.test_repo(selection):
+            self.retained_selection(selection)
+        else:
+            self.filtered_selection(selection)
 
-        for (backend, backend_id) in backends:
-            modname = backend + '_backend.filterrunner'
-            backend = importlib.import_module(modname)
-            filterrunner = backend.FilterRunner(selector, backend_id, self.dry_run, self.verbosity)
-            if self.verbosity >= 2:
-                self.stdout.write('    -> calling backend: ' + modname)
-            #process = multiprocessing.Process(target=filterrunner.run, args=())
-            if self.debug:
-                filterrunner.debug()
-            else:
-                filterrunner.run()
+        if not Selection.objects.filter(project_selector=selection.project_selector).filter(retained__isnull=True).exists():
+            if self.verbosity >= 3:
+                self.stdout.write("-> ProjectSelector finished: " + str(selection.project_selector))
+
+            if not self.dry_run:
+                selection.project_selector.status = PROCESSED
+                selection.project_selector.fin_process = timezone.now()
+                selection.project_selector.save()
+
+    def test_repo(self, selection):
+        project_selector = selection.project_selector
+        snapshot = selection.snapshot
+
+        for f in FilterDetail.objects.filter(project_selector=project_selector).all():
+            value = f.value
+            filter = f.pfilter.flter.name
+            if filter == "Minimum number of commits":
+                if not snapshot.commits or snapshot.commits < int(value):
+                    return False
+            elif filter == "Maximum number of commits":
+                if not snapshot.commits or snapshot.commits > int(value):
+                    return False
+            elif filter == "Minimum number of source files":
+                if not snapshot.src_files or snapshot.src_files < int(value):
+                    return False
+            elif filter == "Maximum number of source files":
+                if not snapshot.src_files or snapshot.src_files > int(value):
+                    return False
+            elif filter == "Minimum number of committers":
+                if not snapshot.committers or snapshot.committers < int(value):
+                    return False
+            elif filter == "Maximum number of committers":
+                if not snapshot.committers or snapshot.committers > int(value):
+                    return False
+            elif filter == "Minimum number of stars":
+                pass
+            elif filter == "Maximum number of stars":
+                pass
+
+        return True
+
+    def retained_selection(self, selection):
+        if self.verbosity >= 3:
+            self.stdout.write("-> retained snapshot: " + str(selection.snapshot))
+        if self.dry_run:
+            return
+
+        selection.retained = True
+        selection.save()
+
+    def filtered_selection(self, selection):
+        if self.verbosity >= 3:
+            self.stdout.write("-> filtered snapshot: " + str(selection.snapshot))
+        if self.dry_run:
+            return
+
+        selection.retained = False
+        selection.save()

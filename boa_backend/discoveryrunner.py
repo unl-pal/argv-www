@@ -1,11 +1,12 @@
 import time
-from backend.filterrunner import FilterRunner
+
 from boaapi.boa_client import BoaClient
 from decouple import config
 
-from website.choices import *
+from backend.discoveryrunner import DiscoveryRunner as DR
 
-class FilterRunner(FilterRunner):
+
+class DiscoveryRunner(DR):
     template_start = """o: output collection of string;
 
 filtered := true;
@@ -27,18 +28,18 @@ visit(input, visitor {
     o << input.project_url;"""
 
     def translate_filter(self, filtr):
-        s = "if (!filtered) {\n";
+        s = 'if (!filtered) {\n'
 
         #
-        if filtr.pfilter.name == 'Minimum number of commits':
-            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n"
+        if filtr.pfilter.flter.name == 'Minimum number of commits':
+            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n'
 
         #
-        elif filtr.pfilter.name == 'Maximum number of commits':
-            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n"
+        elif filtr.pfilter.flter.name == 'Maximum number of commits':
+            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n'
 
         #
-        elif filtr.pfilter.name == 'Minimum number of source files':
+        elif filtr.pfilter.flter.name == 'Minimum number of source files':
             s += """    min_file_count := 0;
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
@@ -48,7 +49,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Maximum number of source files':
+        elif filtr.pfilter.flter.name == 'Maximum number of source files':
             s += """    max_file_count := 0;
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
@@ -58,7 +59,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Minimum number of committers':
+        elif filtr.pfilter.flter.name == 'Minimum number of committers':
             s += """    min_committers: set of string;
     visit(input, visitor {
         before n: Revision -> add(min_committers, n.committer.username);
@@ -68,7 +69,7 @@ visit(input, visitor {
 """
 
         #
-        elif filtr.pfilter.name == 'Maximum number of committers':
+        elif filtr.pfilter.flter.name == 'Maximum number of committers':
             s += """    max_committers: set of string;
     visit(input, visitor {
         before n: Revision -> add(max_committers, n.committer.username);
@@ -76,8 +77,11 @@ visit(input, visitor {
     if (len(max_committers) > """ + str(filtr.value) + """)
         filtered = true;
 """
+        # failsafe
+        else:
+            return ''
 
-        return s + "}\n\n"
+        return s + '}\n\n'
 
     def build_query(self, flters):
         query = '# PAClab project selection\n' + self.template_start
@@ -89,7 +93,7 @@ visit(input, visitor {
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
 
-        query = self.build_query(self.filters())
+        query = self.build_query(self.all_filters())
         if self.verbosity >= 3:
             print(query)
 
@@ -116,12 +120,9 @@ visit(input, visitor {
                 output = job.output().decode('utf-8')
 
                 for line in output.splitlines(False):
-                    self.save_result(line[6:])
+                    self.discovered_project(line[6:])
             except:
                 pass
-
-            for f in self.filters():
-                self.filter_done(f)
 
             self.done()
 

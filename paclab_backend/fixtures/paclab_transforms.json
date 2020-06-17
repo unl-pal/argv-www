@@ -6,5 +6,55 @@
             "enabled": false,
             "associated_backend": ["paclab"]
         }
+    },
+    {
+        "model": "website.transformparameter",
+        "fields": {
+            "transform": ["PAClab integer transformer"],
+            "name": "minExpr",
+            "val_type": "Integer",
+            "default_val": "3",
+            "help_text": "Minimum number of expressions"
+        }
+    },
+    {
+        "model": "website.transformparameter",
+        "fields": {
+            "transform": ["PAClab integer transformer"],
+            "name": "minIfStmt",
+            "val_type": "Integer",
+            "default_val": "1",
+            "help_text": "Minimum number of if statements"
+        }
+    },
+    {
+        "model": "website.transformparameter",
+        "fields": {
+            "transform": ["PAClab integer transformer"],
+            "name": "minParams",
+            "val_type": "Integer",
+            "default_val": "1",
+            "help_text": "Minimum number of parameters"
+        }
+    },
+    {
+        "model": "website.transformparameter",
+        "fields": {
+            "transform": ["PAClab integer transformer"],
+            "name": "type",
+            "val_type": "String",
+            "default_val": "I",
+            "help_text": "Type of operations"
+        }
+    },
+    {
+        "model": "website.transformparameter",
+        "fields": {
+            "transform": ["PAClab integer transformer"],
+            "name": "target",
+            "val_type": "String",
+            "default_val": "def",
+            "help_text": "FIXME"
+        }
     }
 ]

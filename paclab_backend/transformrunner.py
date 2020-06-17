@@ -1,61 +1,107 @@
-import subprocess
 import os
 import shutil
+import subprocess
+import tempfile
+import traceback
 
-from backend.transformrunner import TransformRunner
 from decouple import config
 
-class TransformRunner(TransformRunner):
+from backend.transformrunner import TransformRunner as TR
+from website.models import TransformedProject, TransformParameterValue
+
+
+"""
+Storage Layout
+
+/TRANSFORMED_PATH
+    /selector/ProjectSnapshot.pk
+        /TransformOption.pk
+            ...
+        /TransformOption.pk
+            ...
+    /transform/TransformedProject.pk
+        /TransformOption.pk
+            ...
+        /TransformOption.pk
+            ...
+"""
+class TransformRunner(TR):
     def run(self):
-        self.repo_path = config('REPO_PATH')
-        self.transformed_path = config('TRANSFORMED_PATH')
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
+        self.config_path = os.path.join(tempfile.gettempdir(), 'paclab-' + str(self.transformed_project.pk) + '-config.properties')
+        print(self.config_path)
+        self.generate_config()
 
         for project in self.projects():
             try:
-                self.transform_project(project)
+                self.transform_project(project, isinstance(project, TransformedProject))
             except:
                 print('error transforming: ' + project.path)
+                traceback.print_exc()
+
+        if os.path.exists(self.config_path):
+            os.remove(self.config_path)
 
         self.done()
 
-    def transform_project(self, project):
-        host = project.url[project.url.index("://") + 3:]
-        project_name = host[host.index("/") + 1:]
-        host = host[:host.index("/")]
+    def generate_config(self):
+        props = {
+            'csv': 'dataset.csv',
+            'projectCount': '50',
+            'maxLoc': '10000',
+            'minLoc': '100',
+            'downloadDir': 'database',
+            'benchmarkDir': 'benchmarks',
+            'debugLevel': '2',
+            'type': 'I',
+            'minExpr': '3',
+            'minIfStmt': '1',
+            'minParams': '1',
+            'target': 'DEF',
+        }
 
-        repo_root = self.repo_path
-        if repo_root[-1:] != '/':
-            repo_root += '/'
-        repo_root += host
-        path = repo_root + '/' + project_name
+        for p in TransformParameterValue.objects.filter(option=self.transformed_project.transform):
+            props[p.parameter.name] = p.value
 
-        filter_path = '/tmp/' + project_name + '-filter'
+        with open(self.config_path, 'w') as config:
+            for p in props.items():
+                config.write(p[0] + '=' + p[1] + '\n')
 
-        transformed_root = self.transformed_path
-        if transformed_root[-1:] != '/':
-            transformed_root += '/'
-        transformed_root += host
-        out_path = transformed_root + '/' + project_name
+    def transform_project(self, project, istransform):
+        proj_path = project.path
+        project_name = proj_path[proj_path.index("/") + 1:]
+
+        # input path - the data to transform
+        in_path = os.path.join(self.transformed_path if istransform else self.repo_path, proj_path)
+
+        # since there are 2 phases, we need a temporary path
+        tmp_path = os.path.join(tempfile.gettempdir(), project_name + '-' + str(self.transform.pk) + '-filter')
+
+        # output path - where to store the result
+        path = os.path.join('transform' if istransform else 'selector', str(project.pk), str(self.transform.pk))
+        out_path = os.path.join(self.transformed_path, path)
 
         if os.path.exists(out_path):
             print('    -> SKIPPING: already exists: ' + project_name)
-            self.finish_project(project, out_path)
+            self.finish_project(project, istransform, out_path)
             return
 
-        if os.path.exists(filter_path):
-            shutil.rmtree(filter_path)
+        if os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
 
-        proc = subprocess.Popen(['./run.sh', path, filter_path, out_path], cwd=self.transformer_path, stdout=subprocess.PIPE if self.verbosity < 2 else None, stderr=subprocess.PIPE if self.verbosity < 2 else None)
+        print(['./run.sh', in_path, tmp_path, out_path])
+        proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
+            cwd=self.transformer_path,
+            stdout=subprocess.PIPE if self.verbosity >= 2 else None,
+            stderr=subprocess.PIPE if self.verbosity >= 2 else None)
         if self.verbosity >= 2:
             print('    -> process id: ' + str(proc.pid))
         proc.wait()
 
-        if not self.dry_run:
-            if proc.returncode == 0:
-                self.finish_project(project, host + '/' + project_name)
-            else:
-                self.finish_project(project)
+        if proc.returncode == 0:
+            self.finish_project(project, istransform, path)
+        else:
+            self.finish_project(project, istransform)
 
-        if os.path.exists(filter_path):
-            shutil.rmtree(filter_path)
+        if os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
