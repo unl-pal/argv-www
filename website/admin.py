@@ -135,7 +135,7 @@ class ProjectAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
 
 @admin.register(ProjectSnapshot)
 class ProjectSnapshotAdmin(admin.ModelAdmin):
-    list_display = ['project', 'host', 'path', 'datetime_processed', ]
+    list_display = ['project', 'host', 'path', 'datetime_processed', 'commits', 'committers', 'src_files', ]
     list_filter = ['host', ]
     search_fields = ['project__url', ]
     readonly_fields = ['project', ]
