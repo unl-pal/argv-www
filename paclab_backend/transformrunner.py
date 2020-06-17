@@ -10,6 +10,21 @@ from backend.transformrunner import TransformRunner
 from website.models import TransformedProject, TransformParameterValue
 
 
+"""
+Storage Layout
+
+/TRANSFORMED_PATH
+    /selector/ProjectSnapshot.pk
+        /TransformOption.pk
+            ...
+        /TransformOption.pk
+            ...
+    /transform/TransformedProject.pk
+        /TransformOption.pk
+            ...
+        /TransformOption.pk
+            ...
+"""
 class TransformRunner(TransformRunner):
     def run(self):
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
@@ -56,9 +71,20 @@ class TransformRunner(TransformRunner):
         proj_path = project.path
         project_name = proj_path[proj_path.index("/") + 1:]
 
-        filter_path = os.path.join(tempfile.gettempdir(), project_name + '-filter')
-        in_path = os.path.join(self.repo_path, proj_path)
-        path = os.path.join(str(self.transformed_project.pk), proj_path)
+        # input path - the data to transform
+        if istransform:
+            in_path = os.path.join(self.transformed_path, proj_path)
+        else:
+            in_path = os.path.join(self.repo_path, proj_path)
+
+        # since there are 2 phases, we need a temporary path
+        tmp_path = os.path.join(tempfile.gettempdir(), project_name + '-' + str(self.transform.pk) + '-filter')
+
+        # output path - where to store the result
+        if istransform:
+            path = os.path.join('transform', str(self.transform_project.src_transform.pk), str(self.transform.pk))
+        else:
+            path = os.path.join('selector', str(self.transform_project.src_project.pk), str(self.transform.pk))
         out_path = os.path.join(self.transformed_path, path)
 
         if os.path.exists(out_path):
@@ -66,11 +92,11 @@ class TransformRunner(TransformRunner):
             self.finish_project(project, istransform, out_path)
             return
 
-        if os.path.exists(filter_path):
-            shutil.rmtree(filter_path)
+        if os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
 
-        print(['./run.sh', in_path, filter_path, out_path])
-        proc = subprocess.Popen(['./run.sh', in_path, filter_path, out_path],
+        print(['./run.sh', in_path, tmp_path, out_path])
+        proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
             cwd=self.transformer_path,
             stdout=subprocess.PIPE if self.verbosity < 2 else None,
             stderr=subprocess.PIPE if self.verbosity < 2 else None)
@@ -83,5 +109,5 @@ class TransformRunner(TransformRunner):
         else:
             self.finish_project(project, istransform)
 
-        if os.path.exists(filter_path):
-            shutil.rmtree(filter_path)
+        if os.path.exists(tmp_path):
+            shutil.rmtree(tmp_path)
