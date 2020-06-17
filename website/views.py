@@ -611,8 +611,7 @@ def download_transform(request, slug):
         paths = {}
 
         try:
-            for project in ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True):
-                transformed_project = project.transformedproject_set.exclude(path__isnull=True).first()
+            for transformed_project in ProjectTransformer.objects.get(slug=slug).result_projects():
                 if transformed_project:
                     if not transformed_project.host in paths:
                         paths[transformed_project.host] = []
