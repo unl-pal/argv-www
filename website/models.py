@@ -205,7 +205,10 @@ class ProjectSelector(models.Model):
         return self.enabled and self.status == PROCESSED
 
     def project_count(self):
-        return Selection.objects.filter(project_selector=self).filter(retained=True).count()
+        return self.result_projects().count()
+
+    def result_projects(self):
+        return self.projects.filter(selection__retained=True)
 
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
@@ -328,7 +331,10 @@ class ProjectTransformer(models.Model):
         return self.src_transformer.project_count()
 
     def project_count(self):
-        return self.transformed_projects.count()
+        return self.result_projects().count()
+
+    def result_projects(self):
+        return self.transformed_projects.filter(path__isnull=False)
 
     def isDone(self):
         return self.enabled and self.status == PROCESSED

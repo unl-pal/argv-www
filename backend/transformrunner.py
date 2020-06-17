@@ -28,8 +28,8 @@ class TransformRunner:
 
     def all_projects(self):
         if self.transformed_project.src_selector:
-            return self.transformed_project.src_selector.projects.filter(path__isnull=False)
-        return self.transformed_project.src_transformer.transformed_projects.filter(path__isnull=False)
+            return self.transformed_project.src_selector.result_projects()
+        return self.transformed_project.src_transformer.result_projects()
 
     def projects(self):
         return self.all_projects().filter(host=self.host)
