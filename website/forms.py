@@ -11,6 +11,7 @@ from django_countries.fields import CountryField
 
 from .models import (BackendFilter, Profile, ProjectSelector, Transform,
                      TransformOption)
+from website.models import TransformParameter
 
 
 class UserRegisterForm(UserCreationForm):
@@ -152,6 +153,38 @@ class BaseFilterFormSet(BaseFormSet):
         return cleaned_data
 
 FilterFormSet = formset_factory(FilterDetailForm, formset=BaseFilterFormSet, min_num=1, extra=0)
+
+class TransformParamDetailForm(forms.Form):
+    parameter = forms.ModelChoiceField(TransformParameter.objects.order_by('name'))
+    value = forms.CharField(
+        max_length=1000,
+        widget=forms.TextInput(attrs={
+            'placeholder' : 'Enter value',
+            'size' : 10
+        }),
+        required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_valid() and 'parameter' in self.cleaned_data:
+            self.fields['parameter'].help_text = mark_safe(self.cleaned_data['parameter'].help_text)
+
+class BaseTransformParamFormSet(BaseFormSet):
+    def clean(self):
+        cleaned_data = super().clean()
+
+        params = []
+        for form in self.forms:
+            if form.is_valid() and 'parameter' in form.cleaned_data:
+                param = form.cleaned_data['parameter']
+                if param.pk not in params:
+                    params.append(param.pk)
+                else:
+                    form.add_error('parameter', "Parameter used multiple times. Parameters may only be used once.")
+
+        return cleaned_data
+
+TransformParamFormSet = formset_factory(TransformParamDetailForm, formset=BaseTransformParamFormSet, min_num=0, extra=1)
 
 class TransformOptionForm(forms.Form):
     transform = forms.ModelChoiceField(Transform.objects.filter(enabled=True).order_by('name'))

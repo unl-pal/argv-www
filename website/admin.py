@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.forms import BaseInlineFormSet
 from django.urls import reverse_lazy
 from django.utils.html import format_html
 
@@ -11,7 +12,7 @@ from .models import (Dataset, Filter, FilterDetail, Paper, Profile, Project,
                      ProjectSelector, ProjectSnapshot, ProjectTransformer,
                      Selection, Transform, TransformedProject, TransformOption,
                      TransformSelection, UserAuthAuditEntry)
-from website.models import BackendFilter
+from website.models import BackendFilter, TransformParameter, TransformParameterValue
 
 
 if USE_HIJACK:
@@ -114,8 +115,16 @@ class UserAuthAuditEntryAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     list_filter = ['action', 'hijacker', 'hijacked', ]
 
 class SnapshotsInline(admin.TabularInline):
+    class LimitSnapshotsFormset(BaseInlineFormSet):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            _kwargs = { self.fk.name: kwargs['instance'] }
+            self.queryset = kwargs['queryset'].filter(**_kwargs).order_by('-datetime_processed')[:50]
+
+    verbose_name_plural = "Last 50 Snapshots"
     model = ProjectSnapshot
     extra = 0
+    formset = LimitSnapshotsFormset
 
 @admin.register(Project)
 class ProjectAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
@@ -130,7 +139,7 @@ class ProjectSnapshotAdmin(admin.ModelAdmin):
     list_filter = ['host', ]
     search_fields = ['project__url', ]
     readonly_fields = ['project', ]
-    fields = ['project', 'host', 'path', 'datetime_processed', ]
+    fields = ['project', 'host', 'path', 'datetime_processed', 'commits', 'committers', 'src_files', ]
 
     def has_add_permission(self, request):
         return False
@@ -184,12 +193,14 @@ class TransformSelectionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
     search_fields = ['transformer', ]
 
 @admin.register(TransformOption)
-class TransformOptionAdmin(ReadOnlyAdminMixin,admin.ModelAdmin):
+class TransformOptionAdmin(DeletableReadOnlyAdminMixin,admin.ModelAdmin):
     list_display = ['transform', ]
     list_filter = ['transform', ]
 
 admin.site.register(Paper)
 admin.site.register(Dataset)
+admin.site.register(TransformParameter)
+admin.site.register(TransformParameterValue)
 
 admin.site.site_header = 'PAClab Admin'
 admin.site.site_title = 'PAClab Admin'

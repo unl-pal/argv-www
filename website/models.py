@@ -154,6 +154,11 @@ class ProjectSnapshot(models.Model):
     path = models.CharField(max_length=5000, null=True, blank=True)
     datetime_processed = models.DateTimeField(null=True, blank=True)
 
+    # repo metrics
+    commits = models.BigIntegerField(null=True, blank=True)
+    committers = models.BigIntegerField(null=True, blank=True)
+    src_files = models.BigIntegerField(null=True, blank=True)
+
     def __str__(self):
         return str(self.project.url) + ' - ' + str(self.host) + ':' + str(self.path)
 
@@ -205,7 +210,7 @@ class Selection(models.Model):
     retained = models.BooleanField(blank=True, null=True)
 
     def __str__(self):
-        return self.project_selector.slug
+        return str(self.project_selector) + ' - ' + str(self.snapshot)
 
     class Meta:
         indexes = [
@@ -222,32 +227,66 @@ class FilterDetail(models.Model):
     def __str__(self):
         return self.value
 
+class TransformManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 class Transform(models.Model):
-    name = models.CharField(max_length=200, default='')
+    name = models.CharField(max_length=200, unique=True, default='')
     enabled = models.BooleanField(default=False)
     associated_backend = models.ForeignKey(Backend, on_delete=models.PROTECT)
+
+    objects = TransformManager()
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+        return (self.name,)
+
+class TransformParameter(models.Model):
+    transform = models.ForeignKey(Transform, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200, default='')
+    val_type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=INT)
+    default_val = models.CharField(max_length=100, default='Enter value here')
+    help_text = models.CharField(max_length=200, default='')
+
+    def is_int(self):
+        return self.val_type in self.INT
+
+    def is_string(self):
+        return self.val_type in self.STRING
+
+    def is_list(self):
+        return self.val_type in self.LIST
 
     def __str__(self):
         return self.name
 
 class TransformOption(models.Model):
     transform = models.ForeignKey(Transform, on_delete=models.CASCADE)
+    parameters = models.ManyToManyField(TransformParameter, blank=True, through='TransformParameterValue')
 
     def __str__(self):
         return self.transform.name
+
+class TransformParameterValue(models.Model):
+    parameter = models.ForeignKey(TransformParameter, on_delete=models.CASCADE, related_name='value')
+    option = models.ForeignKey(TransformOption, on_delete=models.CASCADE)
+    value = models.TextField(max_length=1000, default='1')
 
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)
     path = models.CharField(max_length=5000, null=True, blank=True)
     datetime_processed = models.DateTimeField(null=True, blank=True)
     transform = models.ForeignKey(TransformOption, on_delete=models.PROTECT)
-    src_project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
+    src_project = models.ForeignKey(ProjectSnapshot, on_delete=models.PROTECT, blank=True, null=True)
     src_transform = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         if self.src_project:
-            return 'project:' + self.src_project.url
-        return 'transform:' + str(self.host) + ':' + str(self.path)
+            return 'transformed project:' + str(self.src_project)
+        return 'transformed transform:' + str(self.src_transform)
 
 class ProjectTransformer(models.Model):
     slug = models.SlugField(unique=True)
@@ -257,7 +296,7 @@ class ProjectTransformer(models.Model):
     status = models.CharField(max_length=255, choices=PROCESS_STATUS, default=READY)
     created = models.DateTimeField(auto_now_add=True)
     datetime_processed = models.DateTimeField(auto_now=True)
-    transform = models.ForeignKey(TransformOption, on_delete=models.CASCADE)
+    transform = models.ForeignKey(TransformOption, on_delete=models.PROTECT)
     transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, blank=True, null=True)
     enabled = models.BooleanField(default=True)
@@ -279,6 +318,14 @@ class ProjectTransformer(models.Model):
         slug = str(uuid.uuid4())
         slug = slug.replace('-','')
         return slug
+
+    def input_project_count(self):
+        if self.src_selector:
+            return Selection.objects.filter(project_selector=self.src_selector).filter(retained=True).count()
+        return self.src_transformer.project_count()
+
+    def project_count(self):
+        return self.transformed_projects.project_count()
 
     def isDone(self):
         return self.enabled and self.status == PROCESSED

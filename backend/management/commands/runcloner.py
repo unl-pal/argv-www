@@ -1,17 +1,16 @@
-import importlib
 import os
 import shutil
 import socket
 import subprocess
 import tempfile
 import time
+import traceback
+from os import walk
 
-import pytz
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from website.choices import *
 from website.models import Dataset, Project, ProjectSnapshot
 
 
@@ -23,7 +22,6 @@ Runs a poller in the background to grab project URLs and clone them
 class Command(BaseCommand):
     help = 'Runs a poller in the background to grab project URLs and clone them'
     POLL_INTERVAL = 10
-
 
     def add_arguments(self, parser):
         parser.add_argument('url', nargs='*', help='Clone specific URL(s)', type=str)
@@ -57,9 +55,10 @@ class Command(BaseCommand):
                     snapshot = ProjectSnapshot(project=project)
 
             try:
-                self.process_project(snapshot)
+                self.process_snapshot(snapshot)
             except:
                 self.stdout.write('error processing: ' + project.url)
+                traceback.print_exc()
 
         if len(options['url']) == 0:
             while True:
@@ -69,6 +68,7 @@ class Command(BaseCommand):
                         self.process_snapshot(snapshot)
                     except:
                         self.stderr.write('problem processing ProjectSnapshot: ' + snapshot.project.url)
+                        traceback.print_exc()
 
                 if self.no_poll:
                     break
@@ -90,13 +90,17 @@ class Command(BaseCommand):
         repo_root = os.path.join(getattr(settings, 'REPO_PATH'), host)
         path = os.path.join(repo_root, project_name)
         tmp = tempfile.gettempdir()
+        src_dir = os.path.join(tmp, project_name)
+        git_dir = os.path.join(src_dir, '.git')
 
         if self.verbosity >= 3:
-            self.stdout.write('    -> root: ' + repo_root)
-            self.stdout.write('    -> tmp:  ' + tmp)
-            self.stdout.write('    -> path: ' + path)
-            self.stdout.write('    -> name: ' + project_name)
-            self.stdout.write('    -> base: ' + project_base)
+            self.stdout.write('    -> root:    ' + repo_root)
+            self.stdout.write('    -> name:    ' + project_name)
+            self.stdout.write('    -> base:    ' + project_base)
+            self.stdout.write('    -> path:    ' + path)
+            self.stdout.write('    -> tmp:     ' + tmp)
+            self.stdout.write('    -> src_dir: ' + src_dir)
+            self.stdout.write('    -> git_dir: ' + git_dir)
 
         if os.path.exists(path):
             self.stdout.write('    -> SKIPPING: already exists: ' + project_name)
@@ -106,49 +110,114 @@ class Command(BaseCommand):
                 snapshot.save()
             return
 
-        # clone
-        p = subprocess.Popen(['git', 'clone', '--depth', '1', 'https://foo:bar@' + host + '/' + project_name, project_name], cwd=tmp, stdout=subprocess.PIPE if self.verbosity < 3 else None, stderr=subprocess.PIPE if self.verbosity < 3 else None)
-        # src_dir = os.path.join(tmp, project_name)
+        try:
+            self.clone_repo(host, src_dir, project_name, git_dir, repo_root, project_parent, snapshot)
+        finally:
+            # cleanup temp files
+            if os.path.exists(os.path.join(tmp, project_base)):
+                shutil.rmtree(os.path.join(tmp, project_base))
 
-        # p = subprocess.Popen(['/bin/sh', 'create.sh', 'https://foo:bar@' + host + '/' + project_name],
-        #                      cwd=src_dir,
-        #                      stdout=subprocess.PIPE if self.verbosity < 3 else None,
-        #                      stderr=subprocess.PIPE if self.verbosity < 3 else None)
-        if self.verbosity >= 2:
-            self.stdout.write('    -> process id: ' + str(p.pid))
-        p.wait()
+            if not self.dry_run:
+                snapshot.datetime_processed = timezone.now()
+                snapshot.save()
 
-        src_dir = os.path.join(tmp, project_name)
+    def clone_repo(self, host, src_dir, project_name, git_dir, repo_root, project_parent, snapshot):
+        # clone and filter the repo
+        os.makedirs(src_dir, 0o755, True)
+        self.run_command(['git', 'init'], src_dir)
 
-        if not self.dry_run:
-            if p.returncode == 0:
-                if not os.path.exists(repo_root):
-                    self.stdout.write('root does not exist, creating: ' + repo_root)
-                    os.makedirs(repo_root, 0o755, True)
+        self.run_command(['git', 'config', '--local', 'core.sparseCheckout', 'true'], src_dir)
+        with open(os.path.join(src_dir, '.git/info/sparse-checkout'), 'w') as sparseFile:
+            sparseFile.writelines('**/*.java\n')
 
-                # move repo to final location
-                parent_dir = os.path.join(repo_root, project_parent)
-                if self.verbosity >= 2:
-                    self.stdout.write('moving ' + src_dir + ' -> ' + parent_dir)
-                if not os.path.exists(parent_dir):
-                    os.makedirs(parent_dir, 0o755, True)
-                shutil.move(src_dir, parent_dir)
+        # get all remote objects
+        self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
+        p = self.run_command(['git', 'fetch'], src_dir)
 
-                snapshot.path = os.path.join(host, project_name)
+        if p.returncode == 0:
+            # filter out unwanted objects
+            self.run_command(['git', 'filter-repo', '--path-regex', '^.*/*\\.java$'], src_dir)
+            self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
 
-                self.snapshot_project(snapshot)
-            else:
-                if self.verbosity >= 2:
-                    self.stdout.write('failed to clone ' + project_name)
+            # unpack object files
+            self.unpack_git(git_dir)
 
-            snapshot.datetime_processed = timezone.now()
-            snapshot.save()
+            # checkout working tree
+            # similar to: git remote show origin | grep "HEAD branch" | cut -d ":" -f 2
+            masterrefproc = subprocess.Popen(['git', 'remote', 'show', 'origin'], cwd=src_dir, stdout=subprocess.PIPE, stderr=None)
+            parts = filter(lambda x: 'HEAD branch' in x, masterrefproc.stdout.read().decode().strip().split('\n'))
+            masterref = list(parts)[0].split(':')[1].strip()
+            p = self.run_command(['git', 'checkout', masterref], src_dir)
 
-        # cleanup temp files
-        if os.path.exists(os.path.join(tmp, project_base)):
-            shutil.rmtree(os.path.join(tmp, project_base))
+            if not self.dry_run:
+                if p.returncode == 0:
+                    if not os.path.exists(repo_root):
+                        self.stdout.write('root does not exist, creating: ' + repo_root)
+                        os.makedirs(repo_root, 0o755, True)
 
-    def snapshot_project(self, project):
-        # TODO ZFS snapshot
+                    self.update_metrics(snapshot, src_dir)
+
+                    # move repo to final location
+                    parent_dir = os.path.join(repo_root, project_parent)
+                    if self.verbosity >= 2:
+                        self.stdout.write('moving ' + src_dir + ' -> ' + parent_dir)
+                    if not os.path.exists(parent_dir):
+                        os.makedirs(parent_dir, 0o755, True)
+                    shutil.move(src_dir, parent_dir)
+
+                    snapshot.path = os.path.join(host, project_name)
+                else:
+                    if self.verbosity >= 2:
+                        self.stdout.write('failed to clone ' + project_name)
+
+    def snapshot_project(self, snapshot, path):
         # zfs snapshot paclab/"$project_name"@"$timestamp"
+        # TODO ZFS snapshot
         pass
+
+    """unpack all Git object files"""
+    def unpack_git(self, git_dir):
+        if os.path.exists(os.path.join(git_dir, 'objects/pack')):
+            packdir = os.path.join(git_dir, 'pack')
+            shutil.move(os.path.join(git_dir, 'objects/pack'), packdir)
+
+            for (root, dirs, files) in walk(packdir):
+                for f in files:
+                    if f.endswith('.pack'):
+                        with open(os.path.join(root, f), 'rb') as packfile:
+                            unpack = subprocess.Popen(['git', 'unpack-objects'], cwd=git_dir, stdin=subprocess.PIPE, stdout=None, stderr=None)
+                            while True:
+                                b = packfile.read(64 * 1024)
+                                if not b:
+                                    break
+                                unpack.stdin.write(b)
+
+            shutil.rmtree(packdir)
+
+    def update_metrics(self, project, path):
+        # update number of commits
+        p = subprocess.Popen(['git', 'rev-list', '--count', 'HEAD'], cwd=path, stdout=subprocess.PIPE, stderr=None)
+        project.commits = int(p.stdout.read().decode().strip())
+        if self.verbosity >= 2:
+            self.stdout.write(path + ', commits =' + str(project.commits))
+
+        # update number of committers
+        p = subprocess.Popen(['git', 'shortlog', '-sne'], cwd=path, stdout=subprocess.PIPE, stderr=None)
+        project.committers = p.stdout.read().decode().count('\n')
+        if self.verbosity >= 2:
+            self.stdout.write(path + ', committers =' + str(project.committers))
+
+        # update src file counts
+        # similar to: find . -name '*.java' | wc -l
+        p = subprocess.Popen(['find', '.', '-name', '*.java'], cwd=path, stdout=subprocess.PIPE, stderr=None)
+        project.src_files = p.stdout.read().decode().count('\n')
+        if self.verbosity >= 2:
+            self.stdout.write(path + ', src_files =' + str(project.src_files))
+
+    def run_command(self, args, cwd):
+        p = subprocess.Popen(args,
+                             cwd=cwd,
+                             stdout=subprocess.PIPE if self.verbosity < 3 else None,
+                             stderr=subprocess.PIPE if self.verbosity < 3 else None)
+        p.wait()
+        return p

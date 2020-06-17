@@ -54,25 +54,37 @@
                     <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:transform_detail' slug=transformer.src_transformer %}">transform {{ transformer.src_transformer }}</a></h4>
                 {% endif %}
                 <br/>
-                <h4><strong>Projects to Transform:</strong> {{ transformer.transformed_projects.all|length|intcomma }}</h4>
-                <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
-                {% calc_finished_transformedprojects transformer as finished_count %}
-                {% calc_remaining_transformedprojects transformer as remaining_count %}
-                {% calc_finished_percent transformed remaining_count as finished_pct %}
-                {% if finished_count > 0 %}
-                    <h4><strong>Projects Transformed:</strong> {{ finished_count|intcomma }}</h4>
-                    {% if not transformer.isDone %}
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
-                                <span class="sr-only">{{ finished_pct }}% Complete</span>
-                            </div>
+                <h4><strong>Transformer:</strong> {{ transform.name }}</h4>
+                {% if values %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>Transform Parameters</strong></h3>
                         </div>
-                    {% endif %}
+                        <div class="panel-body">
+                            {% for param in values %}
+                                <h5><strong>{{ param.parameter.name }}:</strong> {{ param.value }}</h5>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                <br/>
+                <h4><strong>Input Projects:</strong> {{ input|intcomma }}</h4>
+                <h4><strong>Projects Transformed:</strong> {{ transformed|intcomma }}</h4>
+                {% calc_finished_percent transformed input as finished_pct %}
+                {% if not transformer.isDone %}
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
+                            <span class="sr-only">{{ finished_pct }}% Complete</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if transformed > 0 %}
+                    <h4><strong>Projects Retained:</strong> {{ retained|intcomma }}</h4>
                 {% endif %}
                 {% if transformer.isDone %}
                     <br/>
                     <h4><strong>Dataset Generated:</strong> <span title="{{ transformer.datetime_processed }}">{{ transformer.datetime_processed|naturaltime }}</span></h4>
-                    {% if finished_count > 0 %}
+                    {% if retained > 0 %}
                         {% if download_size > 0 %}
                             <h3><strong><a href="{% url 'website:download_transform' transformer.slug %}">Download Dataset</a> (zip)</strong></h3>
                             <h4>({{ download_size|filesizeformat|intcomma }})</h4>

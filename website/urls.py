@@ -29,6 +29,7 @@ urlpatterns = [
     path('verify/<uidb64>/<token>/', views.verify_email, name='verify_email'),
 
     path('api/filter_detail/', views.api_filter_detail, name='api_filter_detail'),
+    path('api/transform_param_detail/', views.api_transform_param, name='api_transform_param'),
     path('api/usernames/', views.api_usernames, name='api_usernames'),
 
     path('selection/list/', views.SelectionListView.as_view(), name='list_selections'),

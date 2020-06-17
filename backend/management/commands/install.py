@@ -1,6 +1,8 @@
-from backend.management.base.BackendCommand import BackendCommand
 from django.core.management import call_command
+
+from backend.management.base.BackendCommand import BackendCommand
 from backend.models import Backend
+
 
 ''' Install Command
 

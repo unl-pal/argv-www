@@ -69,7 +69,7 @@
                 <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
                 {% calc_finished_projects project as finished_count %}
-                {% calc_finished_projects project as retained_count %}
+                {% calc_retained_projects project as retained_count %}
                 {% calc_remaining_projects project as remaining_count %}
                 {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}

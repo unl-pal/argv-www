@@ -31,7 +31,8 @@ from .mixins import EmailRequiredMixin
 from .models import (Dataset, BackendFilter, FilterDetail, Paper, ProjectSelector,
                      ProjectTransformer, Transform, TransformOption)
 from .tokens import email_verify_token
-from website.models import ProjectSnapshot
+from website.models import ProjectSnapshot, TransformParameter, TransformParameterValue
+from website.forms import TransformParamFormSet
 
 
 class PapersView(ListView):
@@ -205,7 +206,11 @@ def transform_detail(request, slug):
     return render(request, 'website/transforms/detail.html', {
         'transformer': model,
         'form': form,
-        'transformed': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
+        'transform': model.transform.transform,
+        'values': TransformParameterValue.objects.filter(option=model.transform).all(),
+        'input': model.input_project_count(),
+        'transformed': model.transformed_projects.count(),
+        'retained': model.transformed_projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_transform_size(model.slug)
     })
 
@@ -399,14 +404,31 @@ def selection_duplicate(request, slug):
 def make_create_transform(request, selector=None, transform=None, parent=None):
     if request.method == 'GET':
         initial = {}
+        pinitial = {}
         if Transform.objects.count() == 1:
             initial['transform'] = Transform.objects.first()
         form = TransformOptionForm(request.GET or None, initial=initial)
+        formset = TransformParamFormSet(request.GET or None, initial=pinitial)
     elif request.method == 'POST':
         form = TransformOptionForm(request.POST)
+        formset = TransformParamFormSet(request.POST)
 
-        if form.is_valid():
-            options, _ = TransformOption.objects.get_or_create(transform = form.cleaned_data['transform'])
+        if form.is_valid() and formset.is_valid():
+            options = TransformOption.objects.create(transform = form.cleaned_data['transform'])
+            for f in formset:
+                if 'value' in f.cleaned_data and 'parameter' in f.cleaned_data:
+                    parameter = f.cleaned_data.get('parameter')
+                    value = f.cleaned_data.get('value')
+                    try:
+                        connection = TransformParameterValue()
+                        connection.option = options
+                        pk = f.cleaned_data.get('parameter').id
+                        connection.parameter = TransformParameter.objects.get(pk=pk)
+                        connection.value = f.cleaned_data['value']
+                        connection.save()
+                    except:
+                        pass
+
             create_transform = ProjectTransformer.objects.create(
                 src_selector=selector,
                 src_transformer=transform,
@@ -421,6 +443,8 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
 
     return render(request, 'website/transforms/create.html', {
         'form': form,
+        'formset': formset,
+        'lastform': 'form-' + str(len(formset.forms) - 1),
         'src_selector': selector.slug if selector else None,
         'src_transform': transform.slug if transform else None,
         'parent': parent,
@@ -474,6 +498,20 @@ def api_filter_detail(request):
             'val_type': pfilter.flter.val_type,
             'default': pfilter.flter.default_val,
             'help_text': pfilter.flter.help_text,
+        })
+    except:
+        raise Http404
+
+def api_transform_param(request):
+    try:
+        val = int(request.GET.get('id', 0))
+        param = TransformParameter.objects.get(pk=val)
+        return JsonResponse({
+            'id': val,
+            'name': param.name,
+            'val_type': param.val_type,
+            'default': param.default_val,
+            'help_text': param.help_text,
         })
     except:
         raise Http404

@@ -1,6 +1,4 @@
-from django.core.management import call_command
 from backend.management.base.BackendCommand import BackendCommand
-
 from website.models import BackendFilter, Filter, Transform
 
 

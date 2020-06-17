@@ -1,14 +1,12 @@
 import time
 
+from boaapi.boa_client import BoaClient
 from decouple import config
 
-from boaapi.boa_client import BoaClient
-
-from backend.discoveryrunner import DiscoveryRunner
-from website.choices import *
+import backend
 
 
-class DiscoveryRunner(DiscoveryRunner):
+class DiscoveryRunner(discoveryrunner.DiscoveryRunner):
     template_start = """o: output collection of string;
 
 filtered := true;
@@ -30,15 +28,15 @@ visit(input, visitor {
     o << input.project_url;"""
 
     def translate_filter(self, filtr):
-        s = "if (!filtered) {\n";
+        s = 'if (!filtered) {\n'
 
         #
         if filtr.pfilter.flter.name == 'Minimum number of commits':
-            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n"
+            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n'
 
         #
         elif filtr.pfilter.flter.name == 'Maximum number of commits':
-            s += "    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n"
+            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n'
 
         #
         elif filtr.pfilter.flter.name == 'Minimum number of source files':
@@ -79,8 +77,11 @@ visit(input, visitor {
     if (len(max_committers) > """ + str(filtr.value) + """)
         filtered = true;
 """
+        # failsafe
+        else:
+            return ''
 
-        return s + "}\n\n"
+        return s + '}\n\n'
 
     def build_query(self, flters):
         query = '# PAClab project selection\n' + self.template_start
@@ -92,7 +93,7 @@ visit(input, visitor {
         if self.verbosity >= 1:
             print('        -> boa backend processing: ' + self.selector.slug)
 
-        query = self.build_query(self.filters())
+        query = self.build_query(self.all_filters())
         if self.verbosity >= 3:
             print(query)
 
@@ -122,9 +123,6 @@ visit(input, visitor {
                     self.discovered_project(line[6:])
             except:
                 pass
-
-            for f in self.filters():
-                self.filter_done(f)
 
             self.done()
 

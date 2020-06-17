@@ -1,15 +1,12 @@
-import importlib
-import multiprocessing
+import socket
 import time
 import traceback
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
-
-from website.choices import *
-from website.models import ProjectSelector, ProjectSnapshot, Selection
 from django.utils import timezone
-import socket
+
+from website.choices import PROCESSED
+from website.models import FilterDetail, Selection
 
 
 '''Run Filter Poller
@@ -22,8 +19,7 @@ class Command(BaseCommand):
     POLL_INTERVAL = 3
 
     def add_arguments(self, parser):
-        parser.add_argument('slug', nargs='*', help='Specific project selection slug(s) to process', type=str)
-        parser.add_argument('--debug', help='Debug filtering specific slug(s) (implies --dry-run --no-poll -v 3)', action='store_true')
+        parser.add_argument('--debug', help='Debug filtering (implies --dry-run --no-poll -v 3)', action='store_true')
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
 
@@ -33,56 +29,73 @@ class Command(BaseCommand):
         self.no_poll = options['no_poll'] or self.debug
         self.verbosity = 3 if self.debug else options['verbosity']
 
-        if self.debug and len(options['slug']) == 0:
-            self.stderr.write('--debug requires providing a slug')
-            exit(-1)
+        self.host = socket.gethostname()
 
-        for slug in options['slug']:
-            try:
-                self.process_selector(ProjectSelector.objects.get(slug=slug))
-            except ProjectSelector.DoesNotExist:
-                self.stdout.write('invalid slug: ' + slug)
-            except:
-                self.stdout.write('error processing: ' + slug)
-                traceback.print_exc()
+        while True:
+            selection = Selection.objects.filter(retained__isnull=True).filter(snapshot__host=self.host).first()
+            if selection:
+                try:
+                    self.process_selection(selection)
+                except:
+                    self.stdout.write('error processing: ' + str(selection))
+                    traceback.print_exc()
 
-        if len(options['slug']) == 0:
-            while True:
-                selector = ProjectSelector.objects.filter(enabled=True, status=READY).first()
-                if selector:
-                    try:
-                        self.process_selector(selector)
-                    except:
-                        self.stdout.write('error processing: ' + selector.slug)
-                        traceback.print_exc()
+            if self.no_poll:
+                break
+            time.sleep(self.POLL_INTERVAL)
 
-                if self.no_poll:
-                    break
-                time.sleep(self.POLL_INTERVAL)
+    def process_selection(self, selection):
+        self.stdout.write('processing Selection: ' + str(selection))
 
-    def process_selector(self, selector):
-        self.stdout.write('processing ProjectSelection: ' + selector.slug)
-        if not self.dry_run:
-            selector.status = ONGOING
-            selector.save()
+        if selection.snapshot.path and self.test_repo(selection):
+            self.retained_selection(selection)
+        else:
+            self.filtered_selection(selection)
 
-        for snapshot in Selection.objects.filter(project=selector,host=socket.gethostname()).exclude(path__isnull=True):
-            if self.test_repo(snapshot.path):
-                self.retained_selection(snapshot)
-            else:
-                self.filtered_selection(snapshot)
+        if not Selection.objects.filter(project_selector=selection.project_selector).filter(retained__isnull=True).exists():
+            if self.verbosity >= 3:
+                self.stdout.write("-> ProjectSelector finished: " + str(selection.project_selector))
 
-        if not selector.filterdetail_set.exclude(status=PROCESSED).exists():
-            self.selector.status = PROCESSED
-            self.selector.fin_process = timezone.now()
-            self.selector.save()
+            if not self.dry_run:
+                selection.project_selector.status = PROCESSED
+                selection.project_selector.fin_process = timezone.now()
+                selection.project_selector.save()
 
-    def test_repo(self, path):
+    def test_repo(self, selection):
+        project_selector = selection.project_selector
+        snapshot = selection.snapshot
+
+        for f in FilterDetail.objects.filter(project_selector=project_selector).all():
+            value = f.value
+            filter = f.pfilter.flter.name
+            if filter == "Minimum number of commits":
+                if not snapshot.commits or snapshot.commits < int(value):
+                    return False
+            elif filter == "Maximum number of commits":
+                if not snapshot.commits or snapshot.commits > int(value):
+                    return False
+            elif filter == "Minimum number of source files":
+                if not snapshot.src_files or snapshot.src_files < int(value):
+                    return False
+            elif filter == "Maximum number of source files":
+                if not snapshot.src_files or snapshot.src_files > int(value):
+                    return False
+            elif filter == "Minimum number of committers":
+                if not snapshot.committers or snapshot.committers < int(value):
+                    return False
+            elif filter == "Maximum number of committers":
+                if not snapshot.committers or snapshot.committers > int(value):
+                    return False
+            elif filter == "Minimum number of stars":
+                pass
+            elif filter == "Maximum number of stars":
+                pass
+
         return True
 
     def retained_selection(self, selection):
         if self.verbosity >= 3:
-            print("-> retained project: " + selection.snapshot.project.url)
+            self.stdout.write("-> retained snapshot: " + str(selection.snapshot))
         if self.dry_run:
             return
 
@@ -91,7 +104,7 @@ class Command(BaseCommand):
 
     def filtered_selection(self, selection):
         if self.verbosity >= 3:
-            print("-> filtered project: " + selection.snapshot.project.url)
+            self.stdout.write("-> filtered snapshot: " + str(selection.snapshot))
         if self.dry_run:
             return
 

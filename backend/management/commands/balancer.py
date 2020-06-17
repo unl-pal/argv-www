@@ -1,7 +1,7 @@
 import shutil
 import time
 from os import listdir, makedirs
-from os.path import abspath, isdir, join
+from os.path import isdir, join
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
