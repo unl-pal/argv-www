@@ -1,5 +1,4 @@
 {% extends 'website/base.html' %}
-{% load calc_finished_projects %}
 {% load humanize %}
 {% block title %}Project Transforms{% endblock %}
 {% block listtransformsactive %}active{% endblock %}
@@ -49,8 +48,7 @@
                                 {% if not transformer.isDone %}
                                     <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
                                 {% else %}
-                                    {% calc_finished_transformedprojects transformer as finished_count %}
-                                    {{ finished_count|intcomma }}
+                                    {{ transformer.transformed_projects|length|intcomma }}
                                 {% endif %}
                             </td>
                             <td>
