@@ -17,7 +17,7 @@ def calc_remaining_projects(selector):
 
 @register.simple_tag(name='calc_retained_projects')
 def calc_retained_projects(selector):
-    return ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained=True).count()
+    return selector.project_count()
 
 @register.simple_tag(name='calc_finished_percent')
 def calc_finished_percent(done, remain):
