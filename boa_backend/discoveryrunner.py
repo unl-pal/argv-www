@@ -3,10 +3,10 @@ import time
 from boaapi.boa_client import BoaClient
 from decouple import config
 
-import backend
+from backend.discoveryrunner import DiscoveryRunner as DR
 
 
-class DiscoveryRunner(discoveryrunner.DiscoveryRunner):
+class DiscoveryRunner(DR):
     template_start = """o: output collection of string;
 
 filtered := true;

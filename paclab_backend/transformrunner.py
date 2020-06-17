@@ -6,7 +6,7 @@ import traceback
 
 from decouple import config
 
-from backend.transformrunner import TransformRunner
+from backend.transformrunner import TransformRunner as TR
 from website.models import TransformedProject, TransformParameterValue
 
 
@@ -25,7 +25,7 @@ Storage Layout
         /TransformOption.pk
             ...
 """
-class TransformRunner(TransformRunner):
+class TransformRunner(TR):
     def run(self):
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
         self.config_path = os.path.join(tempfile.gettempdir(), 'paclab-' + str(self.transformed_project.pk) + '-config.properties')
