@@ -27,11 +27,17 @@ class Command(BaseCommand):
         parser.add_argument('url', nargs='*', help='Clone specific URL(s)', type=str)
         parser.add_argument('--dry-run', help='Perform a dry-run (don\'t change the database or disk)', action='store_true')
         parser.add_argument('--no-poll', help='Perform one round of processing instead of polling', action='store_true')
+        parser.add_argument('--no-unpack', help='After cloning, don\'t unpack object files', action='store_true')
+        parser.add_argument('--no-filter', help='After cloning, don\'t run filter-repo', action='store_true')
+        parser.add_argument('--shallow', help='Clone shallow repos only', action='store_true')
 
     def handle(self, *args, **options):
         self.dry_run = options['dry_run']
         self.no_poll = options['no_poll']
         self.verbosity = options['verbosity']
+        self.no_unpack = options['no_unpack']
+        self.no_filter = options['no_filter']
+        self.shallow = options['shallow']
 
         if not os.path.exists(getattr(settings, 'REPO_PATH')):
             self.stderr.write('repository storage path does not exist: ' + getattr(settings, 'REPO_PATH'))
@@ -132,12 +138,16 @@ class Command(BaseCommand):
 
         # get all remote objects
         self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
-        p = self.run_command(['git', 'fetch'], src_dir)
+        if self.shallow:
+            p = self.run_command(['git', 'fetch', '--depth', '1'], src_dir)
+        else:
+            p = self.run_command(['git', 'fetch'], src_dir)
 
         if p.returncode == 0:
             # filter out unwanted objects
-            self.run_command(['git', 'filter-repo', '--path-regex', '^.*/*\\.java$'], src_dir)
-            self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
+            if not self.no_filter:
+                self.run_command(['git', 'filter-repo', '--path-regex', '^.*/*\\.java$'], src_dir)
+                self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
 
             # unpack object files
             self.unpack_git(git_dir)
@@ -177,6 +187,9 @@ class Command(BaseCommand):
 
     """unpack all Git object files"""
     def unpack_git(self, git_dir):
+        if self.no_unpack:
+            return
+
         if os.path.exists(os.path.join(git_dir, 'objects/pack')):
             packdir = os.path.join(git_dir, 'pack')
             shutil.move(os.path.join(git_dir, 'objects/pack'), packdir)
