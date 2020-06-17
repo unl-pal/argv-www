@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from website.models import Project, TransformedProject
+import traceback
 
 
 '''Run backend disk balancer
@@ -44,6 +45,7 @@ class Command(BaseCommand):
                     self.move_project(Project.objects.filter(host=host).exclude(path__isnull=True).first(), self.get_dest_node())
                 except:
                     self.stderr.write('failed moving project')
+                    traceback.print_exc()
 
             if self.no_poll:
                 break
