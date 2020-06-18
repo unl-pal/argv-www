@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+from multiprocessing import Process
 
 from django.conf import settings
 from django.contrib import messages
@@ -20,6 +21,10 @@ from django.utils.safestring import mark_safe
 from django.views.generic import ListView, View
 from PIL import Image
 
+from website.forms import TransformParamFormSet
+from website.models import (ProjectSnapshot, TransformParameter,
+                            TransformParameterValue)
+
 from .choices import *
 from .decorators import email_required, email_verify_warning, ghtoken_required
 from .forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
@@ -28,11 +33,10 @@ from .forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
                     UserForm, UserLoginForm, UserPasswordForm,
                     UserRegisterForm)
 from .mixins import EmailRequiredMixin
-from .models import (Dataset, BackendFilter, FilterDetail, Paper, ProjectSelector,
-                     ProjectTransformer, Transform, TransformOption)
+from .models import (BackendFilter, Dataset, FilterDetail, Paper,
+                     ProjectSelector, ProjectTransformer, Transform,
+                     TransformOption)
 from .tokens import email_verify_token
-from website.models import ProjectSnapshot, TransformParameter, TransformParameterValue
-from website.forms import TransformParamFormSet
 
 
 class PapersView(ListView):
@@ -536,9 +540,9 @@ def download_selection_size(slug):
     zipfile_path = os.path.join(download_path, slug + '.zip')
     tmpdir = os.path.join(download_path, slug + '.tmp')
 
+    if os.path.exists(tmpdir):
+        return 0
     if not os.path.exists(zipfile_path):
-        if os.path.exists(tmpdir):
-            return 0
         return -1
     return os.stat(zipfile_path).st_size
 
@@ -548,10 +552,10 @@ def download_selection(request, slug):
     zipfile_path = os.path.join(download_path, download_filename)
     tmpdir = os.path.join(download_path, slug + '.tmp')
 
-    if not os.path.exists(zipfile_path):
-        if os.path.exists(tmpdir):
-            return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
+    if os.path.exists(tmpdir):
+        return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
 
+    if not os.path.exists(zipfile_path):
         paths = {}
 
         try:
@@ -569,21 +573,10 @@ def download_selection(request, slug):
 
         if not os.path.exists(download_path):
             os.mkdir(download_path, 0o755)
-        os.mkdir(tmpdir, 0o755)
 
-        repo_path = getattr(settings, 'REPO_PATH')
+        Process(target=generate_zip, args=(paths, tmpdir, zipfile_path, getattr(settings, 'REPO_PATH'))).start()
 
-        for host in paths:
-            s = ''
-            for path in paths[host]:
-                s = s + path + '\n'
-            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(repo_path, host), stdin=subprocess.PIPE)
-            p.communicate(input=str.encode(s))
-            p.stdin.close()
-            p.wait()
-
-        if os.path.exists(tmpdir):
-            shutil.rmtree(tmpdir)
+        return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
 
     return redirect(settings.MEDIA_URL + '/downloads/selection/' + download_filename)
 
@@ -592,9 +585,9 @@ def download_transform_size(slug):
     zipfile_path = os.path.join(download_path, slug + '.zip')
     tmpdir = os.path.join(download_path, slug + '.tmp')
 
+    if os.path.exists(tmpdir):
+        return 0
     if not os.path.exists(zipfile_path):
-        if os.path.exists(tmpdir):
-            return 0
         return -1
     return os.stat(zipfile_path).st_size
 
@@ -604,10 +597,10 @@ def download_transform(request, slug):
     zipfile_path = os.path.join(download_path, download_filename)
     tmpdir = os.path.join(download_path, slug + '.tmp')
 
-    if not os.path.exists(zipfile_path):
-        if os.path.exists(tmpdir):
-            return redirect(reverse_lazy('website:transform_detail', args=(slug,)))
+    if os.path.exists(tmpdir):
+        return redirect(reverse_lazy('website:transform_detail', args=(slug,)))
 
+    if not os.path.exists(zipfile_path):
         paths = {}
 
         try:
@@ -624,20 +617,26 @@ def download_transform(request, slug):
 
         if not os.path.exists(download_path):
             os.mkdir(download_path, 0o755)
-        os.mkdir(tmpdir, 0o755)
 
-        transformed_path = getattr(settings, 'TRANSFORMED_PATH')
+        Process(target=generate_zip, args=(paths, tmpdir, zipfile_path, getattr(settings, 'TRANSFORMED_PATH'))).start()
 
-        for host in paths:
-            s = ''
-            for path in paths[host]:
-                s = s + path + '\n'
-            p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path], cwd=os.path.join(transformed_path, host), stdin=subprocess.PIPE)
-            p.communicate(input=str.encode(s))
-            p.stdin.close()
-            p.wait()
-
-        if os.path.exists(tmpdir):
-            shutil.rmtree(tmpdir)
+        return redirect(reverse_lazy('website:transform_detail', args=(slug,)))
 
     return redirect(settings.MEDIA_URL + '/downloads/transform/' + download_filename)
+
+def generate_zip(in_paths, tmpdir, zipfile_path, cwd):
+    os.mkdir(tmpdir, 0o755)
+
+    for host in in_paths:
+        s = ''
+        for path in in_paths[host]:
+            s = s + path + '\n'
+        p = subprocess.Popen(['zip', '-r', '-g', '-@', '-b', tmpdir, zipfile_path],
+                                cwd=os.path.join(cwd, host),
+                                stdin=subprocess.PIPE)
+        p.communicate(input=str.encode(s))
+        p.stdin.close()
+        p.wait()
+
+    if os.path.exists(tmpdir):
+        shutil.rmtree(tmpdir)
