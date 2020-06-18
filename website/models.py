@@ -276,10 +276,19 @@ class TransformOption(models.Model):
     def __str__(self):
         return self.transform.name
 
+    def param_dict(self):
+        d = {}
+        for p in self.parameters.all():
+            d[p.name] = p.value.first().value
+        return d
+
 class TransformParameterValue(models.Model):
     parameter = models.ForeignKey(TransformParameter, on_delete=models.CASCADE, related_name='value')
     option = models.ForeignKey(TransformOption, on_delete=models.CASCADE)
     value = models.TextField(max_length=1000, default='1')
+
+    def __str__(self):
+        return parameter.name + ': ' + self.value
 
 class TransformedProject(models.Model):
     host = models.CharField(max_length=255)

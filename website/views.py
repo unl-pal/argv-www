@@ -418,17 +418,28 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
         formset = TransformParamFormSet(request.POST)
 
         if form.is_valid() and formset.is_valid():
-            options = TransformOption.objects.create(transform = form.cleaned_data['transform'])
+            params = {}
             for f in formset:
                 if 'value' in f.cleaned_data and 'parameter' in f.cleaned_data:
-                    parameter = f.cleaned_data.get('parameter')
-                    value = f.cleaned_data.get('value')
+                    params[f.cleaned_data.get('parameter').name] = f.cleaned_data.get('value')
+
+            from django.db.models import Count
+            options = None
+            for o in TransformOption.objects.annotate(params=Count("parameters")).filter(transform = form.cleaned_data['transform']).filter(params=len(params)):
+                d = o.param_dict()
+                if d == params:
+                    options = o
+                    break
+
+            if not options:
+                options = TransformOption.objects.create(transform = form.cleaned_data['transform'])
+                for p in params.items():
                     try:
                         connection = TransformParameterValue()
                         connection.option = options
-                        pk = f.cleaned_data.get('parameter').id
+                        pk = p[0].id
                         connection.parameter = TransformParameter.objects.get(pk=pk)
-                        connection.value = f.cleaned_data['value']
+                        connection.value = p[1]
                         connection.save()
                     except:
                         pass
