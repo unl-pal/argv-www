@@ -8,7 +8,6 @@ from decouple import config
 
 from backend.transformrunner import TransformRunner as TR
 from website.models import TransformedProject, TransformParameterValue
-from subprocess import TimeoutExpired
 
 
 """
@@ -82,7 +81,17 @@ class TransformRunner(TR):
         path = os.path.join('transform' if istransform else 'selector', str(project.pk), str(self.transform.pk))
         out_path = os.path.join(self.transformed_path, path)
 
-        if os.path.exists(out_path):
+        exists = True
+
+        if istransform:
+            exists = TransformedProject.objects.filter(transform=self.transform, src_transform=project).exists()
+        else:
+            exists = TransformedProject.objects.filter(transform=self.transform, src_project=project).exists()
+
+        if not os.path.exists(out_path):
+            exists = False
+
+        if exists:
             print('    -> SKIPPING: already exists: ' + project_name)
             self.finish_project(project, istransform, out_path)
             return
@@ -90,21 +99,24 @@ class TransformRunner(TR):
         if os.path.exists(tmp_path):
             shutil.rmtree(tmp_path)
 
-        print(['./run.sh', in_path, tmp_path, out_path])
-        proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
-            cwd=self.transformer_path,
-            stdout=subprocess.PIPE if self.verbosity >= 2 else None,
-            stderr=subprocess.PIPE if self.verbosity >= 2 else None)
         if self.verbosity >= 2:
-            print('    -> process id: ' + str(proc.pid))
-        try:
-            proc.wait(5 * 60)
+            print(['./run.sh', in_path, tmp_path, out_path])
+        proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
+                                cwd=self.transformer_path,
+                                stdout=subprocess.PIPE if self.verbosity >= 2 else None,
+                                stderr=subprocess.PIPE if self.verbosity >= 2 else None)
 
-            if proc.returncode == 0:
-                self.finish_project(project, istransform, path)
-            else:
-                self.finish_project(project, istransform)
-        except TimeoutExpired:
+        try:
+            if self.verbosity >= 3:
+                print('    -> process id: ' + str(proc.pid))
+            proc.wait(5 * 60)
+        except subprocess.TimeoutExpired:
+            pass
+
+        if proc.returncode == 0:
+            self.finish_project(project, istransform, path)
+        else:
+            os.makedirs(out_path, 0o755, True)
             self.finish_project(project, istransform)
 
         if os.path.exists(tmp_path):
