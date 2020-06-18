@@ -230,7 +230,7 @@ class Command(BaseCommand):
     def run_command(self, args, cwd):
         p = subprocess.Popen(args,
                              cwd=cwd,
-                             stdout=subprocess.PIPE if self.verbosity >= 3 else None,
-                             stderr=subprocess.PIPE if self.verbosity >= 3 else None)
+                             stdout=subprocess.PIPE if self.verbosity < 3 else None,
+                             stderr=subprocess.PIPE if self.verbosity < 3 else None)
         p.wait()
         return p
