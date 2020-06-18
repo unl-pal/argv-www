@@ -8,6 +8,7 @@ from decouple import config
 
 from backend.transformrunner import TransformRunner as TR
 from website.models import TransformedProject, TransformParameterValue
+from subprocess import TimeoutExpired
 
 
 """
@@ -96,11 +97,14 @@ class TransformRunner(TR):
             stderr=subprocess.PIPE if self.verbosity >= 2 else None)
         if self.verbosity >= 2:
             print('    -> process id: ' + str(proc.pid))
-        proc.wait()
+        try:
+            proc.wait(5 * 60)
 
-        if proc.returncode == 0:
-            self.finish_project(project, istransform, path)
-        else:
+            if proc.returncode == 0:
+                self.finish_project(project, istransform, path)
+            else:
+                self.finish_project(project, istransform)
+        except TimeoutExpired:
             self.finish_project(project, istransform)
 
         if os.path.exists(tmp_path):
