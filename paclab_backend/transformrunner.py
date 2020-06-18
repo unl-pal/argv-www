@@ -93,7 +93,7 @@ class TransformRunner(TR):
 
         if exists:
             print('    -> SKIPPING: already exists: ' + project_name)
-            self.finish_project(project, istransform, out_path)
+            self.finish_project(project, istransform, path)
             return
 
         if os.path.exists(tmp_path):
