@@ -146,7 +146,7 @@ class Command(BaseCommand):
         if p.returncode == 0:
             # filter out unwanted objects
             if not self.no_filter:
-                self.run_command(['git', 'filter-repo', '--path-regex', '^.*/*\\.java$'], src_dir)
+                self.run_command(['git', 'filter-repo', '--path-regex', '[^/]+\\.java$'], src_dir)
                 self.run_command(['git', 'remote', 'add', 'origin', 'https://foo:bar@' + host + '/' + project_name], src_dir)
 
             # unpack object files
