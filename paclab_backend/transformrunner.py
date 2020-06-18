@@ -99,6 +99,9 @@ class TransformRunner(TR):
         if os.path.exists(tmp_path):
             shutil.rmtree(tmp_path)
 
+        if self.dry_run:
+            out_path = os.path.join(out_path, '2')
+
         if self.verbosity >= 2:
             print(['./run.sh', in_path, tmp_path, out_path])
         proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
@@ -111,13 +114,16 @@ class TransformRunner(TR):
                 print('    -> process id: ' + str(proc.pid))
             proc.wait(5 * 60)
         except subprocess.TimeoutExpired:
+            if self.verbosity >= 2:
+                print('    -> process timed out: ' + str(proc.pid))
             pass
 
         if proc.returncode == 0:
             self.finish_project(project, istransform, path)
         else:
-            os.makedirs(out_path, 0o755, True)
             self.finish_project(project, istransform)
 
         if os.path.exists(tmp_path):
             shutil.rmtree(tmp_path)
+        if self.dry_run and os.path.exists(out_path):
+            shutil.rmtree(out_path)
