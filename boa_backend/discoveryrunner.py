@@ -44,9 +44,9 @@ visit(input, visitor {
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
             min_file_count = min_file_count + 1;
-    if (min_file_count < """ + str(filtr.value) + """)
+    if (min_file_count < {})
         filtered = true;
-"""
+""".format(filtr.value)
 
         #
         elif filtr.pfilter.flter.name == 'Maximum number of source files':
@@ -54,29 +54,29 @@ visit(input, visitor {
     foreach (i: int; def(snapshot[i]))
         if (iskind("SOURCE_", snapshot[i].kind))
             max_file_count = max_file_count + 1;
-    if (max_file_count > """ + str(filtr.value) + """)
+    if (max_file_count > {})
         filtered = true;
-"""
+""".format(filtr.value)
 
         #
         elif filtr.pfilter.flter.name == 'Minimum number of committers':
             s += """    min_committers: set of string;
-    visit(input, visitor {
+    visit(input, visitor {{
         before n: Revision -> add(min_committers, n.committer.username);
-    });
-    if (len(min_committers) < """ + str(filtr.value) + """)
+    }});
+    if (len(min_committers) < {})
         filtered = true;
-"""
+""".format(filtr.value)
 
         #
         elif filtr.pfilter.flter.name == 'Maximum number of committers':
             s += """    max_committers: set of string;
-    visit(input, visitor {
+    visit(input, visitor {{
         before n: Revision -> add(max_committers, n.committer.username);
-    });
-    if (len(max_committers) > """ + str(filtr.value) + """)
+    }});
+    if (len(max_committers) > {})
         filtered = true;
-"""
+""".format(filtr.value)
         # failsafe
         else:
             return ''
