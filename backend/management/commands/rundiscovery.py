@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                selector = ProjectSelector.objects.select_for_update(nowait=True).get(slug=slug)
+                selector = ProjectSelector.objects.select_for_update(skip_locked=True).get(slug=slug)
                 with transaction.atomic():
                     if not self.dry_run:
                         selector.status = ONGOING
@@ -55,7 +55,7 @@ class Command(BaseCommand):
         if len(options['slug']) == 0:
             while True:
                 try:
-                    selector = ProjectSelector.objects.select_for_update(nowait=True).filter(enabled=True, status=READY).first()
+                    selector = ProjectSelector.objects.select_for_update(skip_locked=True).filter(enabled=True, status=READY).first()
                     with transaction.atomic():
                         if selector:
                             if not self.dry_run:
