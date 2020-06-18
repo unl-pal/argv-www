@@ -32,7 +32,7 @@ class TransformRunner(TR):
         print(self.config_path)
         self.generate_config()
 
-        for project in self.projects():
+        for project in self.remaining_projects():
             try:
                 self.transform_project(project, isinstance(project, TransformedProject))
             except:

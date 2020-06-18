@@ -20,8 +20,7 @@ class TransformRunner:
         self.transformed_path = getattr(settings, 'TRANSFORMED_PATH')
 
     def done(self):
-        # TODO only mark done if everything processed?
-        if not self.dry_run:
+        if not self.dry_run and not self.all_remaining_projects().exists():
             self.transformed_project.status = PROCESSED
             self.transformed_project.datetime_processed = timezone.now()
             self.transformed_project.save()
@@ -33,6 +32,20 @@ class TransformRunner:
 
     def projects(self):
         return self.all_projects().filter(host=self.host)
+
+    def all_finished_projects(self):
+        if self.transformed_project.src_selector:
+            return self.transformed_project.transformed_projects.select_related('src_project__pk')
+        return self.transformed_project.transformed_projects.select_related('src_transformer__pk')
+
+    def finished_projects(self):
+        return self.all_finished_projects().filter(host=self.host)
+
+    def all_remaining_projects(self):
+        return self.all_projects().exclude(pk__in=self.all_finished_projects())
+
+    def remaining_projects(self):
+        return self.projects().exclude(pk__in=self.finished_projects())
 
     def debug(self):
         self.run()

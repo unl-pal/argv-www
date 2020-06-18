@@ -325,6 +325,11 @@ class ProjectTransformer(models.Model):
         slug = slug.replace('-','')
         return slug
 
+    def input_projects(self):
+        if self.src_selector:
+            return self.src_selector.result_projects()
+        return self.src_transformer.result_projects()
+
     def input_project_count(self):
         if self.src_selector:
             return self.src_selector.project_count()

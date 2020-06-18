@@ -4,7 +4,7 @@ import traceback
 
 from django.core.management.base import BaseCommand
 
-from website.choices import ONGOING, READY
+from website.choices import ONGOING, PROCESSED
 from website.models import ProjectTransformer
 
 
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
         if len(options['slug']) == 0:
             while True:
-                transform = ProjectTransformer.objects.filter(enabled=True, status=READY).first()
+                transform = ProjectTransformer.objects.filter(enabled=True).exclude(status=PROCESSED).first()
                 if transform:
                     self.process_transform(transform)
 
