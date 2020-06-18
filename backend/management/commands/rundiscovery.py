@@ -3,6 +3,7 @@ import time
 import traceback
 
 from django.core.management.base import BaseCommand
+from django.db import DatabaseError, IntegrityError, transaction
 
 from website.choices import ONGOING, READY
 from website.models import ProjectSelector
@@ -35,7 +36,16 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                self.process_selection(ProjectSelector.objects.get(slug=slug))
+                selector = ProjectSelector.objects.select_for_update(nowait=True).get(slug=slug)
+                with transaction.atomic():
+                    if not self.dry_run:
+                        selector.status = ONGOING
+                        selector.save(update_fields=['status'])
+                self.process_selection(selector)
+            except IntegrityError:
+                pass
+            except DatabaseError:
+                pass
             except ProjectSelector.DoesNotExist:
                 self.stdout.write('invalid slug: ' + slug)
             except:
@@ -44,13 +54,22 @@ class Command(BaseCommand):
 
         if len(options['slug']) == 0:
             while True:
-                selector = ProjectSelector.objects.filter(enabled=True, status=READY).first()
-                if selector:
-                    try:
+                try:
+                    selector = ProjectSelector.objects.select_for_update(nowait=True).filter(enabled=True, status=READY).first()
+                    with transaction.atomic():
+                        if selector:
+                            if not self.dry_run:
+                                selector.status = ONGOING
+                                selector.save(update_fields=['status'])
+                    if selector:
                         self.process_selection(selector)
-                    except:
-                        self.stdout.write('error processing: ' + selector.slug)
-                        traceback.print_exc()
+                except IntegrityError:
+                    pass
+                except DatabaseError:
+                    pass
+                except:
+                    self.stdout.write('error processing: ' + selector.slug)
+                    traceback.print_exc()
 
                 if self.no_poll:
                     break
@@ -58,9 +77,6 @@ class Command(BaseCommand):
 
     def process_selection(self, selector):
         self.stdout.write('processing ProjectSelection: ' + selector.slug)
-        if not self.dry_run:
-            selector.status = ONGOING
-            selector.save()
 
         filters = selector.filterdetail_set.exclude(pfilter__enabled=False)
         backends = set()
