@@ -59,7 +59,7 @@ class Command(BaseCommand):
             if not self.dry_run:
                 selection.project_selector.status = PROCESSED
                 selection.project_selector.fin_process = timezone.now()
-                selection.project_selector.save()
+                selection.project_selector.save(update_fields=['status', 'fin_process', ])
 
     def test_repo(self, selection):
         project_selector = selection.project_selector

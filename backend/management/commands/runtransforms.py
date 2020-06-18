@@ -49,7 +49,7 @@ class Command(BaseCommand):
         self.stdout.write('processing ProjectTransformer: ' + transform.slug)
         if not self.dry_run:
             transform.status = ONGOING
-            transform.save()
+            transform.save(update_fields=['status', ])
 
         options = transform.transform
 

@@ -26,26 +26,28 @@ class TransformRunner:
             self.transformed_project.save()
 
     def all_projects(self):
-        if self.transformed_project.src_selector:
-            return self.transformed_project.src_selector.result_projects()
-        return self.transformed_project.src_transformer.result_projects()
+        return self.transformed_project.input_projects()
 
     def projects(self):
         return self.all_projects().filter(host=self.host)
 
     def all_finished_projects(self):
         if self.transformed_project.src_selector:
-            return self.transformed_project.transformed_projects.select_related('src_project__pk')
-        return self.transformed_project.transformed_projects.select_related('src_transformer__pk')
+            return self.transformed_project.transformed_projects.select_related('src_project')
+        return self.transformed_project.transformed_projects.select_related('src_transformer')
 
     def finished_projects(self):
         return self.all_finished_projects().filter(host=self.host)
 
     def all_remaining_projects(self):
-        return self.all_projects().exclude(pk__in=self.all_finished_projects())
+        if self.transformed_project.src_selector:
+            return self.all_projects().exclude(pk__in=self.all_finished_projects().values_list('src_project__pk', flat=True))
+        return self.all_projects().exclude(pk__in=self.all_finished_projects().values_list('src_transformer__pk', flat=True))
 
     def remaining_projects(self):
-        return self.projects().exclude(pk__in=self.finished_projects())
+        if self.transformed_project.src_selector:
+            return self.projects().exclude(pk__in=self.finished_projects().values_list('src_project__pk', flat=True))
+        return self.projects().exclude(pk__in=self.finished_projects().values_list('src_transformer__pk', flat=True))
 
     def debug(self):
         self.run()

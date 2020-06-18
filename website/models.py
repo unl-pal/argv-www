@@ -336,10 +336,16 @@ class ProjectTransformer(models.Model):
         return self.src_transformer.project_count()
 
     def project_count(self):
-        return self.result_projects().count()
+        return self.transformed_projects.count()
+
+    def remaining_count(self):
+        return self.input_project_count() - self.project_count()
 
     def result_projects(self):
-        return self.transformed_projects.filter(path__isnull=False)
+        return self.transformed_projects.filter(path__isnull=False).exclude(path='')
+
+    def retained_count(self):
+        return self.result_projects().count()
 
     def isDone(self):
         return self.enabled and self.status == PROCESSED

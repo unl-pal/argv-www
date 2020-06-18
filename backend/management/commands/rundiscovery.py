@@ -40,7 +40,7 @@ class Command(BaseCommand):
                 with transaction.atomic():
                     if not self.dry_run:
                         selector.status = ONGOING
-                        selector.save(update_fields=['status'])
+                        selector.save(update_fields=['status', ])
                 self.process_selection(selector)
             except IntegrityError:
                 pass
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                         if selector:
                             if not self.dry_run:
                                 selector.status = ONGOING
-                                selector.save(update_fields=['status'])
+                                selector.save(update_fields=['status', ])
                     if selector:
                         self.process_selection(selector)
                 except IntegrityError:
