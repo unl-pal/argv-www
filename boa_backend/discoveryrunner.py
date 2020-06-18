@@ -32,11 +32,15 @@ visit(input, visitor {
 
         #
         if filtr.pfilter.flter.name == 'Minimum number of commits':
-            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < " + str(filtr.value) + ")\n" + "        filtered = true;\n'
+            s += """    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) < {})
+        filtered = true;
+""".format(filtr.value)
 
         #
         elif filtr.pfilter.flter.name == 'Maximum number of commits':
-            s += '    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > " + str(filtr.value) + ")\n" + "        filtered = true;\n'
+            s += """    if (len(input.code_repositories) < 1 || len(input.code_repositories[0].revisions) > {})
+        filtered = true;
+""".format(filtr.value)
 
         #
         elif filtr.pfilter.flter.name == 'Minimum number of source files':
