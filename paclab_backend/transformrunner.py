@@ -28,8 +28,8 @@ Storage Layout
 class TransformRunner(TR):
     def run(self):
         self.transformer_path = config('PACLAB_TRANSFORM_PATH')
-        self.config_path = os.path.join(tempfile.gettempdir(), 'paclab-' + str(self.transformed_project.pk) + '-config.properties')
-        print(self.config_path)
+        self.config_path = os.path.join(tempfile.gettempdir(), 'paclab-' + str(self.transformed_project.pk))
+        print('config path:', self.config_path)
         self.generate_config()
 
         for project in self.remaining_projects():
@@ -40,7 +40,7 @@ class TransformRunner(TR):
                 traceback.print_exc()
 
         if os.path.exists(self.config_path):
-            os.remove(self.config_path)
+            shutil.rmtree(self.config_path)
 
         self.done()
 
@@ -63,7 +63,10 @@ class TransformRunner(TR):
         for p in TransformParameterValue.objects.filter(option=self.transformed_project.transform):
             props[p.parameter.name] = p.value
 
-        with open(self.config_path, 'w') as config:
+        if not os.path.exists(self.config_path):
+            os.makedirs(self.config_path, 0o755, True)
+
+        with open(os.path.join(self.config_path, 'config.properties'), 'w') as config:
             for p in props.items():
                 config.write(p[0] + '=' + p[1] + '\n')
 
@@ -104,7 +107,7 @@ class TransformRunner(TR):
 
         if self.verbosity >= 2:
             print(['./run.sh', in_path, tmp_path, out_path])
-        proc = subprocess.Popen(['./run.sh', in_path, tmp_path, out_path],
+        proc = subprocess.Popen(['./run.sh', self.config_path, in_path, tmp_path, out_path],
                                 cwd=self.transformer_path,
                                 stdout=subprocess.PIPE if self.verbosity < 2 else None,
                                 stderr=subprocess.PIPE if self.verbosity < 2 else None)
