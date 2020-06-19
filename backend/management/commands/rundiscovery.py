@@ -36,11 +36,10 @@ class Command(BaseCommand):
 
         for slug in options['slug']:
             try:
-                selector = ProjectSelector.objects.select_for_update(skip_locked=True).get(slug=slug)
-                with transaction.atomic():
-                    if not self.dry_run:
-                        selector.status = ONGOING
-                        selector.save(update_fields=['status', ])
+                selector = ProjectSelector.objects.get(slug=slug)
+                if not self.dry_run:
+                    selector.status = ONGOING
+                    selector.save(update_fields=['status', ])
                 self.process_selection(selector)
             except IntegrityError:
                 pass
