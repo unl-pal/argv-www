@@ -106,7 +106,7 @@ class TransformRunner(TR):
             out_path = os.path.join(out_path, '2')
 
         if self.verbosity >= 2:
-            print(['./run.sh', in_path, tmp_path, out_path])
+            print(['./run.sh', self.config_path, in_path, tmp_path, out_path])
         proc = subprocess.Popen(['./run.sh', self.config_path, in_path, tmp_path, out_path],
                                 cwd=self.transformer_path,
                                 stdout=subprocess.PIPE if self.verbosity < 2 else None,
