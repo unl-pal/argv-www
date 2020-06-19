@@ -125,6 +125,9 @@ visit(input, visitor {
 
                 for line in output.splitlines(False):
                     self.discovered_project(line[6:])
+
+                if self.verbosity >= 3:
+                    print("            -> finished processing boa job")
             except:
                 pass
 
