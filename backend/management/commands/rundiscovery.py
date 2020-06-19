@@ -55,8 +55,8 @@ class Command(BaseCommand):
         if len(options['slug']) == 0:
             while True:
                 try:
-                    selector = ProjectSelector.objects.select_for_update(skip_locked=True).filter(enabled=True, status=READY).first()
                     with transaction.atomic():
+                        selector = ProjectSelector.objects.select_for_update(skip_locked=True).filter(enabled=True, status=READY).first()
                         if selector:
                             if not self.dry_run:
                                 selector.status = ONGOING
