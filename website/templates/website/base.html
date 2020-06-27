@@ -35,7 +35,7 @@
 
         <!--Navbar Links-->
         <div class="collapse navbar-collapse" id="topNavBar">
-            <ul class="nav navbar-nav navbar-left">
+            <ul class="nav navbar-nav navbar-left text-right">
                 <li class="{% block fundingactive %}{% endblock %}">
                     <a href="{% url 'website:funding'%}">Funding</a>
                 </li>
@@ -47,7 +47,9 @@
                 </li>
             </ul>
 
-            <ul class="nav navbar-nav navbar-right">
+            {% include 'website/auth_menu.html' with tags="visible-xs" %}
+
+            <ul class="nav navbar-nav navbar-right text-right">
                 {% if not user.is_authenticated %}
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
@@ -59,30 +61,24 @@
                     <li class="dropdown profile-dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img alt="profile photo for {{ user.username }}" class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li class="dropdown-header">Signed in as <strong>{{ user.username }}</strong></li>
+                            <li class="dropdown-header text-right">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
-                            <li class="{% block profileactive %}{% endblock %}"><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
-                            <li class="{% block passwordactive %}{% endblock %}"><a href="{% url 'website:password_change' %}">Change Password</a></li>
+                            <li class="{% block profileactive %}{% endblock %} text-right"><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
+                            <li class="{% block passwordactive %}{% endblock %} text-right"><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
-                                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                                <li class="text-right"><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
                             <li role="separator" class="divider"></li>
-                            <li class="{% block tosactive %}{% endblock %}"><a href="{% url 'website:tos' %}">Terms of Use Policy</a></li>
-                            <li class="{% block privacyactive %}{% endblock %}"><a href="{% url 'website:privacy_policy' %}">Privacy Policy</a></li>
+                            <li class="{% block tosactive %}{% endblock %} text-right"><a href="{% url 'website:tos' %}">Terms of Use Policy</a></li>
+                            <li class="{% block privacyactive %}{% endblock %} text-right"><a href="{% url 'website:privacy_policy' %}">Privacy Policy</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:logout' %}">Sign out</a></li>
+                            <li class="text-right"><a href="{% url 'website:logout' %}">Sign out</a></li>
                         </ul>
                     </li>
                 {% endif %}
             </ul>
 
-            {% if user.is_authenticated %}
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="{% block createselactive %}{% endblock %}"><a href="{% url 'website:create_selection' %}" title="New Project Selection"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span><span class="sr-only">New Project</span> Selection</a></li>
-                    <li class="{% block listselectionsactive %}{% endblock %}"><a href="{% url 'website:list_selections' %}" title="List Project Selections"><span class="glyphicon glyphicon-list" aria-hidden="true"></span><span class="sr-only">List</span> Selections</a></li>
-                    <li class="{% block listtransformsactive %}{% endblock %}"><a href="{% url 'website:list_transforms' %}" title="List Project Transforms"><span class="glyphicon glyphicon-list" aria-hidden="true"></span><span class="sr-only">List</span> Transforms</a></li>
-                </ul>
-            {% endif %}
+            {% include 'website/auth_menu.html' with tags="hidden-xs" %}
         </div>
     </nav>
 </header>
