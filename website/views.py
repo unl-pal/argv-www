@@ -558,7 +558,7 @@ def download_selected_projects(request, slug):
     except:
         raise Http404
 
-    for project in ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained=True).distinct().order_by('project__url').select_related('project'):
+    for project in selector.result_projects().distinct().order_by('project__url').select_related('project'):
         writer.writerow([project.project.url])
 
     return response
