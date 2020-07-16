@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.forms.formsets import formset_factory
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template, render_to_string
 from django.urls import reverse, reverse_lazy
@@ -37,6 +37,7 @@ from .models import (BackendFilter, Dataset, FilterDetail, Paper,
                      ProjectSelector, ProjectTransformer, Transform,
                      TransformOption)
 from .tokens import email_verify_token
+import csv
 
 
 class PapersView(ListView):
@@ -545,6 +546,22 @@ def send_email_verify(request, user, title):
     email.send()
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
+
+def download_selected_projects(request, slug):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + slug + '-projects.csv"'
+
+    writer = csv.writer(response)
+
+    try:
+        selector = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+
+    for project in ProjectSnapshot.objects.filter(selection__project_selector=selector).filter(selection__retained=True).distinct().order_by('project__url').select_related('project'):
+        writer.writerow([project.project.url])
+
+    return response
 
 def download_selection_size(slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/selection')
