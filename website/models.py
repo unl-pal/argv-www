@@ -174,6 +174,8 @@ class ProjectSelector(models.Model):
     projects = models.ManyToManyField(ProjectSnapshot, through='Selection')
     submitted = models.DateTimeField(auto_now_add=True)
     fin_process = models.DateTimeField(auto_now=True)
+    download_count = models.BigIntegerField(null=True, blank=True)
+    last_download = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         permissions = [
@@ -315,6 +317,8 @@ class ProjectTransformer(models.Model):
     transformed_projects = models.ManyToManyField(TransformedProject, through='TransformSelection')
     parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, blank=True, null=True)
     enabled = models.BooleanField(default=True)
+    download_count = models.BigIntegerField(null=True, blank=True)
+    last_download = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         permissions = [

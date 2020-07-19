@@ -11,15 +11,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.db.utils import IntegrityError
 from django.forms.formsets import formset_factory
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
                          HttpResponseRedirect, JsonResponse)
 from django.shortcuts import redirect, render
 from django.template.loader import get_template, render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.views.generic import ListView, View
 from PIL import Image
 
@@ -39,8 +42,6 @@ from .models import (BackendFilter, Dataset, FilterDetail, Paper,
                      ProjectSelector, ProjectTransformer, Transform,
                      TransformOption)
 from .tokens import email_verify_token
-from django.db.utils import IntegrityError
-from django.utils.text import slugify
 
 
 class PapersView(ListView):
@@ -663,6 +664,13 @@ def download_selection(request, slug):
 
         return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
 
+    selector = ProjectSelector.objects.get(slug=slug)
+    if not selector.download_count:
+        selector.download_count = 0
+    selector.download_count += 1
+    selector.last_download = timezone.now()
+    selector.save(update_fields=['download_count', 'last_download'])
+
     return redirect(settings.MEDIA_URL + '/downloads/selection/' + download_filename)
 
 def download_transform_size(slug):
@@ -706,6 +714,13 @@ def download_transform(request, slug):
         Process(target=generate_zip, args=(paths, tmpdir, zipfile_path, getattr(settings, 'TRANSFORMED_PATH'))).start()
 
         return redirect(reverse_lazy('website:transform_detail', args=(slug,)))
+
+    transformer = ProjectTransformer.objects.get(slug=slug)
+    if not transformer.download_count:
+        transformer.download_count = 0
+    transformer.download_count += 1
+    transformer.last_download = timezone.now()
+    transformer.save(update_fields=['download_count', 'last_download'])
 
     return redirect(settings.MEDIA_URL + '/downloads/transform/' + download_filename)
 

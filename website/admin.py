@@ -6,14 +6,14 @@ from django.urls import reverse_lazy
 from django.utils.html import format_html
 
 from paclab.settings import USE_HIJACK
+from website.models import (BackendFilter, TransformParameter,
+                            TransformParameterValue)
 
 from .mixins import DeletableReadOnlyAdminMixin, ReadOnlyAdminMixin
 from .models import (Dataset, Filter, FilterDetail, Paper, Profile, Project,
                      ProjectSelector, ProjectSnapshot, ProjectTransformer,
                      Selection, Transform, TransformedProject, TransformOption,
                      TransformSelection, UserAuthAuditEntry)
-from website.models import BackendFilter, TransformParameter, TransformParameterValue
-
 
 if USE_HIJACK:
     from hijack_admin.admin import HijackUserAdmin
@@ -42,7 +42,7 @@ class SelectionAdmin(admin.ModelAdmin):
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
     inlines = [FilterDetailSelectionInline, ]
-    readonly_fields = ['parent', ]
+    readonly_fields = ['parent', 'download_count', 'last_download', ]
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
@@ -78,7 +78,7 @@ class TransformerAdmin(admin.ModelAdmin):
     list_display = ['enabled', 'slug', 'user', 'display_url', ]
     list_display_links = ['slug', ]
     list_filter = ['enabled', ('user', admin.RelatedOnlyFieldListFilter), ]
-    readonly_fields = ['parent', 'src_selector', 'src_transformer', 'transform', ]
+    readonly_fields = ['parent', 'src_selector', 'src_transformer', 'transform', 'download_count', 'last_download', ]
     search_fields = ['slug', ]
     actions = ['disable', 'enable', ]
 
