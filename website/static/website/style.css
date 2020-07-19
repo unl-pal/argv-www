@@ -110,3 +110,9 @@ input[type="checkbox"] {
     background: #337ab7;
     color: #fff;
 }
+
+.panel-title input {
+    color: #000;
+    font-weight: normal;
+    font-size: 0.8em;
+}

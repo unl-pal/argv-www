@@ -20,7 +20,18 @@
         {% endif %}
         <div class="panel panel-primary">
             <div class="panel-heading clearfix">
-                <h1 class="panel-title"><strong>Project Transform</strong><div class="pull-right"><em>{{ transformer.slug }}</em></div></h1>
+                <h1 class="panel-title">
+                    <strong>Project Transform</strong>
+                    {% if isowner %}
+                        <form class="pull-right" id="slugform" method="POST" style="display: none;">
+                            {% csrf_token %}
+                            <input type="text" name="newslug" size="40" />
+                            <button class="btn btn-success btn-xs">Rename</button>
+                            <button class="btn btn-xs btn-danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                    <div id="slugbox" class="pull-right"><em id="slugname">{{ transformer.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' %}{% endif %}</div>
+                </h1>
             </div>
             {% if transformer.parent %}
                 <div class="panel-note clearfix"><div class="pull-right">duplicated from <a href="{% url 'website:transform_detail' slug=transformer.parent %}">{{ transformer.parent }}</a></div></div>
@@ -126,9 +137,71 @@
 {% endblock %}
 
 {% block script %}
+    {% if isowner %}
+    <script>
+        var api_url = "{% url 'website:api_rename_transform' slug=transformer.slug %}";
+        var self_url = "{% url 'website:transform_detail' slug=transformer.slug %}";
+        var originalslug = "{{ transformer.slug }}";
+
+        function setSlug(slug) {
+            if (slug.startsWith('{{ user.username }}:'))
+                slug = slug.substring('{{ user.username }}:'.length)
+            $('#slugform > input[name="newslug"]').val(slug);
+        }
+
+        setSlug(originalslug);
+
+        // the edit button
+        $(document).on('click', 'a[name="editslug"]', function(e) {
+            e.preventDefault();
+
+            $('#slugbox').hide();
+            $('#slugform').show();
+        });
+
+        // rename button
+        $(document).on('click', '#slugform > .btn-success', function(e) {
+            e.preventDefault();
+
+            var newslug = $('#slugform > input[name="newslug"]').val();
+
+            $.post(api_url, {
+                slug: newslug,
+                csrfmiddlewaretoken: $('#slugform > input[name="csrfmiddlewaretoken"]').val()
+            }).done(function(data) {
+                newslug = data.slug;
+
+                api_url = api_url.replace(originalslug, newslug);
+                self_url = self_url.replace(originalslug, newslug);
+
+                $('#slugbox').show();
+                $('#slugform').hide();
+
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').text(newslug);
+                $('#slugname').animate({ opacity: 1 }, 'slow');
+
+                history.replaceState(null, '', [self_url])
+                originalslug = newslug;
+                setSlug(originalslug);
+            }).fail(function() {
+                $('#slugbox').show();
+                $('#slugform').hide();
+            });
+        });
+
+        // cancel button
+        $(document).on('click', '#slugform > .btn-danger', function(e) {
+            e.preventDefault();
+            $('#slugbox').show();
+            $('#slugform').hide();
+            setSlug(originalslug);
+        });
+    </script>
+    {% endif %}
     <script src="{% static 'website/jquery.tagsinput.js' %}"></script>
     <script>
-        $('input:eq(1)').tagsInput({
+        $('#id_email').tagsInput({
             autocomplete_url: '/api/usernames/',
             autocomplete: { minLength: 3 },
             defaultText: 'username/email'

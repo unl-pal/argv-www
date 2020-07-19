@@ -31,6 +31,8 @@ urlpatterns = [
     path('api/filter_detail/', views.api_filter_detail, name='api_filter_detail'),
     path('api/transform_param_detail/', views.api_transform_param, name='api_transform_param'),
     path('api/usernames/', views.api_usernames, name='api_usernames'),
+    path('api/selections/<slug>/rename', views.api_rename_selection, name='api_rename_selection'),
+    path('api/transforms/<slug>/rename', views.api_rename_transform, name='api_rename_transform'),
 
     path('selection/list/', views.SelectionListView.as_view(), name='list_selections'),
     path('selection/create/', views.create_selection, name='create_selection'),

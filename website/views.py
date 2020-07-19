@@ -1,3 +1,4 @@
+import csv
 import os
 import shutil
 import subprocess
@@ -11,7 +12,8 @@ from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.forms.formsets import formset_factory
-from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
+                         HttpResponseRedirect, JsonResponse)
 from django.shortcuts import redirect, render
 from django.template.loader import get_template, render_to_string
 from django.urls import reverse, reverse_lazy
@@ -37,7 +39,8 @@ from .models import (BackendFilter, Dataset, FilterDetail, Paper,
                      ProjectSelector, ProjectTransformer, Transform,
                      TransformOption)
 from .tokens import email_verify_token
-import csv
+from django.db.utils import IntegrityError
+from django.utils.text import slugify
 
 
 class PapersView(ListView):
@@ -180,6 +183,7 @@ def selection_detail(request, slug):
     return render(request, 'website/selections/detail.html', {
         'project': model,
         'form': form,
+        'isowner': request.user == model.user,
         'values': FilterDetail.objects.filter(project_selector=model),
         'cloned': model.projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_selection_size(model.slug)
@@ -211,6 +215,7 @@ def transform_detail(request, slug):
     return render(request, 'website/transforms/detail.html', {
         'transformer': model,
         'form': form,
+        'isowner': request.user == model.user,
         'transform': model.transform.transform,
         'values': TransformParameterValue.objects.filter(option=model.transform).all(),
         'input': model.input_project_count(),
@@ -266,6 +271,58 @@ def api_usernames(request):
         for r in User.objects.filter(username__icontains=q).filter(is_active=True).filter(profile__active_email=True)[:10]:
             results.append(r.first_name + ' ' + r.last_name + ' (' + r.username + ')')
     return JsonResponse(results, safe=False)
+
+@email_required
+def api_rename_selection(request, slug):
+    try:
+        selector = ProjectSelector.objects.get(slug=slug, user=request.user)
+    except:
+        raise Http404
+
+    newslug = str(request.POST.get('slug', selector.slug))
+
+    if selector.slug != newslug:
+        if not newslug:
+            newslug = selector.gen_slug()
+        else:
+            prefix = request.user.username + ':'
+            if newslug.startswith(prefix):
+                newslug = newslug[len(prefix):]
+            newslug = prefix + slugify(newslug)
+
+        try:
+            selector.slug = newslug
+            selector.save(update_fields=['slug'])
+        except IntegrityError:
+            return HttpResponseBadRequest()
+
+    return JsonResponse({ 'slug': selector.slug }, safe=False)
+
+@email_required
+def api_rename_transform(request, slug):
+    try:
+        transform = ProjectTransformer.objects.get(slug=slug, user=request.user)
+    except:
+        raise Http404
+
+    newslug = str(request.POST.get('slug', transform.slug))
+
+    if transform.slug != newslug:
+        if not newslug:
+            newslug = transform.gen_slug()
+        else:
+            prefix = request.user.username + ':'
+            if newslug.startswith(prefix):
+                newslug = newslug[len(prefix):]
+            newslug = prefix + slugify(newslug)
+
+        try:
+            transform.slug = newslug
+            transform.save(update_fields=['slug'])
+        except IntegrityError:
+            return HttpResponseBadRequest()
+
+    return JsonResponse({ 'slug': transform.slug }, safe=False)
 
 def logoutView(request):
     logout(request)
