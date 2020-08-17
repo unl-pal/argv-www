@@ -187,7 +187,13 @@
             }).fail(function() {
                 $('#slugbox').show();
                 $('#slugform').hide();
+
                 setSlug(originalslug);
+
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').animate({ opacity: 1 }, 'fast');
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').animate({ opacity: 1 }, 'fast');
             });
         });
 
