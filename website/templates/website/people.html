@@ -5,19 +5,7 @@
     <div class="container">
         {% include 'website/messages.html' %}
         {% for person in allPeople %}
-            {% if person.is_active and person.profile.isAdmin %}
             {% include 'website/person.html' %}
-            {% endif %}
-        {% endfor %}
-        {% for person in allPeople %}
-            {% if person.is_active and person.profile.isModerator %}
-            {% include 'website/person.html' %}
-            {% endif %}
-        {% endfor %}
-        {% for person in allPeople %}
-            {% if person.profile.isRetired %}
-            {% include 'website/person.html' %}
-            {% endif %}
         {% endfor %}
         {% include 'website/pagination.html' %}
     </div>

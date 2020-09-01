@@ -54,7 +54,7 @@ class PapersView(ListView):
 class PeopleView(ListView):
     template_name = 'website/people.html'
     context_object_name = 'allPeople'
-    paginate_by = 10
+    paginate_by = 100
     queryset = User.objects.exclude(profile__staffStatus=USER)
     ordering = ['profile__staffStatus', 'last_name']
 
