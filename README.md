@@ -70,7 +70,7 @@ The backend has several scripts that need to run.  Be sure each of them is runni
 
 #### Discovery Usage
 1. Open terminal in the location of `manage.py`
-2. Run command: `python3 manage.py rundisocvery`
+2. Run command: `python3 manage.py rundiscovery`
 
 #### Cloner Usage
 1. Open terminal in the location of `manage.py`
