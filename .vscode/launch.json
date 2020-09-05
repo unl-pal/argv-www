@@ -1,0 +1,60 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PAClab: webserver",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runserver",
+                "5000",
+                "--noreload"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: rundiscovery",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "rundiscovery",
+                "-v",
+                "3",
+                "--dry-run",
+                "--no-poll"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: runcloner",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runcloner"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: runtransforms",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runtransforms",
+                "-v",
+                "3"
+            ],
+            "django": true
+        }
+    ]
+}

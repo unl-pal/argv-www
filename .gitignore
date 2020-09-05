@@ -124,5 +124,5 @@ venv/
 media/
 /static/
 migrations/
-.vscode/
+.vscode/settings.json
 /error.log
