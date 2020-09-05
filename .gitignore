@@ -126,3 +126,4 @@ media/
 migrations/
 .vscode/settings.json
 /error.log
+.DS_Store
