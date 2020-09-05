@@ -55,19 +55,19 @@
                                 <div class="pull-right clearfix">
                                     <div class="btn-group">
                                         {% url 'website:transform_detail' slug=transformer.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' name='' %}
                                         {% url 'website:transform_duplicate' slug=transformer.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' name='' %}
                                         {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' %}
+                                        {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' name='' %}
                                     </div>
                                     <div class="btn-group">
                                         {% if transformer.enabled %}
                                             {% url 'website:delete_transform' slug=transformer.slug as targeturl %}
-                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
                                         {% else %}
                                             {% url 'website:restore_transform' slug=transformer.slug as targeturl %}
-                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
                                         {% endif %}
                                     </div>
                                 </div>

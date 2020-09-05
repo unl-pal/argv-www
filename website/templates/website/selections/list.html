@@ -55,19 +55,19 @@
                                 <div class="pull-right clearfix">
                                     <div class="btn-group">
                                         {% url 'website:selection_detail' slug=project.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' name='' %}
                                         {% url 'website:selection_duplicate' slug=project.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' name='' %}
                                         {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' %}
+                                        {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' name='' %}
                                     </div>
                                     <div class="btn-group">
                                         {% if project.enabled %}
                                             {% url 'website:delete_selection' slug=project.slug as targeturl %}
-                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
                                         {% else %}
                                             {% url 'website:restore_selection' slug=project.slug as targeturl %}
-                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
                                         {% endif %}
                                     </div>
                                 </div>
