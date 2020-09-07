@@ -480,7 +480,7 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
             params = {}
             for f in formset:
                 if 'value' in f.cleaned_data and 'parameter' in f.cleaned_data:
-                    params[f.cleaned_data.get('parameter').name] = f.cleaned_data.get('value')
+                    params[f.cleaned_data.get('parameter')] = f.cleaned_data.get('value')
 
             from django.db.models import Count
             options = None
