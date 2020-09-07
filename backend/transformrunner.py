@@ -42,12 +42,12 @@ class TransformRunner:
     def all_remaining_projects(self):
         if self.transformed_project.src_selector:
             return self.all_projects().exclude(pk__in=self.all_finished_projects().values_list('src_project__pk', flat=True))
-        return self.all_projects().exclude(pk__in=self.all_finished_projects().values_list('src_transformer__pk', flat=True))
+        return self.all_projects().exclude(pk__in=self.all_finished_projects().values_list('src_transform__pk', flat=True))
 
     def remaining_projects(self):
         if self.transformed_project.src_selector:
             return self.projects().exclude(pk__in=self.finished_projects().values_list('src_project__pk', flat=True))
-        return self.projects().exclude(pk__in=self.finished_projects().values_list('src_transformer__pk', flat=True))
+        return self.projects().exclude(pk__in=self.finished_projects().values_list('src_transform__pk', flat=True))
 
     def debug(self):
         self.run()
