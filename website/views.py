@@ -520,7 +520,7 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
         'formset': formset,
         'lastform': 'form-' + str(len(formset.forms) - 1),
         'src_selector': selector.slug if selector else None,
-        'src_transform': transform.slug if transform else None,
+        'src_transformer': transform.slug if transform else None,
         'parent': parent,
     })
 
