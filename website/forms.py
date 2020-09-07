@@ -12,6 +12,7 @@ from django_countries.fields import CountryField
 from .models import (BackendFilter, Profile, ProjectSelector, Transform,
                      TransformOption)
 from website.models import TransformParameter
+from website.validators import validate_urls
 
 
 class UserRegisterForm(UserCreationForm):
@@ -101,12 +102,12 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['country', 'photo', 'token', 'sharetoken', ]
         labels = {
-            'token' : 'Github Personal Access Token',
-            'sharetoken' : 'Allow using token for system jobs',
+            'token': 'Github Personal Access Token',
+            'sharetoken': 'Allow using token for system jobs',
         }
         widgets = {
-            'token' : forms.TextInput(attrs={'size': 40}),
-            'photo' : PhotoInput(),
+            'token': forms.TextInput(attrs={'size': 40}),
+            'photo': PhotoInput(),
         }
 
 class StaffProfileForm(ProfileForm):
@@ -121,6 +122,9 @@ class ProjectSelectionForm(forms.ModelForm):
         widgets = {
             'parent': forms.HiddenInput(),
         }
+
+class ProjectSelectionManualForm(forms.Form):
+    urls = forms.CharField(required=True, validators=[validate_urls], widget=forms.Textarea(attrs={'rows': '10'}))
 
 class FilterDetailForm(forms.Form):
     pfilter = forms.ModelChoiceField(BackendFilter.objects.filter(enabled=True).order_by('flter__name'))

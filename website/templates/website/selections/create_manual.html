@@ -1,0 +1,33 @@
+{% extends "website/base.html" %}
+{% block title %}Project Selection{% endblock %}
+{% block createselactive %}active{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Project Selection</h3>
+            <form class="form form-horizontal" method="POST">
+                {% csrf_token %}
+                {% include 'website/messages.html' %}
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p>
+                            Use this page to manually specify a list of Git URLs.  The generated selection will
+                            contain any projects from the list of URLs that PAClab is able to clone.
+                        </p>
+                    </div>
+                </div>
+
+                {% include 'website/form.html' with form=p_form %}
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="submit" class="btn btn-primary pull-right">Create</button>
+                    </div>
+                </div>
+            </form><br>
+        </div>
+    </div>
+</div>
+{% endblock %}

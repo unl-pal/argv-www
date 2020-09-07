@@ -57,7 +57,8 @@
                                         {% url 'website:selection_detail' slug=project.slug as targeturl %}
                                         {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' name='' %}
                                         {% url 'website:selection_duplicate' slug=project.slug as targeturl %}
-                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' name='' %}
+                                        {% can_duplicate project as candupe %}
+                                        {% include 'website/button.html' with disabled=False enabled=candupe type='default' icon='duplicate' text='' title='Duplicate' name='' %}
                                         {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
                                         {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' name='' %}
                                     </div>

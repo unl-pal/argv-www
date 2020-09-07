@@ -24,3 +24,7 @@ def calc_finished_percent(done, remain):
     if done + remain == 0:
         return 100
     return round(100.0 * done / (done + remain), 2)
+
+@register.simple_tag(name='can_duplicate')
+def can_duplicate(selector):
+    return selector.input_dataset.name != 'Manual Selections'
