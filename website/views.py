@@ -401,7 +401,7 @@ def password_change(request):
         'form': form
     })
 
-def make_create_selection(request, inputs = None, initial = {}, pinitial = []):
+def make_create_selection(request, inputs, initial = {}, pinitial = []):
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None, initial=initial)
         p_form.fields['input_dataset'].queryset = inputs
