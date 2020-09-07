@@ -1,0 +1,163 @@
+{% extends "website/base.html" %}
+{% block title %}Project Transform{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Project Transform</h3>
+            <form class="form-horizontal" method="POST">
+                {% csrf_token %}
+                {% include 'website/messages.html' %}
+
+                {% include 'website/form-header.html' %}
+                {% for form in formset %}
+                    {% include 'website/form-header.html' %}
+                {% endfor %}
+
+                <div class="row">
+                    <div class="col-xs-2 col-sm-4">
+                        <label class="pull-right">Dataset Origin:</label>
+                    </div>
+                    <div class="col-xs-2 col-sm-4">
+                        {% if src_selector %}
+                            <a target="_blank" href="{% url 'website:selection_detail' slug=src_selector %}">selection {{ src_selector }}</a>
+                        {% else %}
+                            <a target="_blank" href="{% url 'website:transform_detail' slug=src_transformer %}">transform {{ src_transformer }}</a>
+                        {% endif %}
+                        </div>
+                    </div>
+                <div class="row">
+                    <div class="col-xs-2 col-sm-4">
+                        <label class="pull-right">Transformer:</label>
+                    </div>
+                    <div class="col-xs-10 col-sm-8">
+                        <div class="form-inline">
+                            {{form.transform}}
+                        </div>
+                    </div>
+                </div>
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    <div class="row form-row">
+                        <div class="col-xs-2 col-sm-4">
+                            <label class="pull-right">Parameter:</label>
+                        </div>
+                        <div class="col-xs-10 col-sm-8">
+                            <div class="form-inline">
+                                {{form.parameter}}
+                                {{form.value}}
+                                {% if not form.prefix == lastform %}
+                                    <button class="btn btn-danger remove-form-row">-</button><br/>
+                                {% else %}
+                                    <button class="btn btn-success add-form-row">+</button><br/>
+                                {% endif %}
+                                <div class="has-feedback{% if form.is_bound and form.parameter.errors %} has-error{% endif %}">
+                                    {% if form.is_bound and form.parameter.errors %}
+                                        <span class="sr-only">(error)</span>
+                                        {% for error in form.parameter.errors %}
+                                            <div class="help-block">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="help-block">
+                                    {% if form.parameter.help_text %}{{ form.parameter.help_text }}{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
+                    </div>
+                {% endfor %}                <div class="row">
+                    <div class="col-xs-4">
+                        <button type="submit" class="btn btn-primary pull-right">Create</button>
+                    </div>
+                </div>
+            </form><br>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+function updateElementIndex(el, prefix, ndx) {
+    var id_regex = new RegExp('(' + prefix + '-\\d+)');
+    var replacement = prefix + '-' + ndx;
+    if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+    if (el.id) el.id = el.id.replace(id_regex, replacement);
+    if (el.name) el.name = el.name.replace(id_regex, replacement);
+}
+function cloneMore(selector, prefix) {
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+    newElement.find(':input').each(function() {
+        var name = $(this).attr('name')
+        if(name) {
+            name = name.replace('-' + (total-1) + '-', '-' + total + '-');
+            var id = 'id_' + name;
+            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        }
+    });
+    // clear help text
+    newElement.find('input').first().nextAll('.help-block').first().text('');
+    // clear error text
+    newElement.find('input').first().nextAll('.has-feedback').first().text('');
+    total++;
+    $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement);
+    var conditionRow = $('.form-row:not(:last)');
+    conditionRow.find('.btn.add-form-row')
+        .removeClass('btn-success').addClass('btn-danger')
+        .removeClass('add-form-row').addClass('remove-form-row')
+        .html('-');
+    return false;
+}
+function deleteForm(prefix, btn) {
+    var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    if (total > 1){
+        btn.closest('.form-row').remove();
+        var forms = $('.form-row');
+        $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+        for (var i=0, formCount=forms.length; i<formCount; i++) {
+            $(forms.get(i)).find(':input').each(function() {
+                updateElementIndex(this, prefix, i);
+            });
+        }
+    }
+    return false;
+}
+$(document).on('click', '.add-form-row', function(e){
+    e.preventDefault();
+    cloneMore('.form-row:last', 'form');
+    return false;
+});
+$(document).on('click', '.remove-form-row', function(e){
+    e.preventDefault();
+    deleteForm('form', $(this));
+    return false;
+});
+$('select[name!="transform"]').change(function (){
+    var val = $("option:checked", this).val();
+    current_input = this;
+    $.ajax({
+        url: '/api/transform_param_detail/',
+        data: {
+            'id': val
+        },
+        error: function () {
+            $(current_input).nextAll('input').first().val('');
+            $(current_input).nextAll('.help-block').first().html('');
+        },
+        success: function (data) {
+            $(current_input).nextAll('input').first().val(data.default);
+
+            helpText = '';
+            if (data.help_text)
+                helpText = data.help_text;
+            $(current_input).nextAll('.help-block').first().html(helpText);
+        }
+    });
+});
+</script>
+{% endblock %}

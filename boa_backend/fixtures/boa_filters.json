@@ -1,22 +1,50 @@
 [
     {
-        "model": "website.filter",
+        "model": "website.backendfilter",
         "fields": {
-            "name": "Minimum number of commits",
-            "val_type": "Integer",
-            "default_val": "50",
             "enabled": false,
-            "associated_backend": ["boa"]
+            "flter": ["Minimum number of commits"],
+            "backend": ["boa"]
         }
     },
     {
-        "model": "website.filter",
+        "model": "website.backendfilter",
         "fields": {
-            "name": "Minimum number of source files",
-            "val_type": "Integer",
-            "default_val": "10",
             "enabled": false,
-            "associated_backend": ["boa"]
+            "flter": ["Minimum number of source files"],
+            "backend": ["boa"]
+        }
+    },
+    {
+        "model": "website.backendfilter",
+        "fields": {
+            "enabled": false,
+            "flter": ["Minimum number of committers"],
+            "backend": ["boa"]
+        }
+    },
+    {
+        "model": "website.backendfilter",
+        "fields": {
+            "enabled": false,
+            "flter": ["Maximum number of commits"],
+            "backend": ["boa"]
+        }
+    },
+    {
+        "model": "website.backendfilter",
+        "fields": {
+            "enabled": false,
+            "flter": ["Maximum number of source files"],
+            "backend": ["boa"]
+        }
+    },
+    {
+        "model": "website.backendfilter",
+        "fields": {
+            "enabled": false,
+            "flter": ["Maximum number of committers"],
+            "backend": ["boa"]
         }
     }
 ]

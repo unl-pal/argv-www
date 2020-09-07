@@ -1,0 +1,86 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% load humanize %}
+{% block title %}Project Selections{% endblock %}
+{% block listselectionsactive %}active{% endblock %}
+{% block style %}
+<style type="text/css">
+.glyphicon.spinning {
+    animation: spin 2s infinite linear;
+    -webkit-animation: spin2 2s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+{% block body %}
+    <div class="container-fluid" style="width: 80%">
+        {% include 'website/messages.html' %}
+        <h1>Project Selections</h1>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Project Selection</th>
+                        <th>Submitted <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></th>
+                        <th># Projects in Dataset</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for project in projects %}
+                        {% if project.enabled %}
+                        <tr>
+                        {% else %}
+                        <tr class="danger">
+                        {% endif %}
+                            <td><a href="{% url 'website:selection_detail' slug=project.slug %}">{{ project.slug }}</a></td>
+                            <td>{{ project.created|naturalday }}</td>
+                            <td>{% if not project.isDone %}
+                                <span class="glyphicon glyphicon-refresh spinning" aria-hidden="true"></span> processing...
+                            {% else %}
+                                {% calc_retained_projects project as finished_count %}
+                                {{ finished_count|intcomma }}
+                            {% endif %}</td>
+                            <td>
+                                <div class="pull-right clearfix">
+                                    <div class="btn-group">
+                                        {% url 'website:selection_detail' slug=project.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='primary' icon='eye-open' text='View' title='' name='' %}
+                                        {% url 'website:selection_duplicate' slug=project.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' name='' %}
+                                        {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
+                                        {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' name='' %}
+                                    </div>
+                                    <div class="btn-group">
+                                        {% if project.enabled %}
+                                            {% url 'website:delete_selection' slug=project.slug as targeturl %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
+                                        {% else %}
+                                            {% url 'website:restore_selection' slug=project.slug as targeturl %}
+                                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">You currently have no project selections.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include 'website/pagination.html' %}
+    </div>
+{% endblock %}

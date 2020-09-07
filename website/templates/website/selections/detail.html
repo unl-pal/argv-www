@@ -1,0 +1,218 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Project Selection{% endblock %}
+{% block body %}
+    <div class="container">
+        {% include 'website/messages.html' %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'website:list_selections' %}">Back to all project selections</a><br/><br/>
+        {% endif %}
+        {% if project.enabled %}
+            {% if project.status == "READY" %}
+                <div class="alert alert-info" role="alert">This selection is currently in the queue and has not started processing yet.</div>
+            {% else %}
+                {% if not project.isDone %}
+                    <div class="alert alert-warning" role="alert">This selection is still processing.</div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <div class="panel panel-primary">
+            <div class="panel-heading clearfix">
+                <h1 class="panel-title">
+                    <strong>Project Selection</strong>
+                    {% if isowner %}
+                        <form class="pull-right" id="slugform" method="POST" style="display: none;">
+                            {% csrf_token %}
+                            <input type="text" name="newslug" size="40" />
+                            <button class="btn btn-success btn-xs">Rename</button>
+                            <button class="btn btn-xs btn-danger">Cancel</button>
+                        </form>
+                    {% endif %}
+                    <div id="slugbox" class="pull-right"><em id="slugname">{{ project.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' name='' %}{% endif %}</div>
+                </h1>
+            </div>
+            {% if project.parent %}
+                <div class="panel-note clearfix"><div class="pull-right">duplicated from <a href="{% url 'website:selection_detail' slug=project.parent %}">{{ project.parent }}</a></div></div>
+            {% endif %}
+            <div class="panel-body">
+                {% if not project.enabled %}
+                    <div class="alert alert-danger">NOTE: this selection is marked deleted</div>
+                {% endif %}
+                <div class="pull-right clearfix">
+                    <div class="btn-group">
+                        {% url 'website:selection_duplicate' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default' icon='duplicate' text='' title='Duplicate' name='' %}
+                        {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' name='' %}
+                    </div>
+                    <div class="btn-group">
+                        {% if project.enabled %}
+                            {% url 'website:delete_selection' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
+                        {% else %}
+                            {% url 'website:restore_selection' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% if project.parent %}
+                    <h4><strong>Parent Selection:</strong> <a href="{% url 'website:selection_detail' project.parent %}">{{ project.parent }}</a></h4>
+                {% endif %}
+                <h4><strong>Selection Submitted:</strong> <span title="{{ project.submitted }}">{{ project.submitted|naturaltime }}</span></h4>
+                <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
+                <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
+                <br/>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>Selection Criteria</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for filter in values %}
+                            <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
+                            {% if filter.status != 'PROCESSED' %}
+                            <p>Status: <em>{{ filter.status }}</em></p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}</h4>
+                <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
+                {% calc_finished_projects project as finished_count %}
+                {% calc_retained_projects project as retained_count %}
+                {% calc_remaining_projects project as remaining_count %}
+                {% calc_finished_percent finished_count remaining_count as finished_pct %}
+                {% if finished_count > 0 %}
+                    <h4><strong>Projects Retained:</strong> {{ retained_count|intcomma }} [<a href="{% url 'website:download_selected_projects' project.slug %}">download CSV</a>]</h4>
+                    {% if not project.isDone %}
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">
+                                <span class="sr-only">{{ finished_pct }}% Complete</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if project.isDone %}
+                    <br/>
+                    <h4><strong>Dataset Generated:</strong> <span title="{{ project.fin_process }}">{{ project.fin_process|naturaltime }}</span></h4>
+                    {% if retained_count > 0 %}
+                        {% if download_size > 0 %}
+                            <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Download Dataset</a> (zip)</strong></h3>
+                            <h4>({{ download_size|filesizeformat|intcomma }})</h4>
+                        {% else %}
+                            {% if download_size == 0 %}
+                                <h3><strong>Dataset currently generating (zip)</strong></h3>
+                                <h4>(please be patient - this may take a few minutes)</h4>
+                            {% else %}
+                                <h3><strong><a href="{% url 'website:download_selection' project.slug %}">Generate Dataset</a> (zip)</strong></h3>
+                                <h4>(please be patient and only click the above link once)</h4>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <h3><strong>No download available - no projects match criteria</strong></h3>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% if form %}
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Share this project selection</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Enter any email address or a PAClab username to share this project selection.</p>
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include 'website/form.html' %}
+                        <button class="btn btn-primary">Share</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'website/jquery.tagsinput.css' %}">
+{% endblock %}
+
+{% block script %}
+    {% if isowner %}
+    <script>
+        var api_url = "{% url 'website:api_rename_selection' slug=project.slug %}";
+        var self_url = "{% url 'website:selection_detail' slug=project.slug %}";
+        var originalslug = "{{ project.slug }}";
+
+        function setSlug(slug) {
+            if (slug.startsWith('{{ user.username }}:'))
+                slug = slug.substring('{{ user.username }}:'.length)
+            $('#slugform > input[name="newslug"]').val(slug);
+        }
+
+        setSlug(originalslug);
+
+        // the edit button
+        $(document).on('click', 'a[name="editslug"]', function(e) {
+            e.preventDefault();
+
+            $('#slugbox').hide();
+            $('#slugform').show();
+        });
+
+        // rename button
+        $(document).on('click', '#slugform > .btn-success', function(e) {
+            e.preventDefault();
+
+            var newslug = $('#slugform > input[name="newslug"]').val();
+
+            $.post(api_url, {
+                slug: newslug,
+                csrfmiddlewaretoken: $('#slugform > input[name="csrfmiddlewaretoken"]').val()
+            }).done(function(data) {
+                newslug = data.slug;
+
+                api_url = api_url.replace(originalslug, newslug);
+                self_url = self_url.replace(originalslug, newslug);
+
+                $('#slugbox').show();
+                $('#slugform').hide();
+
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').text(newslug);
+                $('#slugname').animate({ opacity: 1 }, 'slow');
+
+                history.replaceState(null, '', [self_url])
+                originalslug = newslug;
+                setSlug(originalslug);
+            }).fail(function() {
+                $('#slugbox').show();
+                $('#slugform').hide();
+
+                setSlug(originalslug);
+
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').animate({ opacity: 1 }, 'fast');
+                $('#slugname').animate({ opacity: 0 }, 'fast');
+                $('#slugname').animate({ opacity: 1 }, 'fast');
+            });
+        });
+
+        // cancel button
+        $(document).on('click', '#slugform > .btn-danger', function(e) {
+            e.preventDefault();
+            $('#slugbox').show();
+            $('#slugform').hide();
+            setSlug(originalslug);
+        });
+    </script>
+    {% endif %}
+    <script src="{% static 'website/jquery.tagsinput.js' %}"></script>
+    <script>
+        $('#id_email').tagsInput({
+            autocomplete_url: '/api/usernames/',
+            autocomplete: { minLength: 3 },
+            defaultText: 'username/email'
+        });
+    </script>
+{% endblock %}

@@ -1,5 +1,15 @@
+/* fixes for low contrast defaults in bootstrap */
 .navbar {
     border-radius: 0;
+}
+
+.navbar-default .navbar-nav li a,
+.navbar-default .navbar-brand {
+    color: #707070;
+}
+
+a {
+    color: #3277B3;
 }
 
 html, body {
@@ -21,6 +31,7 @@ body {
 
 .footer .text-muted {
     margin-bottom: 0;
+    color: #707070;
 }
 
 .top-buffer {
@@ -34,6 +45,12 @@ body {
 /* try to disable links if they are disabled */
 .disabled {
     pointer-events: none;
+}
+
+.panel-note {
+    background-color: #eee;
+    padding: 2px 15px 2px 15px;
+    display: block;
 }
 
 /* for dragging modal dialogs */
@@ -92,4 +109,10 @@ input[type="checkbox"] {
 .ui-menu-item-wrapper:hover {
     background: #337ab7;
     color: #fff;
+}
+
+.panel-title input {
+    color: #000;
+    font-weight: normal;
+    font-size: 0.8em;
 }

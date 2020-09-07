@@ -35,7 +35,7 @@
 
         <!--Navbar Links-->
         <div class="collapse navbar-collapse" id="topNavBar">
-            <ul class="nav navbar-nav navbar-left">
+            <ul class="nav navbar-nav navbar-left text-right">
                 <li class="{% block fundingactive %}{% endblock %}">
                     <a href="{% url 'website:funding'%}">Funding</a>
                 </li>
@@ -47,7 +47,9 @@
                 </li>
             </ul>
 
-            <ul class="nav navbar-nav navbar-right">
+            {% include 'website/auth_menu.html' with tags="visible-xs" %}
+
+            <ul class="nav navbar-nav navbar-right text-right">
                 {% if not user.is_authenticated %}
                     <li class="{% block registeractive %}{% endblock %}">
                         <a href="{% url 'website:register' %}">Register</a>
@@ -57,24 +59,26 @@
                     </li>
                 {% else %}
                     <li class="dropdown profile-dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img alt="profile photo for {{ user.usrename }}" class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><img alt="profile photo for {{ user.username }}" class="img-rounded img-responsive" width="38" height="38" src="{{ user.profile.photo.url }}"  /> <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li class="text-center">Signed in as <strong>{{ user.username }}</strong></li>
+                            <li class="dropdown-header text-right">Signed in as <strong>{{ user.username }}</strong></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
-                            <li><a href="{% url 'website:password_change' %}">Change Password</a></li>
+                            <li class="{% block profileactive %}{% endblock %} text-right"><a href="{% url 'website:edit_profile' %}">Your profile</a></li>
+                            <li class="{% block passwordactive %}{% endblock %} text-right"><a href="{% url 'website:password_change' %}">Change Password</a></li>
                             {% if user.is_staff %}
-                                <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                                <li class="text-right"><a href="{% url 'admin:index' %}">Admin</a></li>
                             {% endif %}
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:project_selection' %}">New project selection</a></li>
-                            <li><a href="{% url 'website:project_list' %}">List project selections</a></li>
+                            <li class="{% block tosactive %}{% endblock %} text-right"><a href="{% url 'website:tos' %}">Terms of Use Policy</a></li>
+                            <li class="{% block privacyactive %}{% endblock %} text-right"><a href="{% url 'website:privacy_policy' %}">Privacy Policy</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'website:logout' %}">Sign out</a></li>
+                            <li class="text-right"><a href="{% url 'website:logout' %}">Sign out</a></li>
                         </ul>
                     </li>
                 {% endif %}
             </ul>
+
+            {% include 'website/auth_menu.html' with tags="hidden-xs" %}
         </div>
     </nav>
 </header>
@@ -87,8 +91,12 @@
 {% block script %}{% endblock %}
 <footer class="footer">
     <p class="text-muted">
-        Copyright &copy; 2018&ndash;2019, Boise State University and Bowling Green State University. All rights reserved.<br/>
-        This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS&ndash;18&ndash;23357, CNS&ndash;18&ndash;23294.<br/>
+        Copyright &copy; 2018&ndash;2020, Boise State University and University of Nebraska&mdash;Lincoln. All rights reserved.
+    </p>
+    <p style="margin-top: 0.3em;" class="text-muted">
+        This material is based upon work supported by the US National Science Foundation (NSF) under grants CNS&ndash;18&ndash;23357, CNS&ndash;18&ndash;23294.
+    </p>
+    <p style="margin-top: 0.3em;" class="text-muted">
         Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
     </p>
 </footer>
@@ -96,7 +104,7 @@
     <h4>Cookies Disclaimer</h4>
     <p>
         <a class="btn btn-primary pull-right" href="javascript:CookiesBanner.createCookiesBannerCookie();">I Agree</a>
-        Our site saves small pieces of text information (cookies) on your device in order to deliver better content and for statistical purposes. You can disable the usage of cookies by changing the settings of your browser. By browsing our website without changing the browser settings you grant us permission to store that information on your device. See our <a href="{% url 'website:privacy_policy' %}">Privacy Policy</a> and <a href="{% url 'website:tos' %}">Terms of Use Policy</a> for more details.
+        Our site saves small pieces of text information (cookies) on your device in order to deliver better content and for statistical purposes. You can disable the usage of cookies by changing the settings of your browser. By browsing our website without changing the browser settings you grant us permission to store that information on your device. See our <a href="{% url 'website:privacy_policy' %}" class="alert-link">Privacy Policy</a> and <a href="{% url 'website:tos' %}" class="alert-link">Terms of Use Policy</a> for more details.
     </p>
 </div>
 </body>

@@ -1,5 +1,6 @@
 {% extends "website/base.html" %}
 {% block title %}Project Selection{% endblock %}
+{% block createselactive %}active{% endblock %}
 {% block body %}
 <div class="container">
     <div class="row">
@@ -8,6 +9,12 @@
             <form class="form-horizontal" method="POST">
                 {% csrf_token %}
                 {% include 'website/messages.html' %}
+
+                {% include 'website/form-header.html' with form=p_form %}
+                {% for form in formset %}
+                    {% include 'website/form-header.html' %}
+                {% endfor %}
+
                 <div class="row">
                     <div class="col-xs-2 col-sm-4">
                         <label class="pull-right">Input Dataset:</label>
@@ -20,19 +27,36 @@
                 </div>
                 {{ formset.management_form }}
                 {% for form in formset %}
-                <div class="row form-row">
-                    <div class="col-xs-2 col-sm-4">
-                        <label class="pull-right">Filter:</label>
-                    </div>
-                    <div class="col-xs-10 col-sm-8">
-                        <div class="form-inline">
-                            {{form.pfilter}}
-                            {{form.value}}
-                            <button class="btn btn-success add-form-row">+</button>
+                    <div class="row form-row">
+                        <div class="col-xs-2 col-sm-4">
+                            <label class="pull-right">Filter:</label>
                         </div>
+                        <div class="col-xs-10 col-sm-8">
+                            <div class="form-inline">
+                                {{form.pfilter}}
+                                {{form.value}}
+                                {% if not form.prefix == lastform %}
+                                    <button class="btn btn-danger remove-form-row">-</button><br/>
+                                {% else %}
+                                    <button class="btn btn-success add-form-row">+</button><br/>
+                                {% endif %}
+                                <div class="has-feedback{% if form.is_bound and form.pfilter.errors %} has-error{% endif %}">
+                                    {% if form.is_bound and form.pfilter.errors %}
+                                        <span class="sr-only">(error)</span>
+                                        {% for error in form.pfilter.errors %}
+                                            <div class="help-block">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="help-block">
+                                    {% if form.pfilter.help_text %}{{ form.pfilter.help_text }}{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <br><br>
                     </div>
-                    <br><br>
-                </div>
                 {% endfor %}
                 <div class="row">
                     <div class="col-xs-4">
@@ -65,6 +89,10 @@ function cloneMore(selector, prefix) {
             $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
         }
     });
+    // clear help text
+    newElement.find('input').first().nextAll('.help-block').first().text('');
+    // clear error text
+    newElement.find('input').first().nextAll('.has-feedback').first().text('');
     total++;
     $('#id_' + prefix + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
@@ -103,12 +131,21 @@ $('select[name!="input_dataset"]').change(function (){
     var val = $("option:checked", this).val();
     current_input = this;
     $.ajax({
-        url: '/api/filter_default/',
+        url: '/api/filter_detail/',
         data: {
             'id': val
         },
+        error: function () {
+            $(current_input).nextAll('input').first().val('');
+            $(current_input).nextAll('.help-block').first().html('');
+        },
         success: function (data) {
             $(current_input).nextAll('input').first().val(data.default);
+
+            helpText = '';
+            if (data.help_text)
+                helpText = data.help_text;
+            $(current_input).nextAll('.help-block').first().html(helpText);
         }
     });
 });

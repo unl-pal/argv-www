@@ -21,7 +21,10 @@
                 <form class="form form-default" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% include 'website/messages.html' %}
-                    {% include 'website/form.html' with form=form %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    {% endif %}
+                    {% include 'website/form.html' %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
                 <p><a href="{% url 'website:password_reset' %}">Forgot Password?</a></p>
