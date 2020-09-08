@@ -1,5 +1,6 @@
 from django import template
 
+from website.choices import MANUAL_DATASET
 from website.models import ProjectSnapshot, TransformedProject
 
 register = template.Library()
@@ -27,4 +28,4 @@ def calc_finished_percent(done, remain):
 
 @register.simple_tag(name='can_duplicate')
 def can_duplicate(selector):
-    return selector.input_dataset.name != 'Manual Selections'
+    return selector.input_dataset.name != MANUAL_DATASET

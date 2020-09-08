@@ -187,7 +187,7 @@ def selection_detail(request, slug):
         'isowner': request.user == model.user,
         'values': FilterDetail.objects.filter(project_selector=model),
         'cloned': model.projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
-        'canduplicate': model.input_dataset.name != 'Manual Selections',
+        'canduplicate': model.input_dataset.name != MANUAL_DATASET,
         'download_size': download_selection_size(model.slug)
     })
 
@@ -447,7 +447,7 @@ def make_create_selection(request, inputs, initial = {}, pinitial = []):
 @ghtoken_required
 def create_selection(request):
     initial = {}
-    inputs = Dataset.objects.exclude(name='Manual Selections')
+    inputs = Dataset.objects.exclude(name=MANUAL_DATASET)
     if request.method == 'GET' and inputs.count() == 1:
         initial['input_dataset'] = inputs.first()
     return make_create_selection(request, inputs=inputs, initial=initial)
@@ -464,7 +464,7 @@ def create_manual_selection(request):
             selector = ProjectSelector()
             selector.user = request.user
             selector.parent = None
-            selector.input_dataset = Dataset.objects.filter(name='Manual Selections').first()
+            selector.input_dataset = Dataset.objects.filter(name=MANUAL_DATASET).first()
             selector.save()
 
             urls = string_to_urls(p_form.cleaned_data['urls'])
@@ -499,7 +499,7 @@ def selection_duplicate(request, slug):
                 'pfilter': f.pfilter,
                 'value': f.value,
             })
-    return make_create_selection(request, inputs=Dataset.objects.exclude(name='Manual Selections'), initial=initial, pinitial=pinitial)
+    return make_create_selection(request, inputs=Dataset.objects.exclude(name=MANUAL_DATASET), initial=initial, pinitial=pinitial)
 
 def make_create_transform(request, selector=None, transform=None, parent=None):
     if request.method == 'GET':
