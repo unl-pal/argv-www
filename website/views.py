@@ -26,21 +26,18 @@ from django.utils.text import slugify
 from django.views.generic import ListView, View
 from PIL import Image
 
-from website.forms import ProjectSelectionManualForm, TransformParamFormSet
-from website.models import Project, ProjectSnapshot, Selection, TransformParameter, TransformParameterValue
-
-from .choices import *
-from .decorators import email_required, email_verify_warning, ghtoken_required
-from .forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
-                    FilterFormSet, ProfileForm, ProjectSelectionForm,
-                    StaffProfileForm, StaffUserForm, TransformOptionForm,
+from website.choices import *
+from website.decorators import email_required, email_verify_warning, ghtoken_required
+from website.forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
+                    FilterFormSet, ProfileForm, ProjectSelectionForm, ProjectSelectionManualForm,
+                    StaffProfileForm, StaffUserForm, TransformOptionForm, TransformParamFormSet,
                     UserForm, UserLoginForm, UserPasswordForm,
                     UserRegisterForm)
-from .mixins import EmailRequiredMixin
-from .models import (BackendFilter, Dataset, FilterDetail, Paper,
-                     ProjectSelector, ProjectTransformer, Transform,
-                     TransformOption)
-from .tokens import email_verify_token
+from website.mixins import EmailRequiredMixin
+from website.models import (BackendFilter, Dataset, FilterDetail, Paper,
+                     Project, ProjectSelector, ProjectSnapshot, ProjectTransformer, Selection, Transform,
+                     TransformOption, TransformParameter, TransformParameterValue)
+from website.tokens import email_verify_token
 from website.validators import string_to_urls
 
 

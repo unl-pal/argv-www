@@ -9,9 +9,8 @@ from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django_countries.fields import CountryField
 
-from .models import (BackendFilter, Profile, ProjectSelector, Transform,
-                     TransformOption)
-from website.models import TransformParameter
+from website.models import (BackendFilter, Profile, ProjectSelector, Transform,
+                     TransformOption, TransformParameter)
 from website.validators import validate_urls
 
 
