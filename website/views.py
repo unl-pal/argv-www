@@ -184,7 +184,6 @@ def selection_detail(request, slug):
         'isowner': request.user == model.user,
         'values': FilterDetail.objects.filter(project_selector=model),
         'cloned': model.projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
-        'canduplicate': model.input_dataset.name != MANUAL_DATASET,
         'download_size': download_selection_size(model.slug)
     })
 
