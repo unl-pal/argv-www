@@ -37,3 +37,5 @@ TYPE_CHOICES = (
     (STRING, 'String'),
     (LIST, 'List'),
 )
+
+MANUAL_DATASET = 'Manual Selections'

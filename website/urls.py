@@ -36,6 +36,7 @@ urlpatterns = [
 
     path('selection/list/', views.SelectionListView.as_view(), name='list_selections'),
     path('selection/create/', views.create_selection, name='create_selection'),
+    path('selection/create/manual', views.create_manual_selection, name='create_manual_selection'),
     path('selection/<slug>/', views.selection_detail, name='selection_detail'),
     path('selection/<slug>/delete/', views.delete_selection, name='delete_selection'),
     path('selection/<slug>/download/', views.download_selection, name='download_selection'),

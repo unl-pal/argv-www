@@ -26,22 +26,19 @@ from django.utils.text import slugify
 from django.views.generic import ListView, View
 from PIL import Image
 
-from website.forms import TransformParamFormSet
-from website.models import (ProjectSnapshot, TransformParameter,
-                            TransformParameterValue)
-
-from .choices import *
-from .decorators import email_required, email_verify_warning, ghtoken_required
-from .forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
-                    FilterFormSet, ProfileForm, ProjectSelectionForm,
-                    StaffProfileForm, StaffUserForm, TransformOptionForm,
+from website.choices import *
+from website.decorators import email_required, email_verify_warning, ghtoken_required
+from website.forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
+                    FilterFormSet, ProfileForm, ProjectSelectionForm, ProjectSelectionManualForm,
+                    StaffProfileForm, StaffUserForm, TransformOptionForm, TransformParamFormSet,
                     UserForm, UserLoginForm, UserPasswordForm,
                     UserRegisterForm)
-from .mixins import EmailRequiredMixin
-from .models import (BackendFilter, Dataset, FilterDetail, Paper,
-                     ProjectSelector, ProjectTransformer, Transform,
-                     TransformOption)
-from .tokens import email_verify_token
+from website.mixins import EmailRequiredMixin
+from website.models import (BackendFilter, Dataset, FilterDetail, Paper,
+                     Project, ProjectSelector, ProjectSnapshot, ProjectTransformer, Selection, Transform,
+                     TransformOption, TransformParameter, TransformParameterValue)
+from website.tokens import email_verify_token
+from website.validators import string_to_urls
 
 
 class PapersView(ListView):
@@ -400,12 +397,14 @@ def password_change(request):
         'form': form
     })
 
-def make_create_selection(request, initial = {}, pinitial = []):
+def make_create_selection(request, inputs, initial = {}, pinitial = []):
     if request.method == 'GET':
         p_form = ProjectSelectionForm(request.GET or None, initial=initial)
+        p_form.fields['input_dataset'].queryset = inputs
         formset = FilterFormSet(request.GET or None, initial=pinitial)
     elif request.method == 'POST':
         p_form = ProjectSelectionForm(request.POST)
+        p_form.fields['input_dataset'].queryset = inputs
         formset = FilterFormSet(request.POST)
 
         if p_form.is_valid() and formset.is_valid():
@@ -444,9 +443,43 @@ def make_create_selection(request, initial = {}, pinitial = []):
 @ghtoken_required
 def create_selection(request):
     initial = {}
-    if request.method == 'GET' and Dataset.objects.count() == 1:
-        initial['input_dataset'] = Dataset.objects.first()
-    return make_create_selection(request, initial=initial)
+    inputs = Dataset.objects.exclude(name=MANUAL_DATASET)
+    if request.method == 'GET' and inputs.count() == 1:
+        initial['input_dataset'] = inputs.first()
+    return make_create_selection(request, inputs=inputs, initial=initial)
+
+@email_required
+@ghtoken_required
+def create_manual_selection(request):
+    if request.method == 'GET':
+        p_form = ProjectSelectionManualForm(request.GET or None)
+    elif request.method == 'POST':
+        p_form = ProjectSelectionManualForm(request.POST)
+
+        if p_form.is_valid():
+            selector = ProjectSelector()
+            selector.user = request.user
+            selector.parent = None
+            selector.input_dataset = Dataset.objects.filter(name=MANUAL_DATASET).first()
+            selector.save()
+
+            urls = string_to_urls(p_form.cleaned_data['urls'])
+            for url in urls:
+                p, _ = Project.objects.get_or_create(dataset=selector.input_dataset, url=url)
+                if p.snapshots.exists():
+                    s = p.snapshots.order_by('-datetime_processed').first()
+                else:
+                    s, _ = ProjectSnapshot.objects.get_or_create(project=p)
+                Selection.objects.get_or_create(project_selector=selector, snapshot=s)
+
+            messages.success(request, 'Project selection created successfully.')
+            return redirect(reverse_lazy('website:selection_detail', args=(selector.slug,)))
+
+        messages.error(request, 'Invalid form entry - see specific error messages below')
+
+    return render(request, 'website/selections/create_manual.html', {
+        'p_form': p_form,
+    })
 
 @email_required
 @ghtoken_required
@@ -462,7 +495,7 @@ def selection_duplicate(request, slug):
                 'pfilter': f.pfilter,
                 'value': f.value,
             })
-    return make_create_selection(request, initial=initial, pinitial=pinitial)
+    return make_create_selection(request, inputs=Dataset.objects.exclude(name=MANUAL_DATASET), initial=initial, pinitial=pinitial)
 
 def make_create_transform(request, selector=None, transform=None, parent=None):
     if request.method == 'GET':

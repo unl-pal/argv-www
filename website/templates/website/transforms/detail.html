@@ -6,9 +6,6 @@
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        {% if user.is_authenticated %}
-            <a href="{% url 'website:list_transforms' %}">Back to all project transforms</a><br/><br/>
-        {% endif %}
         {% if transformer.enabled %}
             {% if transformer.status == "READY" %}
                 <div class="alert alert-info" role="alert">This transform is currently in the queue and has not started processing yet.</div>
