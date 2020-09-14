@@ -27,7 +27,7 @@
                             <button class="btn btn-xs btn-danger">Cancel</button>
                         </form>
                     {% endif %}
-                    <div id="slugbox" class="pull-right"><em id="slugname">{{ project.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' name='' %}{% endif %}</div>
+                    <div id="slugbox" class="pull-right"><em id="slugname">{{ project.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' %}{% endif %}</div>
                 </h1>
             </div>
             {% if project.parent %}
