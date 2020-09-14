@@ -182,6 +182,7 @@ def selection_detail(request, slug):
         'project': model,
         'form': form,
         'isowner': request.user == model.user,
+        'ismanual': model.input_dataset.name == MANUAL_DATASET,
         'values': FilterDetail.objects.filter(project_selector=model),
         'cloned': model.projects.exclude(host__isnull=True).exclude(path__isnull=True).count(),
         'download_size': download_selection_size(model.slug)

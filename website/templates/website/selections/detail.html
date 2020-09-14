@@ -62,19 +62,21 @@
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><strong>Selection Criteria</strong></h3>
+                {% if not ismanual %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>Selection Criteria</strong></h3>
+                        </div>
+                        <div class="panel-body">
+                            {% for filter in values %}
+                                <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
+                                {% if filter.status != 'PROCESSED' %}
+                                <p>Status: <em>{{ filter.status }}</em></p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        {% for filter in values %}
-                            <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
-                            {% if filter.status != 'PROCESSED' %}
-                            <p>Status: <em>{{ filter.status }}</em></p>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
+                {% endif %}
                 <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}</h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
                 {% calc_finished_projects project as finished_count %}
