@@ -29,3 +29,16 @@ def calc_finished_percent(done, remain):
 @register.simple_tag(name='can_duplicate')
 def can_duplicate(selector):
     return selector.input_dataset.name != MANUAL_DATASET
+
+item_count = -1
+@register.simple_tag(name='reset_item_num')
+def reset_item_num():
+    global item_count
+    item_count = -1
+    return ''
+
+@register.filter(name='item_num')
+def item_num(paginator, current_page):
+    global item_count
+    item_count += 1
+    return item_count + current_page.start_index()

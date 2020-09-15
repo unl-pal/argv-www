@@ -1,0 +1,41 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% block title %}Projects{% endblock %}
+{% block body %}
+    <div class="container-fluid" style="width: 80%">
+        {% include 'website/messages.html' %}
+        <h1>Discovered Projects</h1>
+        <div>({{ paginator.count }} total)</div>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Discovered Project URL</th>
+                        <th>Cloned?</th>
+                        <th>Retained?</th>
+                        <th># of Commits</th>
+                        <th># of Committers</th>
+                        <th># of Source Files</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% reset_item_num %}
+                    {% for project in snapshots %}
+                        <tr>
+                            <td>{{ paginator|item_num:page_obj }}. <a href="{{ project.snapshot.project.url }}" target="_blank">{{ project.snapshot.project.url }}</a></td>
+                            <td>{{ project.is_cloned }}</td>
+                            <td>{{ project.retained }}</td>
+                            <td>{{ project.snapshot.commits }}</td>
+                            <td>{{ project.snapshot.committers }}</td>
+                            <td>{{ project.snapshot.src_files }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            {% include 'website/pagination.html' %}
+        </div>
+    </div>
+{% endblock %}

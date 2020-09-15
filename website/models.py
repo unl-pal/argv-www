@@ -162,6 +162,9 @@ class ProjectSnapshot(models.Model):
     def __str__(self):
         return str(self.project.url) + ' - ' + str(self.host) + ':' + str(self.path)
 
+    def is_cloned(self):
+        return not (self.host is None or self.path is None)
+
 class ProjectSelector(models.Model):
     slug = models.SlugField(unique=True)
     input_dataset = models.ForeignKey(Dataset, on_delete=models.PROTECT, blank=False, null=False)
@@ -224,6 +227,9 @@ class Selection(models.Model):
         indexes = [
             models.Index(fields=['project_selector'], name='project_selector_key'),
         ]
+
+    def is_cloned(self):
+        return self.snapshot.is_cloned()
 
 class FilterDetail(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)

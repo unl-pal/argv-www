@@ -75,14 +75,27 @@
                         {% endfor %}
                     </div>
                 </div>
-                <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}</h4>
-                <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}</h4>
+                <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}
+                    {% url 'website:selection_inspect' slug=project.slug as targeturl %}
+                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                </h4>
+                <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}
+                    {% url 'website:selection_inspect_cloned' slug=project.slug as targeturl %}
+                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                </h4>
                 {% calc_finished_projects project as finished_count %}
                 {% calc_retained_projects project as retained_count %}
                 {% calc_remaining_projects project as remaining_count %}
                 {% calc_finished_percent finished_count remaining_count as finished_pct %}
                 {% if finished_count > 0 %}
-                    <h4><strong>Projects Retained:</strong> {{ retained_count|intcomma }} [<a href="{% url 'website:download_selected_projects' project.slug %}">download CSV</a>]</h4>
+                    <h4><strong>Projects Retained:</strong> {{ retained_count|intcomma }}
+                        <div class="btn-group">
+                            {% url 'website:selection_inspect_retained' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                            {% url 'website:download_selected_projects' slug=project.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
+                        </div>
+                    </h4>
                     {% if not project.isDone %}
                         <div class="progress">
                             <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{ finished_pct }}" aria-valuemin="0" aria-valuemax="100" title="{{ finished_pct }}% complete" style="width: {{ finished_pct }}%">

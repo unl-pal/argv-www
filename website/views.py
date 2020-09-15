@@ -144,6 +144,47 @@ class SelectionListView(EmailRequiredMixin, ListView):
             qs = qs.exclude(enabled=False)
         return qs.order_by('-created')
 
+class SelectionInspectView(ListView):
+    template_name = 'website/selections/inspect.html'
+    context_object_name = 'snapshots'
+    paginate_by = 50
+
+    def get_queryset(self):
+        from django.db.models import BooleanField, Func
+
+        class IsNull(Func):
+            _output_field = BooleanField()
+            arity = 1
+            template = '%(expressions)s IS NULL'
+
+        qs = Selection.objects.filter(project_selector=ProjectSelector.objects.filter(slug=self.kwargs['slug']).first()).select_related('snapshot').select_related('snapshot__project')
+        return qs.order_by(IsNull('snapshot__host'), IsNull('snapshot__path'), '-retained', 'snapshot__project__url')
+
+class ClonedInspectView(ListView):
+    template_name = 'website/selections/inspect.html'
+    context_object_name = 'snapshots'
+    paginate_by = 50
+
+    def get_queryset(self):
+        from django.db.models import BooleanField, Func
+
+        class IsNull(Func):
+            _output_field = BooleanField()
+            arity = 1
+            template = '%(expressions)s IS NULL'
+
+        qs = Selection.objects.filter(project_selector=ProjectSelector.objects.filter(slug=self.kwargs['slug']).first()).exclude(snapshot__host__isnull=True).exclude(snapshot__path__isnull=True).select_related('snapshot').select_related('snapshot__project')
+        return qs.order_by('-retained', 'snapshot__project__url')
+
+class RetainedInspectView(ListView):
+    template_name = 'website/selections/inspect.html'
+    context_object_name = 'snapshots'
+    paginate_by = 50
+
+    def get_queryset(self):
+        qs = Selection.objects.filter(project_selector=ProjectSelector.objects.filter(slug=self.kwargs['slug']).first()).exclude(retained=False).select_related('snapshot').select_related('snapshot__project')
+        return qs.order_by('snapshot__project__url')
+
 class TransformListView(EmailRequiredMixin, ListView):
     template_name = 'website/transforms/list.html'
     context_object_name = 'transformers'
@@ -639,6 +680,38 @@ def send_email_verify(request, user, title):
     return redirect('website:index')
 
 def download_selected_projects(request, slug):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + slug + '-projects.csv"'
+
+    writer = csv.writer(response)
+
+    try:
+        selector = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+
+    for project in selector.result_projects().distinct().order_by('project__url').select_related('project'):
+        writer.writerow([project.project.url])
+
+    return response
+
+def download_cloned_projects(request, slug):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + slug + '-projects.csv"'
+
+    writer = csv.writer(response)
+
+    try:
+        selector = ProjectSelector.objects.get(slug=slug)
+    except:
+        raise Http404
+
+    for project in selector.result_projects().distinct().order_by('project__url').select_related('project'):
+        writer.writerow([project.project.url])
+
+    return response
+
+def download_retained_projects(request, slug):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="' + slug + '-projects.csv"'
 
