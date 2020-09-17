@@ -78,10 +78,14 @@
                 <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}
                     {% url 'website:selection_inspect' slug=project.slug as targeturl %}
                     {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                    {% url 'website:export_selection_csv' slug=project.slug as targeturl %}
+                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
                 </h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}
                     {% url 'website:selection_inspect_cloned' slug=project.slug as targeturl %}
                     {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                    {% url 'website:export_cloned_csv' slug=project.slug as targeturl %}
+                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
                 </h4>
                 {% calc_finished_projects project as finished_count %}
                 {% calc_retained_projects project as retained_count %}
@@ -92,7 +96,7 @@
                         <div class="btn-group">
                             {% url 'website:selection_inspect_retained' slug=project.slug as targeturl %}
                             {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
-                            {% url 'website:download_selected_projects' slug=project.slug as targeturl %}
+                            {% url 'website:export_retained_csv' slug=project.slug as targeturl %}
                             {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
                         </div>
                     </h4>

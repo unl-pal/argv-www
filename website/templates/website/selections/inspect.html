@@ -2,10 +2,12 @@
 {% load calc_finished_projects %}
 {% block title %}Projects{% endblock %}
 {% block body %}
-    <div class="container-fluid" style="width: 80%">
+    <div class="container-fluid" style="width: 90%">
         {% include 'website/messages.html' %}
         <h1>Discovered Projects</h1>
         <div>({{ paginator.count }} total)</div>
+        <div class="pull-right"><a href="{% url 'website:selection_detail' slug=view.kwargs.slug %}">back to project selection</a></div>
+        <br/>
         <div class="table-responsive">
             <table class="table table-hover table-striped">
                 <thead>
@@ -24,7 +26,7 @@
                     {% for project in snapshots %}
                         <tr>
                             <td>{{ paginator|item_num:page_obj }}. <a href="{{ project.snapshot.project.url }}" target="_blank">{{ project.snapshot.project.url }}</a></td>
-                            <td>{{ project.is_cloned }}</td>
+                            <td>{% if project.is_cloned %}{{ project.snapshot.datetime_processed }}{% else %}False{% endif %}</td>
                             <td>{{ project.retained }}</td>
                             <td>{{ project.snapshot.commits }}</td>
                             <td>{{ project.snapshot.committers }}</td>
@@ -34,6 +36,7 @@
                 </tbody>
             </table>
         </div>
+        <div class="pull-right"><a href="{% url 'website:selection_detail' slug=view.kwargs.slug %}">back to project selection</a></div>
         <div class="text-center">
             {% include 'website/pagination.html' %}
         </div>
