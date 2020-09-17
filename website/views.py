@@ -669,26 +669,26 @@ def generate_csv(filename, projects):
 
     writer = csv.writer(response)
 
-    for project in projects:
+    for project in projects.order_by('project__url').select_related('project'):
         writer.writerow([project.project.url])
 
     return response
 
 def export_selection_csv(request, slug):
     try:
-        return generate_csv(slug + '-discovered', ProjectSelector.objects.get(slug=slug).projects.order_by('project__url').select_related('project'))
+        return generate_csv(slug + '-discovered', ProjectSelector.objects.get(slug=slug).projects)
     except:
         raise Http404
 
 def export_cloned_csv(request, slug):
     try:
-        return generate_csv(slug + '-cloned', ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True).exclude(host__isnull=True).order_by('project__url').select_related('project'))
+        return generate_csv(slug + '-cloned', ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True).exclude(host__isnull=True))
     except:
         raise Http404
 
 def export_retained_csv(request, slug):
     try:
-        return generate_csv(slug + '-retained', ProjectSelector.objects.get(slug=slug).result_projects().distinct().order_by('project__url').select_related('project'))
+        return generate_csv(slug + '-retained', ProjectSelector.objects.get(slug=slug).result_projects().distinct())
     except:
         raise Http404
 
