@@ -154,6 +154,7 @@ class SelectionInspectView(ListView):
     template_name = 'website/selections/inspect.html'
     context_object_name = 'snapshots'
     paginate_by = 50
+    inspect_kind = 'Discovered'
 
     def get_base_queryset(self):
         return Selection.objects.filter(project_selector=ProjectSelector.objects.filter(slug=self.kwargs['slug']).first()).select_related('snapshot').select_related('snapshot__project')
@@ -162,10 +163,14 @@ class SelectionInspectView(ListView):
         return self.get_base_queryset().order_by(IsNull('snapshot__host'), IsNull('snapshot__path'), '-retained', 'snapshot__project__url')
 
 class ClonedInspectView(SelectionInspectView):
+    inspect_kind = 'Cloned'
+
     def get_queryset(self):
         return self.get_base_queryset().exclude(snapshot__host__isnull=True).exclude(snapshot__path__isnull=True).order_by('-retained', 'snapshot__project__url')
 
 class RetainedInspectView(SelectionInspectView):
+    inspect_kind = 'Retained'
+
     def get_queryset(self):
         return self.get_base_queryset().filter(retained=True).order_by('snapshot__project__url')
 
