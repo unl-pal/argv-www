@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.db.models import BooleanField, Func
 from django.db.utils import IntegrityError
 from django.forms.formsets import formset_factory
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
@@ -33,12 +34,15 @@ from website.forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
                     UserForm, UserLoginForm, UserPasswordForm,
                     UserRegisterForm)
 from website.mixins import EmailRequiredMixin
-from website.models import (BackendFilter, Dataset, FilterDetail, Paper,
-                     Project, ProjectSelector, ProjectSnapshot, ProjectTransformer, Selection, Transform,
-                     TransformOption, TransformParameter, TransformParameterValue)
+from website.models import BackendFilter, Dataset, FilterDetail, Paper, Project, ProjectSelector, ProjectSnapshot, ProjectTransformer, Selection, Transform, TransformOption, TransformParameter, TransformParameterValue, TransformedProject
 from website.tokens import email_verify_token
 from website.validators import string_to_urls
 
+
+class IsNull(Func):
+    _output_field = BooleanField()
+    arity = 1
+    template = '%(expressions)s IS NULL'
 
 class PapersView(ListView):
     template_name = 'website/papers.html'
@@ -142,6 +146,63 @@ class SelectionListView(EmailRequiredMixin, ListView):
         if not self.request.user.has_perm('website.view_projectselector'):
             qs = qs.exclude(enabled=False)
         return qs.order_by('-created')
+
+class SelectionInspectView(ListView):
+    template_name = 'website/selections/inspect.html'
+    context_object_name = 'snapshots'
+    paginate_by = 50
+    inspect_kind = 'Discovered'
+
+    def get_base_queryset(self):
+        return Selection.objects.filter(project_selector=ProjectSelector.objects.filter(slug=self.kwargs['slug']).first()).select_related('snapshot').select_related('snapshot__project')
+
+    def get_queryset(self):
+        return self.get_base_queryset().order_by(IsNull('snapshot__host'), IsNull('snapshot__path'), '-retained', 'snapshot__project__url')
+
+class ClonedInspectView(SelectionInspectView):
+    inspect_kind = 'Cloned'
+
+    def get_queryset(self):
+        return self.get_base_queryset().exclude(snapshot__host__isnull=True).exclude(snapshot__path__isnull=True).order_by('-retained', 'snapshot__project__url')
+
+class RetainedInspectView(SelectionInspectView):
+    inspect_kind = 'Retained'
+
+    def get_queryset(self):
+        return self.get_base_queryset().filter(retained=True).order_by('snapshot__project__url')
+
+class TransformInspectView(ListView):
+    template_name = 'website/transforms/inspect.html'
+    context_object_name = 'projects'
+    paginate_by = 50
+    inspect_kind = 'Input'
+
+    def get_transformer(self):
+        return ProjectTransformer.objects.get(slug=self.kwargs['slug'])
+
+    def get_queryset(self):
+        transformer = self.get_transformer()
+        if transformer.src_selector:
+            return transformer.input_projects().select_related('project').order_by('project__url')
+        return transformer.input_projects().select_related('src_project__project').order_by('src_project__project__url')
+
+class TransformInspectTransformedView(TransformInspectView):
+    inspect_kind = 'Transformed'
+
+    def get_queryset(self):
+        transformer = self.get_transformer()
+        if transformer.src_selector:
+            return TransformedProject.objects.filter(transform=transformer.transform).select_related('src_project__project').order_by('src_project__project__url')
+        return TransformedProject.objects.filter(transform=transformer.transform).select_related('src_project__project').order_by('src_project__project__url')
+
+class TransformInspectRetainedView(TransformInspectView):
+    inspect_kind = 'Retained'
+
+    def get_queryset(self):
+        transformer = self.get_transformer()
+        if transformer.src_selector:
+            return TransformedProject.objects.filter(transform=transformer.transform).filter(path__isnull=False).exclude(path='').select_related('src_project__project').order_by('src_project__project__url')
+        return TransformedProject.objects.filter(transform=transformer.transform).filter(path__isnull=False).exclude(path='').select_related('src_project__project').order_by('src_project__project__url')
 
 class TransformListView(EmailRequiredMixin, ListView):
     template_name = 'website/transforms/list.html'
@@ -638,21 +699,63 @@ def send_email_verify(request, user, title):
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
 
-def download_selected_projects(request, slug):
+def generate_selection_csv(filename, projects):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="' + slug + '-projects.csv"'
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '.csv"'
 
     writer = csv.writer(response)
 
-    try:
-        selector = ProjectSelector.objects.get(slug=slug)
-    except:
-        raise Http404
-
-    for project in selector.result_projects().distinct().order_by('project__url').select_related('project'):
+    for project in projects.order_by('project__url').select_related('project'):
         writer.writerow([project.project.url])
 
     return response
+
+def export_selection_csv(request, slug):
+    try:
+        return generate_selection_csv(slug + '-discovered', ProjectSelector.objects.get(slug=slug).projects)
+    except:
+        raise Http404
+
+def export_cloned_csv(request, slug):
+    try:
+        return generate_selection_csv(slug + '-cloned', ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True).exclude(host__isnull=True))
+    except:
+        raise Http404
+
+def export_retained_csv(request, slug):
+    try:
+        return generate_selection_csv(slug + '-retained', ProjectSelector.objects.get(slug=slug).result_projects().distinct())
+    except:
+        raise Http404
+
+def export_transform_csv(filename, projects):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '.csv"'
+
+    writer = csv.writer(response)
+
+    for project in projects.order_by('project__url').select_related('project'):
+        writer.writerow([project.project.url])
+
+    return response
+
+def export_transform_csv(request, slug):
+    try:
+        return export_transform_csv(slug + '-discovered', ProjectSelector.objects.get(slug=slug).projects)
+    except:
+        raise Http404
+
+def export_transform_transformed_csv(request, slug):
+    try:
+        return export_transform_csv(slug + '-cloned', ProjectSelector.objects.get(slug=slug).projects.exclude(path__isnull=True).exclude(host__isnull=True))
+    except:
+        raise Http404
+
+def export_transform_retained_csv(request, slug):
+    try:
+        return export_transform_csv(slug + '-retained', ProjectSelector.objects.get(slug=slug).result_projects().distinct())
+    except:
+        raise Http404
 
 def download_selection_size(slug):
     download_path = os.path.join(settings.MEDIA_ROOT, 'downloads/selection')

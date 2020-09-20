@@ -1,0 +1,46 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% block title %}{{ view.inspect_kind }} Projects - {{ view.kwargs.slug }}{% endblock %}
+{% block body %}
+    <div class="container-fluid" style="width: 90%">
+        {% include 'website/messages.html' %}
+        <h1>{{ view.inspect_kind }} Projects - <a href="{% url 'website:selection_detail' slug=view.kwargs.slug %}">{{ view.kwargs.slug }}</a></h1>
+        <div>({{ paginator.count }} total)</div>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Project URL</th>
+                        <th>Cloned{% if view.inspect_kind == 'Discovered' %}?{% else %} On{% endif %}</th>
+                        {% if view.inspect_kind != 'Retained' %}
+                            <th>Retained?</th>
+                        {% endif %}
+                        <th># of Commits</th>
+                        <th># of Committers</th>
+                        <th># of Source Files</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% reset_item_num %}
+                    {% for project in snapshots %}
+                        <tr>
+                            <td>{{ paginator|item_num:page_obj }}. <a href="{{ project.snapshot.project.url }}" target="_blank">{{ project.snapshot.project.url }}</a></td>
+                            <td>{% if project.is_cloned %}{{ project.snapshot.datetime_processed }}{% else %}False{% endif %}</td>
+                            {% if view.inspect_kind != 'Retained' %}
+                                <td>{{ project.retained }}</td>
+                            {% endif %}
+                            <td>{{ project.snapshot.commits }}</td>
+                            <td>{{ project.snapshot.committers }}</td>
+                            <td>{{ project.snapshot.src_files }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pull-right"><a href="{% url 'website:selection_detail' slug=view.kwargs.slug %}">back to project selection</a></div>
+        <div class="text-center">
+            {% include 'website/pagination.html' %}
+        </div>
+    </div>
+{% endblock %}
