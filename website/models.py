@@ -174,7 +174,7 @@ class ProjectSelector(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     pfilter = models.ManyToManyField(BackendFilter, blank=True, through='FilterDetail')
     status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
-    created = models.DateField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, blank=True, null=True)
     enabled = models.BooleanField(default=True)
     projects = models.ManyToManyField(ProjectSnapshot, through='Selection')

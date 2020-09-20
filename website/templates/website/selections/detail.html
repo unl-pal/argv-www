@@ -27,7 +27,7 @@
                             <button class="btn btn-xs btn-danger">Cancel</button>
                         </form>
                     {% endif %}
-                    <div id="slugbox" class="pull-right"><em id="slugname">{{ project.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' name='' %}{% endif %}</div>
+                    <div id="slugbox" class="pull-right"><em id="slugname">{{ project.slug }}</em>{% if isowner %}{% include 'website/button.html' with name='editslug' targeturl='#' disabled=False enabled=True type='default btn-xs' icon='edit' text='' title='Rename' %}{% endif %}</div>
                 </h1>
             </div>
             {% if project.parent %}
@@ -62,19 +62,21 @@
                 <h4><strong>Submitted By:</strong> {{ project.user }}</h4>
                 <h4><strong>Dataset Origin:</strong> {{ project.input_dataset }}</h4>
                 <br/>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><strong>Selection Criteria</strong></h3>
+                {% if not ismanual %}
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><strong>Selection Criteria</strong></h3>
+                        </div>
+                        <div class="panel-body">
+                            {% for filter in values %}
+                                <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
+                                {% if filter.status != 'PROCESSED' %}
+                                <p>Status: <em>{{ filter.status }}</em></p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        {% for filter in values %}
-                            <h5><strong>{{ filter.pfilter }}:</strong> {{ filter|intcomma }}</h5>
-                            {% if filter.status != 'PROCESSED' %}
-                            <p>Status: <em>{{ filter.status }}</em></p>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
+                {% endif %}
                 <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}
                     <div class="btn-group">
                         {% url 'website:selection_inspect' slug=project.slug as targeturl %}
