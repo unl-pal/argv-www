@@ -76,16 +76,20 @@
                     </div>
                 </div>
                 <h4><strong>Discovered Projects:</strong> {{ project.projects.all|length|intcomma }}
-                    {% url 'website:selection_inspect' slug=project.slug as targeturl %}
-                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
-                    {% url 'website:export_selection_csv' slug=project.slug as targeturl %}
-                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
+                    <div class="btn-group">
+                        {% url 'website:selection_inspect' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Discovered Projects' name='' %}
+                        {% url 'website:export_selection_csv' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Discovered Projects (CSV)' name='' %}
+                    </div>
                 </h4>
                 <h4><strong>Projects Cloned:</strong> {{ cloned|intcomma }}
-                    {% url 'website:selection_inspect_cloned' slug=project.slug as targeturl %}
-                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
-                    {% url 'website:export_cloned_csv' slug=project.slug as targeturl %}
-                    {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
+                    <div class="btn-group">
+                        {% url 'website:selection_inspect_cloned' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Cloned Projects' name='' %}
+                        {% url 'website:export_cloned_csv' slug=project.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Cloned Projects (CSV)' name='' %}
+                    </div>
                 </h4>
                 {% calc_finished_projects project as finished_count %}
                 {% calc_retained_projects project as retained_count %}
@@ -95,9 +99,9 @@
                     <h4><strong>Projects Retained:</strong> {{ retained_count|intcomma }}
                         <div class="btn-group">
                             {% url 'website:selection_inspect_retained' slug=project.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='search' text='' title='Inspect' name='' %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Retained Projects' name='' %}
                             {% url 'website:export_retained_csv' slug=project.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=project.isDone type='default btn-xs' icon='save' text='' title='Export as CSV' name='' %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Retained Projects (CSV)' name='' %}
                         </div>
                     </h4>
                     {% if not project.isDone %}

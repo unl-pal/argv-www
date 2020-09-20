@@ -1,0 +1,32 @@
+{% extends 'website/base.html' %}
+{% load calc_finished_projects %}
+{% block title %}{{ view.inspect_kind }} Projects - {{ view.kwargs.slug }}{% endblock %}
+{% block body %}
+    <div class="container-fluid" style="width: 90%">
+        {% include 'website/messages.html' %}
+        <h1>{{ view.inspect_kind }} Projects - <a href="{% url 'website:transform_detail' slug=view.kwargs.slug %}">{{ view.kwargs.slug }}</a></h1>
+        <div>({{ paginator.count }} total)</div>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Project URL</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% reset_item_num %}
+                    {% for p in projects %}
+                        <tr>
+                            <td>{{ paginator|item_num:page_obj }}. <a href="{{ p.project_url }}" target="_blank">{{ p.project_url }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pull-right"><a href="{% url 'website:transform_detail' slug=view.kwargs.slug %}">back to project transform</a></div>
+        <div class="text-center">
+            {% include 'website/pagination.html' %}
+        </div>
+    </div>
+{% endblock %}

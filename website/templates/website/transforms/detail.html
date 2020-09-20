@@ -76,8 +76,22 @@
                     </div>
                 {% endif %}
                 <br/>
-                <h4><strong>Input Projects:</strong> {{ transformer.input_project_count|intcomma }}</h4>
-                <h4><strong>Projects Transformed:</strong> {{ transformer.project_count|intcomma }}</h4>
+                <h4><strong>Input Projects:</strong> {{ transformer.input_project_count|intcomma }}
+                    <div class="btn-group">
+                        {% url 'website:transform_inspect' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Input Projects' name='' %}
+                        {% url 'website:export_transform_csv' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Input Projects (CSV)' name='' %}
+                    </div>
+                </h4>
+                <h4><strong>Projects Transformed:</strong> {{ transformer.project_count|intcomma }}
+                    <div class="btn-group">
+                        {% url 'website:transform_inspect_transformed' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Transformed Projects' name='' %}
+                        {% url 'website:export_transform_transformed_csv' slug=transformer.slug as targeturl %}
+                        {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Transformed Projects (CSV)' name='' %}
+                    </div>
+                </h4>
                 {% calc_finished_percent transformer.project_count transformer.remaining_count as finished_pct %}
                 {% if not transformer.isDone %}
                     <div class="progress">
@@ -87,7 +101,14 @@
                     </div>
                 {% endif %}
                 {% if transformed > 0 %}
-                    <h4><strong>Projects Retained:</strong> {{ transformer.retained_count|intcomma }}</h4>
+                    <h4><strong>Projects Retained:</strong> {{ transformer.retained_count|intcomma }}
+                        <div class="btn-group">
+                            {% url 'website:transform_inspect_retained' slug=transformer.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='search' text='' title='Inspect Retained Projects' name='' %}
+                            {% url 'website:export_transform_retained_csv' slug=transformer.slug as targeturl %}
+                            {% include 'website/button.html' with disabled=False enabled=True type='default btn-xs' icon='save' text='' title='Export Retained Projects (CSV)' name='' %}
+                        </div>
+                    </h4>
                 {% endif %}
                 {% if transformer.isDone %}
                     <br/>

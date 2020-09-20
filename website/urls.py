@@ -55,4 +55,10 @@ urlpatterns = [
     path('transform/<slug>/delete/', views.delete_transform, name='delete_transform'),
     path('transform/<slug>/download/', views.download_transform, name='download_transform'),
     path('transform/<slug>/duplicate/', views.transform_duplicate, name='transform_duplicate'),
+    path('transform/<slug>/inspect/', views.TransformInspectView.as_view(), name='transform_inspect'),
+    path('transform/<slug>/inspect/transformed/', views.TransformInspectTransformedView.as_view(), name='transform_inspect_transformed'),
+    path('transform/<slug>/inspect/retained/', views.TransformInspectRetainedView.as_view(), name='transform_inspect_retained'),
+    path('transform/<slug>/inspect/download/', views.export_transform_csv, name='export_transform_csv'),
+    path('transform/<slug>/inspect/transformed/download/', views.export_transform_transformed_csv, name='export_transform_transformed_csv'),
+    path('transform/<slug>/inspect/retained/download/', views.export_transform_retained_csv, name='export_transform_retained_csv'),
 ]
