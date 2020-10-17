@@ -44,15 +44,17 @@
                         {% url 'website:create_transform_transform' slug=transformer.slug as targeturl %}
                         {% include 'website/button.html' with disabled=False enabled=transformer.isDone type='success' icon='random' text='' title='Transform' name='' %}
                     </div>
-                    <div class="btn-group">
-                        {% if transformer.enabled %}
-                            {% url 'website:delete_transform' slug=transformer.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
-                        {% else %}
-                            {% url 'website:restore_transform' slug=transformer.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
-                        {% endif %}
-                    </div>
+                    {% if isowner %}
+                        <div class="btn-group">
+                            {% if transformer.enabled %}
+                                {% url 'website:delete_transform' slug=transformer.slug as targeturl %}
+                                {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
+                            {% else %}
+                                {% url 'website:restore_transform' slug=transformer.slug as targeturl %}
+                                {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
                 <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.created }}">{{ transformer.created|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>

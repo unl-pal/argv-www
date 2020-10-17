@@ -45,15 +45,17 @@
                         {% url 'website:create_transform_selection' slug=project.slug as targeturl %}
                         {% include 'website/button.html' with disabled=False enabled=project.isDone type='success' icon='random' text='' title='Transform' name='' %}
                     </div>
-                    <div class="btn-group">
-                        {% if project.enabled %}
-                            {% url 'website:delete_selection' slug=project.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
-                        {% else %}
-                            {% url 'website:restore_selection' slug=project.slug as targeturl %}
-                            {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
-                        {% endif %}
-                    </div>
+                    {% if isowner %}
+                        <div class="btn-group">
+                            {% if project.enabled %}
+                                {% url 'website:delete_selection' slug=project.slug as targeturl %}
+                                {% include 'website/button.html' with disabled=False enabled=True type='danger' icon='trash' text='' title='Delete' name='' %}
+                            {% else %}
+                                {% url 'website:restore_selection' slug=project.slug as targeturl %}
+                                {% include 'website/button.html' with disabled=False enabled=True type='warning' icon='ok-sign' text='' title='Restore' name='' %}
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
                 {% if project.parent %}
                     <h4><strong>Parent Selection:</strong> <a href="{% url 'website:selection_detail' project.parent %}">{{ project.parent }}</a></h4>
