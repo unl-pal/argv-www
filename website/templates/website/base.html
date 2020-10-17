@@ -45,6 +45,13 @@
                 <li class="{% block peopleactive %}{% endblock %}">
                     <a href="{% url 'website:people' %}">People</a>
                 </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Source <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a target="_blank" href="https://github.com/bgsu-pal/paclab-www/">Website source code (GitHub)</a></li>
+                        <li><a target="_blank" href="https://github.com/bgsu-pal/paclab-transformer">Transformer source code (GitHub)</a></li>
+                    </ul>
+                </li>
             </ul>
 
             {% include 'website/auth_menu.html' with tags="visible-xs" %}
