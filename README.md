@@ -38,18 +38,7 @@ See [requirements.txt](requirements.txt) for full list of Python requirements. N
 5. Navigate terminal to root of project directory (where `manage.py` is): `cd paclab-www`
 6. Use command `pip3 install -r requirements.txt` to install all default requirements
 7. Generate a secret key and copy to the clipboard: `python manage.py shell -c "from django.core.management import utils; print(utils.get_random_secret_key())"`
-8. Create a file named `.env` and add these lines:
-   - `SECRET_KEY='your-secret-key-from-previous-step'`
-   - `DEBUG=True`
-   - `ALLOWED_HOSTS='your-server-name'` or `'localhost,127.0.0.1'` if using django's packaged development server
-   - `DATABASE_URL='sqlite:////full/path/to/paclab-www/db.sqlite3'` or url to your database
-   - `EMAIL_USER='gmail-smtp-email-username'`
-   - `EMAIL_PASSWORD='gmail-smtp-email-password'`
-   - `BOA_USER='your boa username'`
-   - `BOA_PW='your boa password'`
-   - `REPO_PATH='/path/to/store/repositories'`
-   - `TRANSFORMED_PATH='/path/to/store/transformed/projects'`
-   - `PACLAB_TRANSFORM_PATH='/path/to/the/paclab/transformer'`
+8. Copy `env.template` to a file named `.env` and edit for your local configuration
 9. Create migration files for database: `python3 manage.py makemigrations website backend`
 10. Create database tables: `python3 manage.py migrate`
 
