@@ -13,8 +13,8 @@ def validate_file_size(value):
     return value
 
 def validate_gh_token(token):
-    m = re.match('[a-fA-F0-9]+', token)
-    if not m or len(m.group(0)) != 40:
+    m = re.match('^gh._[a-zA-Z0-9]{36}$', token)
+    if not m:
         raise ValidationError('This is not a valid GitHub Personal Token.')
     response = requests.get('https://api.github.com/rate_limit', headers={'Authorization': 'token ' + token})
     if 'message' in response.json():
