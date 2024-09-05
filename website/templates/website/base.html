@@ -1,4 +1,4 @@
-{% load static %}
+{% load static hijack %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,16 +10,15 @@
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" integrity="sha384-xewr6kSkq3dBbEtB6Z/3oFZmknWn7nHqhLVLrYgzEFRbU/DHSxW7K3B44yWUN60D" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" integrity="sha384-Nlo8b0yiGl7Dn+BgLn4mxhIIBU6We7aeeiulNCjHdUv/eKHx59s3anfSUjExbDxn" crossorigin="anonymous">
-    {% if USE_HIJACK == True %}
-        <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack-styles.css' %}" />
-    {% endif %}
     <link rel="stylesheet" type="text/css" href="{% static 'website/style.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'website/fs-modal.min.css' %}">
     {% block style %}{% endblock %}
 </head>
 <body>
 {% if USE_HIJACK == True %}
-{% include 'website/hijackNotification.html'%}
+    {% if can_hijack %}
+        {% include 'website/hijackNotification.html'%}
+    {% endif %}
 {% endif %}
 <header>
     <nav class="navbar navbar-default">

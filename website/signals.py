@@ -69,16 +69,12 @@ def user_login_failed_callback(sender, credentials, request, **kwargs):
     UserAuthAuditEntry.objects.create(action='invalid_login', ip=ip, attempted=credentials.get('username', None))
 
 if settings.USE_HIJACK:
-    from hijack.signals import hijack_started, hijack_ended
+    from hijack import signals
 
-    @receiver(hijack_started)
-    def print_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
-        hijacker = User.objects.get(id=hijacker_id)
-        hijacked = User.objects.get(id=hijacked_id)
+    def print_hijack_started(sender, hijacker, hijacked, request, **kwargs):
         UserAuthAuditEntry.objects.create(action='hijack_start', hijacker=hijacker, hijacked=hijacked)
+    signals.hijack_started.connect(print_hijack_started)
 
-    @receiver(hijack_ended)
-    def print_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
-        hijacker = User.objects.get(id=hijacker_id)
-        hijacked = User.objects.get(id=hijacked_id)
+    def print_hijack_ended(sender, hijacker, hijacked, request, **kwargs):
         UserAuthAuditEntry.objects.create(action='hijack_end', hijacker=hijacker, hijacked=hijacked)
+    signals.hijack_ended.connect(print_hijack_ended)

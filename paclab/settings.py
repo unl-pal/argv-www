@@ -53,8 +53,7 @@ HIJACK_USE_BOOTSTRAP = True
 if USE_HIJACK == True:
     INSTALLED_APPS += [
         'hijack',
-        'compat',
-        'hijack_admin',
+        'hijack.contrib.admin',
     ]
 
 if DEBUG == True:
@@ -138,6 +137,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'website.middleware.SiteMaintenanceMiddleware',
 ]
+if USE_HIJACK == True:
+    MIDDLEWARE += [
+        'hijack.middleware.HijackUserMiddleware',
+    ]
 
 ROOT_URLCONF = 'paclab.urls'
 
