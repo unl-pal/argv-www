@@ -1,7 +1,5 @@
 -r common.txt
 
-django-compat==1.0.15
 django-hijack~=3.6
-django-hijack-admin==2.1.10
 django-extensions~=3.2
 Werkzeug==0.16.0
