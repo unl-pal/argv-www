@@ -5,7 +5,6 @@ from django.forms import BaseInlineFormSet
 from django.urls import reverse_lazy
 from django.utils.html import format_html
 
-from paclab.settings import USE_HIJACK
 from website.models import (BackendFilter, TransformParameter,
                             TransformParameterValue)
 
@@ -15,19 +14,12 @@ from .models import (Dataset, Filter, FilterDetail, Paper, Profile, Project,
                      Selection, Transform, TransformedProject, TransformOption,
                      TransformSelection, UserAuthAuditEntry)
 
-if USE_HIJACK:
-    from hijack_admin.admin import HijackUserAdmin
-
 class ProfileAdmin(admin.StackedInline):
     model = Profile
     can_delete = False
 
-if USE_HIJACK:
-    class UserProfileAdmin(HijackUserAdmin):
-        inlines = [ProfileAdmin, ]
-else:
-    class UserProfileAdmin(UserAdmin):
-        inlines = [ProfileAdmin, ]
+class UserProfileAdmin(UserAdmin):
+    inlines = [ProfileAdmin, ]
 
 admin.site.unregister(User)
 admin.site.register(User, UserProfileAdmin)
