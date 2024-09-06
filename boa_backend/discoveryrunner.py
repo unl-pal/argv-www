@@ -1,6 +1,7 @@
 import time
 
 from boaapi.boa_client import BoaClient
+from boaapi.status import CompilerStatus, ExecutionStatus
 from decouple import config
 
 from backend.discoveryrunner import DiscoveryRunner as DR
@@ -111,17 +112,17 @@ visit(input, visitor {
         for f in self.filters():
             self.filter_start(f)
 
-        while job.compiler_status == 'Running' or job.exec_status == 'Running' or job.compiler_status == 'Waiting' or job.exec_status == 'Waiting':
-            job.refresh()
-            time.sleep(3)
+        job.wait()
+        if self.verbosity >= 3:
+            print(f'           -> boa job {job.id} completed')
 
-        if job.compiler_status == 'Error':
+        if job.compiler_status == CompilerStatus.ERROR:
             print('job ' + str(job.id) + ' had compile error')
-        elif job.exec_status == 'Error':
+        elif job.exec_status == ExecutionStatus.ERROR:
             print('job ' + str(job.id) + ' had exec error')
         else:
             try:
-                output = job.output().decode('utf-8')
+                output = job.output()
 
                 for line in output.splitlines(False):
                     self.discovered_project(line[6:])
