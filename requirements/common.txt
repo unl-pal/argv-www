@@ -1,4 +1,4 @@
-certifi==2018.11.29
+certifi==2024.7.4
 chardet==3.0.4
 dj-database-url~=2.2
 Django~=4.2
