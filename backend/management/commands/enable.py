@@ -2,10 +2,10 @@ from backend.management.base.BackendCommand import BackendCommand
 from website.models import BackendFilter, Filter, Transform
 
 
-'''Enable Command
+'''Enable Backend
 
 Usage: manage.py enable BACKEND_NAME
-Installs and enables all items in the database associated with the specified backend.
+Enables all items in the database associated with the specified backend.
 '''
 class Command(BackendCommand):
     help = 'Enables the given backend'
