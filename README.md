@@ -1,6 +1,6 @@
 # PAClab - The Program Analaysis ColLABoratory
 
-## This repository contains the frontend website for PAClab.  For the transformer, see: [bgsu-pal/paclab-transformer](https://github.com/bgsu-pal/paclab-transformer)
+## This repository contains the frontend website for PAClab.  For the transformer, see: [unl-pal/paclab-transformer](https://github.com/unl-pal/paclab-transformer)
 
 PAClab front-end UI repository using the Django web framework. This repository also contains several back-end scripts.
 
