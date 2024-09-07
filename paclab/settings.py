@@ -47,9 +47,6 @@ INSTALLED_APPS = [
 # Set this setting to true in your env file if you would like to use the hijack app
 USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
 
-HIJACK_ALLOW_GET_REQUESTS = True # enable Hijack admin page
-HIJACK_USE_BOOTSTRAP = True
-
 if USE_HIJACK == True:
     INSTALLED_APPS += [
         'hijack',
