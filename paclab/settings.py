@@ -215,8 +215,8 @@ MEDIA_URL = URL_ROOT + 'media/'
 
 FIXTURE_DIRS = glob(os.path.join(BASE_DIR, '*_backend/fixtures'))
 
-REPO_PATH = config('REPO_PATH', default='.')
-TRANSFORMED_PATH = config('TRANSFORMED_PATH', default='.')
+REPO_PATH = config('REPO_PATH', default='data/repos')
+TRANSFORMED_PATH = config('TRANSFORMED_PATH', default='data/transformed')
 
 MAX_FILE_UPLOAD = 8 * 1024 * 1024
 THUMBNAIL_SIZE = (200, 200)
