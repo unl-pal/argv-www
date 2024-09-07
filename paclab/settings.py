@@ -98,7 +98,7 @@ logging.config.dictConfig({
             'level': 'ERROR',
             'filters': ['require_debug_false', ],
             'class': 'logging.FileHandler',
-            'filename': config('ERROR_LOG', default='/home/boa/paclab/error.log'),
+            'filename': config('ERROR_LOG', default='./error.log'),
         },
     },
     'loggers': {
