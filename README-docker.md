@@ -19,7 +19,7 @@ docker run \
     -v /path/to/transformer/:/transformer \ # Path to the transformer repository
     -v /path/to/data:/data \ # Path to the data storage folder
     -p 8000:8000 \
-    -i -t argvsite:latest
+    -i -t argv:latest
 ```
 
 The image will create a shell session for you to work from.
