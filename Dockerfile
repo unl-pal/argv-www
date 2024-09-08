@@ -10,4 +10,4 @@ RUN pip install --upgrade pip \
  && pip install --no-cache-dir -r requirements/dev.txt
 WORKDIR /app
 EXPOSE 8000
-CMD ["/bin/sh"]
+CMD ["/bin/bash"]
