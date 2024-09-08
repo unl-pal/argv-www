@@ -8,7 +8,7 @@
             <form action="{% url 'hijack:release' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
-                <button type="submit" class="btn btn-default btn-sm django-hijack-button-default">release {{ request.user }}</button>
+                <button type="submit" class="btn btn-default btn-sm django-hijack-button-default">Stop Impersonating</button>
             </form>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
