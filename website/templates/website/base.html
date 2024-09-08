@@ -1,4 +1,4 @@
-{% load static hijack %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,11 +15,6 @@
     {% block style %}{% endblock %}
 </head>
 <body>
-{% if USE_HIJACK == True %}
-    {% if can_hijack %}
-        {% include 'website/hijackNotification.html'%}
-    {% endif %}
-{% endif %}
 <header>
     <nav class="navbar navbar-default">
         <!--Main Buttons-->

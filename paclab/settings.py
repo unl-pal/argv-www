@@ -44,15 +44,6 @@ INSTALLED_APPS = [
     'django_countries',
 ]
 
-# Set this setting to true in your env file if you would like to use the hijack app
-USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
-
-if USE_HIJACK == True:
-    INSTALLED_APPS += [
-        'hijack',
-        'hijack.contrib.admin',
-    ]
-
 if DEBUG == True:
     INSTALLED_APPS += [
         'django_extensions',
@@ -62,6 +53,17 @@ INSTALLED_APPS += [
     'website.apps.WebsiteConfig',
     'backend.apps.BackendConfig',
 ]
+
+# Set this setting to true in your env file if you would like to use the hijack app
+USE_HIJACK = config('USE_HIJACK', default=False, cast=bool)
+
+if USE_HIJACK == True:
+    HIJACK_INSERT_BEFORE = '<header>'
+
+    INSTALLED_APPS += [
+        'hijack',
+        'hijack.contrib.admin',
+    ]
 
 LOGGING_CONFIG = None
 logging.config.dictConfig({
@@ -155,7 +157,6 @@ TEMPLATES = [
                 'website.context_processors.adminConstant',
                 'website.context_processors.moderatorConstant',
                 'website.context_processors.retiredConstant',
-                'website.context_processors.useHijack',
                 'website.context_processors.in_maintenance',
             ],
         },
