@@ -6,20 +6,19 @@
     "configurations": [
         {
             "name": "PAClab: webserver",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "justMyCode": false,
             "args": [
                 "runserver",
-                "5000",
                 "--noreload"
             ],
             "django": true
         },
         {
             "name": "PAClab: rundiscovery",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "justMyCode": false,
@@ -34,18 +33,21 @@
         },
         {
             "name": "PAClab: runcloner",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "justMyCode": false,
             "args": [
-                "runcloner"
+                "runcloner",
+                "-v",
+                "3",
+                "--dry-run"
             ],
             "django": true
         },
         {
             "name": "PAClab: runtransforms",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "justMyCode": false,
