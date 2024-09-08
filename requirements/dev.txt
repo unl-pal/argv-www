@@ -2,4 +2,4 @@
 
 django-hijack~=3.6
 django-extensions~=3.2
-Werkzeug==0.16.0
+django-werkzeug==1.0.0
