@@ -28,6 +28,8 @@ to the notes below.
 
 ## Notes
 
+ - Be sure to specify binding all IPs when running the development server, e.g.
+    `python manage.py runserver 0.0.0.0:8000`.
  - It is recommended to set the value of `DATABASE_URL` to somewhere
    in one of the three volumes (`/app`, `/transformer`, or `/data`).
  - Similarly, it is recommended to set the location of repositories
