@@ -6,7 +6,7 @@ In the repository root, run the following command to build a Docker
 image.
 
 ```sh
-docker build -t argvsite .
+docker build -t argv:latest .
 ```
 
 ## To Run the Docker Environment
