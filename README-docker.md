@@ -22,7 +22,7 @@ docker run \
     -i -t argvsite:latest
 ```
 
-The image will create a Bash shell session for you to work from.
+The image will create a shell session for you to work from.
 Instructions from [the readme](README.md) should be followed subject
 to the notes below.
 
