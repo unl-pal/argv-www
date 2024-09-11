@@ -1,0 +1,14 @@
+[
+  {
+    "model": "website.dataset",
+    "fields": {
+      "name": "Manual Selections"
+    }
+  },
+  {
+    "model": "website.dataset",
+    "fields": {
+      "name": "GitHub"
+    }
+  }
+]
