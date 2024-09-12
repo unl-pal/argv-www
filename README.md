@@ -76,7 +76,7 @@ The backend has several scripts that need to run.  Be sure each of them is runni
 ### Running the Website
 1. Create an admin user: `python3 manage.py createsuperuser`
 2. Create static files: `python3 manage.py collectstatic`
-3. Load system data: `python3 manage.py loaddata basedata`
+3. Load system data: `python3 manage.py loaddata --app website basedata`
 4. Run django's development server using command: `python3 manage.py runserver`
 
 ## Notes
