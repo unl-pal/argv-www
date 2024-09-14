@@ -26,7 +26,6 @@
                 "rundiscovery",
                 "-v",
                 "3",
-                "--dry-run",
                 "--no-poll"
             ],
             "django": true
@@ -41,7 +40,7 @@
                 "runcloner",
                 "-v",
                 "3",
-                "--dry-run"
+                "--no-poll"
             ],
             "django": true
         },
@@ -54,9 +53,55 @@
             "args": [
                 "runtransforms",
                 "-v",
-                "3"
+                "3",
+                "--no-poll"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: rundiscovery (dry run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "rundiscovery",
+                "-v",
+                "3",
+                "--no-poll",
+                "--dry-run"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: runcloner (dry run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runcloner",
+                "-v",
+                "3",
+                "--no-poll",
+                "--dry-run"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: runtransforms (dry run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runtransforms",
+                "-v",
+                "3",
+                "--no-poll",
+                "--dry-run"
             ],
             "django": true
         }
-    ]
+     ]
 }
