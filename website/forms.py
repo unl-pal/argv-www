@@ -140,6 +140,16 @@ class FilterDetailForm(forms.Form):
         if self.is_valid() and 'pfilter' in self.cleaned_data:
             self.fields['pfilter'].help_text = mark_safe(self.cleaned_data['pfilter'].flter.help_text)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'pfilter' in cleaned_data:
+            if cleaned_data['pfilter'].flter.val_type == 'Integer':
+                try:
+                    int(cleaned_data['value'])
+                except ValueError:
+                    self.add_error('pfilter', 'Invalid value, must be an integer')
+        return cleaned_data
+
 class BaseFilterFormSet(BaseFormSet):
     def clean(self):
         cleaned_data = super().clean()
