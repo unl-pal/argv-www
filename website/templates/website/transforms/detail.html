@@ -171,12 +171,21 @@
 
         setSlug(originalslug);
 
+        $(document).keyup(function(e) {
+            if (e.key === "Escape" && $('#slugform').is(":visible")) {
+                $('#slugbox').show();
+                $('#slugform').hide();
+            }
+        });
+
         // the edit button
         $(document).on('click', 'a[name="editslug"]', function(e) {
             e.preventDefault();
 
             $('#slugbox').hide();
             $('#slugform').show();
+            $('#slugform > input[name="newslug"]').select();
+            $('#slugform > input[name="newslug"]').focus();
         });
 
         // rename button
@@ -184,6 +193,11 @@
             e.preventDefault();
 
             var newslug = $('#slugform > input[name="newslug"]').val();
+            if (newslug == originalslug) {
+                $('#slugbox').show();
+                $('#slugform').hide();
+                return;
+            }
 
             $.post(api_url, {
                 slug: newslug,
