@@ -38,7 +38,8 @@
                                 {% if not form.prefix == lastform %}
                                     <button class="btn btn-danger remove-form-row">-</button><br/>
                                 {% else %}
-                                    <button class="btn btn-success add-form-row">+</button><br/>
+                                <button class="btn btn-danger remove-form-row">-</button>
+                                <button class="btn btn-success add-form-row">+</button><br/>
                                 {% endif %}
                                 <div class="has-feedback{% if form.is_bound and form.pfilter.errors %} has-error{% endif %}">
                                     {% if form.is_bound and form.pfilter.errors %}
@@ -85,6 +86,7 @@ function updateElementIndex(el, prefix, ndx) {
 }
 function cloneMore(selector, prefix) {
     var newElement = $(selector).clone(true);
+    $(selector).find('input').first().nextAll('.add-form-row').first().remove();
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
     newElement.find(':input').each(function() {
         var name = $(this).attr('name')
@@ -101,16 +103,11 @@ function cloneMore(selector, prefix) {
     total++;
     $('#id_' + prefix + '-TOTAL_FORMS').val(total);
     $(selector).after(newElement);
-    var conditionRow = $('.form-row:not(:last)');
-    conditionRow.find('.btn.add-form-row')
-        .removeClass('btn-success').addClass('btn-danger')
-        .removeClass('add-form-row').addClass('remove-form-row')
-        .html('-');
     return false;
 }
 function deleteForm(prefix, btn) {
     var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
-    if (total > 1){
+    if (total > 1) {
         btn.closest('.form-row').remove();
         var forms = $('.form-row');
         $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
@@ -119,6 +116,21 @@ function deleteForm(prefix, btn) {
                 updateElementIndex(this, prefix, i);
             });
         }
+        var btns = $('.form-row:last').find('input').first().nextAll('button');
+        if (btns.length == 1) {
+            btns.first().after(' <button class="btn btn-success add-form-row">+</button>');
+        }
+    } else {
+        var error = btn.closest('.form-row')
+            .find('input').first()
+            .nextAll('.has-feedback').first();
+        error.addClass('has-error');
+        var help = error.find('.help-block').first();
+        if (help.length == 0) {
+            help = error.html('<div class="help-block"></div>');
+            help = error.find('.help-block').first();
+        }
+        help.text('Can not delete the only filter');
     }
     return false;
 }
