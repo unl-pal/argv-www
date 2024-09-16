@@ -44,6 +44,20 @@
             "django": true
         },
         {
+            "name": "PAClab: runfilters",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runfilters",
+                "-v",
+                "3",
+                "--no-poll"
+            ],
+            "django": true
+        },
+        {
             "name": "PAClab: runtransforms",
             "type": "debugpy",
             "request": "launch",
@@ -80,6 +94,21 @@
             "justMyCode": false,
             "args": [
                 "runcloner",
+                "-v",
+                "3",
+                "--no-poll",
+                "--dry-run"
+            ],
+            "django": true
+        },
+        {
+            "name": "PAClab: runfilters (dry run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runfilters",
                 "-v",
                 "3",
                 "--no-poll",
