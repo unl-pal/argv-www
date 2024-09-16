@@ -68,9 +68,9 @@ class EmailShareForm(forms.Form):
     def save(self, request, kind, slug):
         user = str(request.user.username)
         url = request.build_absolute_uri('/' + kind + '/' + slug + '/')
-        text_content = user + ' has shared a project ' + kind + ' with you on PAClab: ' + url
+        text_content = user + ' has shared a project ' + kind + ' with you on ARG-V: ' + url
         html_content = get_template('website/' + kind + 's/shared_email.html').render({'user' : user, 'url' : url})
-        msg = EmailMultiAlternatives('PAClab Project ' + kind, text_content, request.user.email, list(self.valid_emails))
+        msg = EmailMultiAlternatives('ARG-V Project ' + kind, text_content, request.user.email, list(self.valid_emails))
         msg.attach_alternative(html_content, "text/html")
         msg.send()
 

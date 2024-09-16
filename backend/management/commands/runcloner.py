@@ -186,7 +186,7 @@ class Command(BaseCommand):
                         self.stdout.write('failed to clone ' + project_name)
 
     def snapshot_project(self, snapshot, path):
-        # zfs snapshot paclab/"$project_name"@"$timestamp"
+        # zfs snapshot argv/"$project_name"@"$timestamp"
         # TODO ZFS snapshot
         pass
 

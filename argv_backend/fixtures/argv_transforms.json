@@ -2,15 +2,15 @@
     {
         "model": "website.transform",
         "fields": {
-            "name": "PAClab integer transformer",
+            "name": "ARG-V integer transformer",
             "enabled": false,
-            "associated_backend": ["paclab"]
+            "associated_backend": ["argv"]
         }
     },
     {
         "model": "website.transformparameter",
         "fields": {
-            "transform": ["PAClab integer transformer"],
+            "transform": ["ARG-V integer transformer"],
             "name": "minExpr",
             "val_type": "Integer",
             "default_val": "1",
@@ -20,7 +20,7 @@
     {
         "model": "website.transformparameter",
         "fields": {
-            "transform": ["PAClab integer transformer"],
+            "transform": ["ARG-V integer transformer"],
             "name": "minIfStmt",
             "val_type": "Integer",
             "default_val": "0",
@@ -30,7 +30,7 @@
     {
         "model": "website.transformparameter",
         "fields": {
-            "transform": ["PAClab integer transformer"],
+            "transform": ["ARG-V integer transformer"],
             "name": "minParams",
             "val_type": "Integer",
             "default_val": "0",
@@ -40,7 +40,7 @@
     {
         "model": "website.transformparameter",
         "fields": {
-            "transform": ["PAClab integer transformer"],
+            "transform": ["ARG-V integer transformer"],
             "name": "target",
             "val_type": "String",
             "default_val": "DEF",

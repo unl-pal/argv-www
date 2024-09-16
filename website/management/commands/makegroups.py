@@ -11,7 +11,7 @@ GROUPS_PERMISSIONS = {
         User: ['add', 'change', 'view'],
         models.Profile: ['add', 'change', 'view'],
     },
-    'PAClabAdmins': {
+    'ARGVAdmins': {
         models.Dataset: ['view'],
         models.Project: ['add', 'change', 'view'],
         models.ProjectSelector: ['add', 'change', 'view', 'website:view_disabled_selectors'],
@@ -27,10 +27,10 @@ GROUPS_PERMISSIONS = {
 '''Make groups
 
 Usage: manage.py makegroups
-Create default PAClab groups/permissions
+Create default ARG-V groups/permissions
 '''
 class Command(BaseCommand):
-    help = 'Create default PAClab groups/permissions'
+    help = 'Create default ARG-V groups/permissions'
 
     def handle(self, *args, **options):
         for group_name in GROUPS_PERMISSIONS:

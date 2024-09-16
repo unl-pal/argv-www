@@ -28,7 +28,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 MAINTENANCE_MODE = config('MAINTENANCE_MODE', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='localhost,127.0.0.1')
-ADMINS = ((config('ADMIN_NAME', default='PAClab Admin'), config('ADMIN_EMAIL', default='')), )
+ADMINS = ((config('ADMIN_NAME', default='ARG-V Admin'), config('ADMIN_EMAIL', default='')), )
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000
 
