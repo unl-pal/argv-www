@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from website.models import Dataset, Project, ProjectSnapshot
+from website.models import Dataset, Project, ProjectSnapshot, Selection
 
 
 '''Run repository cloner
@@ -68,9 +68,14 @@ class Command(BaseCommand):
 
         if len(options['url']) == 0:
             while True:
-                snapshot = ProjectSnapshot.objects.filter(host=None).first()
+                snapshot = (Selection.objects
+                    .prefetch_related('project_selector', 'snapshot')
+                    .filter(project_selector__enabled=True, snapshot__host=None, )
+                    .values('snapshot')
+                    .first())
                 if snapshot:
                     try:
+                        snapshot = ProjectSnapshot.objects.get(pk=snapshot['snapshot'])
                         self.process_snapshot(snapshot)
                     except:
                         self.stderr.write('problem processing ProjectSnapshot: ' + snapshot.project.url)
