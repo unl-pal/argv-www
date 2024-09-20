@@ -58,7 +58,7 @@
             "django": true
         },
         {
-            "name": "PAClab: runfilters",
+            "name": "ARG-V: runfilters",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
