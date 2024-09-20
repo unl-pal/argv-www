@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PAClab: webserver",
+            "name": "ARG-V: webserver",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -16,7 +16,7 @@
             "django": true
         },
         {
-            "name": "PAClab: rundiscovery",
+            "name": "ARG-V: rundiscovery",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -30,7 +30,7 @@
             "django": true
         },
         {
-            "name": "PAClab: runcloner",
+            "name": "ARG-V: runcloner",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -44,7 +44,7 @@
             "django": true
         },
         {
-            "name": "PAClab: runfilters",
+            "name": "ARG-V: runfilters",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -58,7 +58,21 @@
             "django": true
         },
         {
-            "name": "PAClab: runtransforms",
+            "name": "ARG-V: runfilters",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runfilters",
+                "-v",
+                "3",
+                "--no-poll"
+            ],
+            "django": true
+        },
+        {
+            "name": "ARG-V: runtransforms",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -72,7 +86,7 @@
             "django": true
         },
         {
-            "name": "PAClab: rundiscovery (dry run)",
+            "name": "ARG-V: rundiscovery (dry run)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -87,7 +101,7 @@
             "django": true
         },
         {
-            "name": "PAClab: runcloner (dry run)",
+            "name": "ARG-V: runcloner (dry run)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -102,7 +116,7 @@
             "django": true
         },
         {
-            "name": "PAClab: runfilters (dry run)",
+            "name": "ARG-V: runfilters (dry run)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -117,7 +131,22 @@
             "django": true
         },
         {
-            "name": "PAClab: runtransforms (dry run)",
+            "name": "ARG-V: runfilters (dry run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runfilters",
+                "-v",
+                "3",
+                "--no-poll",
+                "--dry-run"
+            ],
+            "django": true
+        },
+        {
+            "name": "ARG-V: runtransforms (dry run)",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -131,5 +160,5 @@
             ],
             "django": true
         }
-     ]
+    ]
 }

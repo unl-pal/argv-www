@@ -89,7 +89,7 @@ visit(input, visitor {
         return s + '}\n\n'
 
     def build_query(self, flters):
-        query = '# PAClab project selection\n' + self.template_start
+        query = '# ARG-V project selection\n' + self.template_start
         for f in flters:
             query += self.translate_filter(f)
         return query + self.template_end

@@ -27,8 +27,8 @@ Storage Layout
 """
 class TransformRunner(TR):
     def run(self):
-        self.transformer_path = config('PACLAB_TRANSFORM_PATH', default='transformer')
-        self.config_path = os.path.join(tempfile.gettempdir(), 'paclab-' + str(self.transformed_project.pk))
+        self.transformer_path = config('TRANSFORMER_PATH', default='transformer')
+        self.config_path = os.path.join(tempfile.gettempdir(), 'argv-' + str(self.transformed_project.pk))
         print('config path:', self.config_path)
         self.generate_config()
 

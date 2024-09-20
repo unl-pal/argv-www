@@ -194,6 +194,6 @@ admin.site.register(Dataset)
 admin.site.register(TransformParameter)
 admin.site.register(TransformParameterValue)
 
-admin.site.site_header = 'PAClab Admin'
-admin.site.site_title = 'PAClab Admin'
+admin.site.site_header = 'ARG-V Admin'
+admin.site.site_title = 'ARG-V Admin'
 admin.site.index_title = ''

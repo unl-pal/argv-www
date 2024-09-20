@@ -1,11 +1,11 @@
 {% autoescape off %}
 Dear {{ user.first_name }},
 
-Thank you for trying out PAClab!
+Thank you for trying out ARG-V!
 
-Please click the following link or copy/paste into a browser to finalize your PAClab registration:
+Please click the following link or copy/paste into a browser to finalize your ARG-V registration:
 
 http://{{ domain }}{% url 'website:verify_email' uidb64=uid token=token %}
 
-- The PAClab Team
+- The ARG-V Team
 {% endautoescape %}

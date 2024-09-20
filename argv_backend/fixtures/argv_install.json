@@ -2,7 +2,7 @@
     {
         "model": "backend.backend",
         "fields": {
-            "name": "paclab",
+            "name": "argv",
             "enabled": false
         }
     }
