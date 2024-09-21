@@ -11,11 +11,10 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db.models import BooleanField, Func
 from django.db.utils import IntegrityError
-from django.forms.formsets import formset_factory
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
                          HttpResponseRedirect, JsonResponse)
 from django.shortcuts import redirect, render
-from django.template.loader import get_template, render_to_string
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -28,11 +27,10 @@ from PIL import Image
 from website.choices import *
 from website.decorators import email_required, email_verify_warning, ghtoken_required
 from website.downloads import generate_zip
-from website.forms import (BaseFilterFormSet, EmailShareForm, FilterDetailForm,
-                    FilterFormSet, ProfileForm, ProjectSelectionForm, ProjectSelectionManualForm,
-                    StaffProfileForm, StaffUserForm, TransformOptionForm, TransformParamFormSet,
-                    UserForm, UserLoginForm, UserPasswordForm,
-                    UserRegisterForm)
+from website.forms import (EmailShareForm, FilterFormSet, ProfileForm, ProjectSelectionForm, ProjectSelectionManualForm,
+                           StaffProfileForm, StaffUserForm, TransformOptionForm, TransformParamFormSet,
+                           UserForm, UserLoginForm, UserPasswordForm,
+                           UserRegisterForm)
 from website.mixins import EmailRequiredMixin
 from website.models import BackendFilter, Dataset, FilterDetail, Paper, Project, ProjectSelector, ProjectSnapshot, ProjectTransformer, Selection, Transform, TransformOption, TransformParameter, TransformParameterValue, TransformedProject
 from website.tokens import email_verify_token
@@ -223,24 +221,24 @@ def selection_detail(request, slug):
     except:
         raise Http404
 
-    form = None
+    share_form = None
 
     if model.isDone() and not request.user.is_anonymous and request.user.profile.active_email:
         if request.method == 'POST':
-            form = EmailShareForm(request.POST)
+            share_form = EmailShareForm(request.POST)
 
-            if form.is_valid():
-                form.save(request, 'selection', slug)
+            if share_form.is_valid():
+                share_form.save(request, 'selection', slug)
                 messages.success(request, 'Email invitation(s) sent')
-                form = EmailShareForm()
+                share_form = EmailShareForm()
             else:
                 messages.error(request, 'There was a problem sharing this item')
         else:
-            form = EmailShareForm()
+            share_form = EmailShareForm()
 
     return render(request, 'website/selections/detail.html', {
         'project': model,
-        'form': form,
+        'share_form': share_form,
         'isowner': request.user == model.user,
         'ismanual': model.input_dataset.name == MANUAL_DATASET,
         'values': FilterDetail.objects.filter(project_selector=model),
@@ -256,24 +254,24 @@ def transform_detail(request, slug):
     except:
         raise Http404
 
-    form = None
+    share_form = None
 
     if model.isDone() and not request.user.is_anonymous and request.user.profile.active_email:
         if request.method == 'POST':
-            form = EmailShareForm(request.POST)
+            share_form = EmailShareForm(request.POST)
 
-            if form.is_valid():
-                form.save(request, 'transform', slug)
+            if share_form.is_valid():
+                share_form.save(request, 'transform', slug)
                 messages.success(request, 'Email invitation(s) sent')
-                form = EmailShareForm()
+                share_form = EmailShareForm()
             else:
                 messages.error(request, 'There was a problem sharing this item')
         else:
-            form = EmailShareForm()
+            share_form = EmailShareForm()
 
     return render(request, 'website/transforms/detail.html', {
         'transformer': model,
-        'form': form,
+        'share_form': share_form,
         'isowner': request.user == model.user,
         'transform': model.transform.transform,
         'values': TransformParameterValue.objects.filter(option=model.transform).all(),

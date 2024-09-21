@@ -1,5 +1,3 @@
-import time
-
 from boaapi.boa_client import BoaClient
 from boaapi.status import CompilerStatus, ExecutionStatus
 from decouple import config

@@ -130,16 +130,16 @@
                 {% endif %}
             </div>
         </div>
-        {% if form %}
+        {% if share_form %}
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">Share this project selection</h3>
                 </div>
                 <div class="panel-body">
-                    <p>Enter any email address or a ARG-V username to share this project selection.</p>
+                    <p>Enter any email address or an ARG-V username to share this project selection.</p>
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'website/form.html' %}
+                        {% include 'website/form.html' with form=share_form %}
                         <button class="btn btn-primary">Share</button>
                     </form>
                 </div>
