@@ -58,7 +58,7 @@ class SelectionAdmin(admin.ModelAdmin):
     enable.short_description = "Enable selected project selectors"
     enable.allowed_permissions = ('change', )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         return False
 
     def display_url(self, obj):
@@ -94,7 +94,7 @@ class TransformerAdmin(admin.ModelAdmin):
     enable.short_description = "Enable selected project transformers"
     enable.allowed_permissions = ('change', )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         return False
 
     def display_url(self, obj):
