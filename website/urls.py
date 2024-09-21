@@ -1,13 +1,15 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from . import views
 
 app_name = 'website'
 
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico')),
+
     path('', TemplateView.as_view(template_name='website/index.html'), name='index'),
     path('funding/', TemplateView.as_view(template_name='website/funding.html'), name='funding'),
     path('papers/', views.PapersView.as_view(), name='papers'),
