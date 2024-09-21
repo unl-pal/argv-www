@@ -800,6 +800,7 @@ Selection: """ + slug + """
 Submitted: """ + str(selector.created) + """
 Submitted By: """ + selector.user.username
 
+            os.makedirs(tmpdir, mode=0o755, exist_ok=True)
             Process(target=generate_zip, args=(paths, tmpdir, zipfile_path, getattr(settings, 'REPO_PATH'), readme)).start()
 
             return redirect(reverse_lazy('website:selection_detail', args=(slug,)))
@@ -858,6 +859,7 @@ Transform: """ + slug + """
 Submitted: """ + str(transform.created) + """
 Submitted By: """ + transform.user.username
 
+            os.makedirs(tmpdir, mode=0o755, exist_ok=True)
             Process(target=generate_zip, args=(paths, tmpdir, zipfile_path, getattr(settings, 'TRANSFORMED_PATH'), readme)).start()
 
             return redirect(reverse_lazy('website:transform_detail', args=(slug,)))

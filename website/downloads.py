@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 def generate_zip(in_paths, tmpdir, zipfile_path, cwd, readme = None):
-    os.mkdir(tmpdir, 0o755)
+    os.makedirs(tmpdir, mode=0o755, exist_ok=True)
 
     # generate README.md file and add to the zipfile
     if readme:
