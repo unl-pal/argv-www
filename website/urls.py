@@ -8,7 +8,7 @@ from . import views
 app_name = 'website'
 
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico')),
+    path('favicon.ico', RedirectView.as_view(url='/static/website/favicon.ico')),
 
     path('', TemplateView.as_view(template_name='website/index.html'), name='index'),
     path('funding/', TemplateView.as_view(template_name='website/funding.html'), name='funding'),
