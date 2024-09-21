@@ -1,0 +1,13 @@
+{% if item.enabled %}
+    {% if item.status == "READY" %}
+        <div class="alert alert-info" role="alert">
+            This {{ name }} is currently in the queue and has not started processing yet.
+        </div>
+    {% else %}
+        {% if not item.isDone %}
+            <div class="alert alert-warning" role="alert">
+                This {{ name }} is still processing.
+            </div>
+        {% endif %}
+    {% endif %}
+{% endif %}

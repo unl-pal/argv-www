@@ -6,15 +6,7 @@
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        {% if transformer.enabled %}
-            {% if transformer.status == "READY" %}
-                <div class="alert alert-info" role="alert">This transform is currently in the queue and has not started processing yet.</div>
-            {% else %}
-                {% if not transformer.isDone %}
-                    <div class="alert alert-warning" role="alert">This transform is still processing.</div>
-                {% endif %}
-            {% endif %}
-        {% endif %}
+        {% include 'website/item-status.html' with item=transformer name="transform" %}
         <div class="panel panel-primary">
             <div class="panel-heading clearfix">
                 <h1 class="panel-title">

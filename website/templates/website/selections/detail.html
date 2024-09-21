@@ -6,15 +6,7 @@
 {% block body %}
     <div class="container">
         {% include 'website/messages.html' %}
-        {% if project.enabled %}
-            {% if project.status == "READY" %}
-                <div class="alert alert-info" role="alert">This selection is currently in the queue and has not started processing yet.</div>
-            {% else %}
-                {% if not project.isDone %}
-                    <div class="alert alert-warning" role="alert">This selection is still processing.</div>
-                {% endif %}
-            {% endif %}
-        {% endif %}
+        {% include 'website/item-status.html' with item=project name="selection" %}
         <div class="panel panel-primary">
             <div class="panel-heading clearfix">
                 <h1 class="panel-title">
