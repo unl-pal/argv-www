@@ -17,7 +17,8 @@ The built Docker image may then be run by using the following command:
 docker run \
     -v ${PWD}:/app \  # Path to the application source code
     -v /path/to/transformer/:/transformer \ # Path to the transformer repository
-    -v /path/to/data:/data \ # Path to the data storage folder
+    -v /path/to/data/repos:/data/repos \ # Path to the cloned repos directory
+    -v /path/to/data/transformed:/data/transformed \ # Path to transformed repos directory
     -p 8000:8000 \
     -i -t argv:latest
 ```
