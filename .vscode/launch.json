@@ -130,6 +130,58 @@
                 "--dry-run"
             ],
             "django": true
+        },
+        {
+            "name": "ARG-V: rundiscovery (polling)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "rundiscovery",
+                "-v",
+                "3"
+            ],
+            "django": true
+        },
+        {
+            "name": "ARG-V: runcloner (polling)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runcloner",
+                "-v",
+                "3"
+            ],
+            "django": true
+        },
+        {
+            "name": "ARG-V: runfilters (polling)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runfilters",
+                "-v",
+                "3"
+            ],
+            "django": true
+        },
+        {
+            "name": "ARG-V: runtransforms (polling)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "justMyCode": false,
+            "args": [
+                "runtransforms",
+                "-v",
+                "3"
+            ],
+            "django": true
         }
     ]
 }
