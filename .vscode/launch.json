@@ -58,20 +58,6 @@
             "django": true
         },
         {
-            "name": "ARG-V: runfilters",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "justMyCode": false,
-            "args": [
-                "runfilters",
-                "-v",
-                "3",
-                "--no-poll"
-            ],
-            "django": true
-        },
-        {
             "name": "ARG-V: runtransforms",
             "type": "debugpy",
             "request": "launch",
@@ -108,21 +94,6 @@
             "justMyCode": false,
             "args": [
                 "runcloner",
-                "-v",
-                "3",
-                "--no-poll",
-                "--dry-run"
-            ],
-            "django": true
-        },
-        {
-            "name": "ARG-V: runfilters (dry run)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "justMyCode": false,
-            "args": [
-                "runfilters",
                 "-v",
                 "3",
                 "--no-poll",
