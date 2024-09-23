@@ -1,0 +1,13 @@
+{% extends 'website/base.html' %}
+{% block body %}
+<div class="container">
+    {% include 'website/messages.html' %}
+    <h2>Are you sure you want to stop this {{ asset }}?</h2>
+    <hr>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button class="btn btn-danger">Stop</button>
+        <a href="{{ cancel }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -14,11 +14,11 @@ GROUPS_PERMISSIONS = {
     'ARGVAdmins': {
         models.Dataset: ['view'],
         models.Project: ['add', 'change', 'view'],
-        models.ProjectSelector: ['add', 'change', 'view', 'website:view_disabled_selectors'],
+        models.ProjectSelector: ['add', 'change', 'view', 'website:view_disabled_selectors', 'website:stop_selection'],
         models.Filter: ['view'],
         models.FilterDetail: ['add', 'change', 'view'],
         models.TransformedProject: ['add', 'change', 'view'],
-        models.ProjectTransformer: ['add', 'change', 'view', 'website:view_disabled_transforms'],
+        models.ProjectTransformer: ['add', 'change', 'view', 'website:view_disabled_transforms', 'website:stop_transform'],
         models.Transform: ['view'],
         models.TransformOption: ['add', 'change', 'view'],
     },
@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for group_name in GROUPS_PERMISSIONS:
-            group, created = Group.objects.get_or_create(name=group_name)
+            group, _ = Group.objects.get_or_create(name=group_name)
 
             for model_cls in GROUPS_PERMISSIONS[group_name]:
                 for _, perm_name in enumerate(GROUPS_PERMISSIONS[group_name][model_cls]):

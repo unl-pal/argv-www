@@ -2,11 +2,19 @@
     {% if item.status == "READY" %}
         <div class="alert alert-info" role="alert">
             This {{ name }} is currently in the queue and has not started processing yet.
+            {% with "website:"|add:name|add:"_stop" as urlname %}
+                {% url urlname slug=item.slug as targeturl %}
+                {% include 'website/button.html' with disabled=False enabled=True type='danger btn-sm pull-right' icon='stop' text='Stop Processing' name='' title='' %}
+            {% endwith %}
         </div>
     {% else %}
         {% if not item.isDone %}
             <div class="alert alert-warning" role="alert">
                 This {{ name }} is still processing.
+                {% with "website:"|add:name|add:"_stop" as urlname %}
+                    {% url urlname slug=item.slug as targeturl %}
+                    {% include 'website/button.html' with disabled=False enabled=True type='danger btn-sm pull-right' icon='stop' text='Stop Processing' name='' title='' %}
+                {% endwith %}
             </div>
         {% endif %}
     {% endif %}

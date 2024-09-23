@@ -281,6 +281,46 @@ def transform_detail(request, slug):
         'download_size': download_transform_size(model.slug)
     })
 
+def selection_stop(request, slug):
+    try:
+        model = ProjectSelector.objects.get(slug=slug)
+        if not model.enabled and not request.user.has_perm('website.view_disabled_selectors'):
+            raise Exception
+    except:
+        raise Http404
+
+    if request.method == 'POST':
+        if request.user == model.user or request.user.has_perm('website.stop_selection'):
+            model.stop()
+            messages.info(request, 'Project selection was stopped')
+            return redirect('website:selection_detail', slug)
+        messages.warning(request, 'You are not the owner of this project selection and cannot stop it')
+
+    return render(request, 'website/stop.html', {
+        'asset': 'project selection',
+        'cancel': reverse_lazy('website:selection_detail', args=(slug,))
+    })
+
+def transform_stop(request, slug):
+    try:
+        model = ProjectTransformer.objects.get(slug=slug)
+        if not model.enabled and not request.user.has_perm('website.view_disabled_transforms'):
+            raise Exception
+    except:
+        raise Http404
+
+    if request.method == 'POST':
+        if request.user == model.user or request.user.has_perm('website.stop_transform'):
+            model.stop()
+            messages.info(request, 'Project transform was stopped')
+            return redirect('website:transform_detail', slug)
+        messages.warning(request, 'You are not the owner of this project transform and cannot stop it')
+
+    return render(request, 'website/stop.html', {
+        'asset': 'project transform',
+        'cancel': reverse_lazy('website:transform_detail', args=(slug,))
+    })
+
 @email_required
 def delete_selection(request, slug):
     try:

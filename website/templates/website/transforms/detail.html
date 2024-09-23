@@ -50,12 +50,13 @@
                 </div>
                 <h4><strong>Transform Submitted:</strong> <span title="{{ transformer.created }}">{{ transformer.created|naturaltime }}</span></h4>
                 <h4><strong>Submitted By:</strong> {{ transformer.user }}</h4>
+                <h4><strong>Dataset Origin:</strong>
                 {% if transformer.src_selector %}
-                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:selection_detail' slug=transformer.src_selector %}">selection {{ transformer.src_selector }}</a></h4>
+                    <a href="{% url 'website:selection_detail' slug=transformer.src_selector %}">selection {{ transformer.src_selector }}</a>
                 {% else %}
-                    <h4><strong>Dataset Origin:</strong> <a href="{% url 'website:transform_detail' slug=transformer.src_transformer %}">transform {{ transformer.src_transformer }}</a></h4>
+                    <a href="{% url 'website:transform_detail' slug=transformer.src_transformer %}">transform {{ transformer.src_transformer }}</a>
                 {% endif %}
-                <br/>
+                </h4><br/>
                 <h4><strong>Transformer:</strong> {{ transform.name }}</h4>
                 {% if values %}
                     <div class="panel panel-default">

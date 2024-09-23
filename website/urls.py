@@ -49,6 +49,7 @@ urlpatterns = [
     path('selection/<slug>/inspect/download/', views.export_selection_csv, name='export_selection_csv'),
     path('selection/<slug>/inspect/cloned/download/', views.export_cloned_csv, name='export_cloned_csv'),
     path('selection/<slug>/inspect/retained/download/', views.export_retained_csv, name='export_retained_csv'),
+    path('selection/<slug>/stop', views.selection_stop, name='selection_stop'),
 
     path('transform/list/', views.TransformListView.as_view(), name='list_transforms'),
     path('transform/create/from_selection/<slug>/', views.create_transform_selection, name='create_transform_selection'),
@@ -63,4 +64,5 @@ urlpatterns = [
     path('transform/<slug>/inspect/download/', views.export_transform_csv, name='export_transform_csv'),
     path('transform/<slug>/inspect/transformed/download/', views.export_transform_transformed_csv, name='export_transform_transformed_csv'),
     path('transform/<slug>/inspect/retained/download/', views.export_transform_retained_csv, name='export_transform_retained_csv'),
+    path('transform/<slug>/stop', views.transform_stop, name='transform_stop'),
 ]

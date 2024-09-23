@@ -185,7 +185,8 @@ class ProjectSelector(models.Model):
 
     class Meta:
         permissions = [
-            ('view_disabled_selectors', 'Can view disabled project selectors')
+            ('view_disabled_selectors', 'Can view disabled project selectors'),
+            ('stop_selection', 'Can stop any project selector'),
         ]
 
     def save(self, **kwargs):
@@ -217,6 +218,12 @@ class ProjectSelector(models.Model):
 
     def result_projects(self):
         return self.projects.filter(selection__retained=True)
+
+    def stop(self):
+        if self.status == READY or self.status == ONGOING:
+            self.status = PROCESSED
+            self.fin_process = timezone.now()
+            self.save(update_fields=['status', 'fin_process', ])
 
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
@@ -336,7 +343,8 @@ class ProjectTransformer(models.Model):
 
     class Meta:
         permissions = [
-            ('view_disabled_transforms', 'Can view disabled project transforms')
+            ('view_disabled_transforms', 'Can view disabled project transforms'),
+            ('stop_transform', 'Can stop any project transform'),
         ]
 
     def __str__(self):
@@ -376,6 +384,12 @@ class ProjectTransformer(models.Model):
 
     def isDone(self):
         return self.enabled and self.status == PROCESSED
+
+    def stop(self):
+        if self.status == READY or self.status == ONGOING:
+            self.status = PROCESSED
+            self.datetime_processed = timezone.now()
+            self.save(update_fields=['status', 'fin_process', ])
 
 class TransformSelection(models.Model):
     transformer = models.ForeignKey(ProjectTransformer, on_delete=models.CASCADE)
