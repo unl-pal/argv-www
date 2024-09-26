@@ -692,7 +692,7 @@ def send_email_verify(request, user, title):
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': email_verify_token.make_token(user),
     })
-    tasks.send_email(title, message, to=[user.email])
+    tasks.send_email.delay(title, message, to=[user.email])
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
 
