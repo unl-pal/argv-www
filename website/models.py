@@ -220,6 +220,7 @@ class ProjectSelector(models.Model):
 
 class Selection(models.Model):
     project_selector = models.ForeignKey(ProjectSelector, on_delete=models.CASCADE)
+    status = models.CharField(choices=PROCESS_STATUS, default=READY, max_length=255)
     snapshot = models.ForeignKey(ProjectSnapshot, on_delete=models.PROTECT, null=True, blank=True)
     retained = models.BooleanField(blank=True, null=True)
 
