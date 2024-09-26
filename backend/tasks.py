@@ -15,8 +15,23 @@ from os import walk
 from website.choices import ONGOING, READY
 from website.models import Dataset, Project, ProjectSnapshot, Selection
 
+### Utils
 
-## Cloner Tasks
+# TODO: Verbosity fix
+def run_command(args, cwd):
+    p = subprocess.Popen(args,
+                         cwd=cwd,
+                         stdout=None,
+                         stderr=None
+                         # stdout=subprocess.PIPE if self.verbosity < 3 else None,
+                         # stderr=subprocess.PIPE if self.verbosity < 3 else None
+                         )
+    p.wait()
+    return p
+
+
+
+### Cloner Tasks
 
 CLONER_DRY_RUN = getattr(settings, 'CLONER_DRY_RUN', False)
 CLONER_NO_UNPACK = getattr(settings, 'CLONER_NO_UNPACK', False)
@@ -161,16 +176,3 @@ def update_metrics(project, path):
     p = subprocess.Popen(['find', '.', '-name', '*.java'], cwd=path, stdout=subprocess.PIPE, stderr=None)
     project.src_files = p.stdout.read().decode().count('\n')
     logger.info(path + ', src_files =' + str(project.src_files))
-
-# TODO: Verbosity fix
-def run_command(args, cwd):
-    p = subprocess.Popen(args,
-                         cwd=cwd,
-                         stdout=None,
-                         stderr=None
-                         # stdout=subprocess.PIPE if self.verbosity < 3 else None,
-                         # stderr=subprocess.PIPE if self.verbosity < 3 else None
-                         )
-    p.wait()
-    return p
-
