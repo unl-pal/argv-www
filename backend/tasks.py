@@ -30,8 +30,6 @@ def run_command(args, cwd):
     p.wait()
     return p
 
-
-
 ### Cloner Tasks
 
 CLONER_DRY_RUN = getattr(settings, 'CLONER_DRY_RUN', False)
