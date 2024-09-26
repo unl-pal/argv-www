@@ -36,6 +36,7 @@ from website.tokens import email_verify_token
 from website.validators import string_to_urls
 
 import website.tasks as tasks
+import backend.tasks as backend_tasks
 
 class IsNull(Func):
     _output_field = BooleanField()
@@ -530,6 +531,7 @@ def create_manual_selection(request):
                 else:
                     s, _ = ProjectSnapshot.objects.get_or_create(project=p)
                 Selection.objects.get_or_create(project_selector=selector, snapshot=s)
+                backend_tasks.process_snapshot.delay(s.pk)
 
             messages.success(request, 'Project selection created successfully.')
             return redirect(reverse_lazy('website:selection_detail', args=(selector.slug,)))
