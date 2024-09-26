@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from celery import shared_task
+from argv.celery import app
+
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
@@ -38,7 +39,7 @@ CLONER_NO_UNPACK = getattr(settings, 'CLONER_NO_UNPACK', False)
 CLONER_SHALLOW = getattr(settings, 'CLONER_SHALLOW', False)
 CLONER_NOFILTER = getattr(settings, 'CLONER_NOFILTER', False)
 
-@shared_task
+@app.task
 def process_snapshot(snapshot_pk):
     logger.info(f"Running for {snapshot_pk}")
     snapshot = ProjectSnapshot.objects.get(pk=snapshot_pk)
