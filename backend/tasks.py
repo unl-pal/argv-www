@@ -13,8 +13,8 @@ import socket, os, shutil, subprocess, tempfile, time, traceback
 
 from os import walk
 
-from website.choices import ONGOING, READY
-from website.models import Dataset, Project, ProjectSnapshot, Selection
+from website.choices import READY, ONGOING, PROCESSED
+from website.models import Dataset, Project, ProjectSnapshot, Selection, FilterDetail, ProjectSelector
 
 ### Utils
 
@@ -177,3 +177,79 @@ def update_metrics(project, path):
     p = subprocess.Popen(['find', '.', '-name', '*.java'], cwd=path, stdout=subprocess.PIPE, stderr=None)
     project.src_files = p.stdout.read().decode().count('\n')
     logger.info(path + ', src_files =' + str(project.src_files))
+
+### Filterer Task(s)
+
+FILTERER_DRY_RUN = getattr(settings, 'FILTERER_DRY_RUN', False)
+
+@app.on_after_finalize.connect
+def add_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(5, spawn_filterers.s())
+    sender.add_periodic_task(5, cleanup_filterers.s())
+
+@app.task
+def spawn_filterers():
+    for selection in Selection.objects.filter(status=READY):
+        if selection.snapshot.host is not None:
+            selection.status = ONGOING
+            selection.save(update_fields=['status',])
+            filter_selection.delay(selection.pk)
+
+@app.task
+def cleanup_filterers():
+    for selector in ProjectSelector.objects.exclude(status=PROCESSED):
+        if not Selection.objects.filter(project_selector=selector).exclude(status=PROCESSED).exists():
+            logger.debug(f'-> ProjectSelector finished: {selector}')
+            selector.status = PROCESSED
+            selector.fin_process = timezone.now()
+            selector.save(update_fields=['status', 'fin_process', ])
+
+@app.task
+def filter_selection(selection_pk):
+    selection = Selection.objects.get(pk=selection_pk)
+
+    logger.info(f'processing Selection {selection}')
+
+    if selection.snapshot.path and test_repo(selection):
+        logger.debug(f'-> retained snapshot: {selection.snapshot}')
+        selection.retained = True
+        selection.save()
+    else:
+        logger.debug(f'-> filtered snapshot: {selection.snapshot}')
+        selection.retained = False
+        selection.save()
+
+    selection.status = PROCESSED
+    selection.save(update_fields=['status'])
+
+def test_repo(selection):
+    project_selector = selection.project_selector
+    snapshot = selection.snapshot
+
+    for f in FilterDetail.objects.filter(project_selector=project_selector).all():
+        value = f.value
+        filter = f.pfilter.flter.name
+        if filter == "Minimum number of commits":
+            if not snapshot.commits or snapshot.commits < int(value):
+                return False
+        elif filter == "Maximum number of commits":
+            if not snapshot.commits or snapshot.commits > int(value):
+                return False
+        elif filter == "Minimum number of source files":
+            if not snapshot.src_files or snapshot.src_files < int(value):
+                return False
+        elif filter == "Maximum number of source files":
+            if not snapshot.src_files or snapshot.src_files > int(value):
+                return False
+        elif filter == "Minimum number of committers":
+            if not snapshot.committers or snapshot.committers < int(value):
+                return False
+        elif filter == "Maximum number of committers":
+            if not snapshot.committers or snapshot.committers > int(value):
+                return False
+        elif filter == "Minimum number of stars":
+            pass
+        elif filter == "Maximum number of stars":
+            pass
+
+    return True
