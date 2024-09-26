@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.db.models import BooleanField, Func
 from django.db.utils import IntegrityError
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
@@ -36,6 +35,7 @@ from website.models import BackendFilter, Dataset, FilterDetail, Paper, Project,
 from website.tokens import email_verify_token
 from website.validators import string_to_urls
 
+import website.tasks as tasks
 
 class IsNull(Func):
     _output_field = BooleanField()
@@ -692,8 +692,7 @@ def send_email_verify(request, user, title):
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': email_verify_token.make_token(user),
     })
-    email = EmailMessage(title, message, to=[user.email])
-    email.send()
+    tasks.send_email(title, message, to=[user.email])
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
 
