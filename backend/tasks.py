@@ -34,10 +34,10 @@ def run_command(args, cwd):
 
 ### Cloner Tasks
 
-CLONER_DRY_RUN = getattr(settings, 'CLONER_DRY_RUN', False)
-CLONER_NO_UNPACK = getattr(settings, 'CLONER_NO_UNPACK', False)
-CLONER_SHALLOW = getattr(settings, 'CLONER_SHALLOW', False)
-CLONER_NOFILTER = getattr(settings, 'CLONER_NOFILTER', False)
+CLONER_DRY_RUN = config('CLONER_DRY_RUN', default=False, cast=bool)
+CLONER_NO_UNPACK = config('CLONER_NO_UNPACK', default=False, cast=bool)
+CLONER_SHALLOW = config('CLONER_SHALLOW', default=False, cast=bool)
+CLONER_NOFILTER = config('CLONER_NOFILTER', default=False, cast=bool)
 
 @app.task
 def process_snapshot(snapshot_pk):
@@ -180,7 +180,7 @@ def update_metrics(project, path):
 
 ### Filterer Task(s)
 
-FILTERER_DRY_RUN = getattr(settings, 'FILTERER_DRY_RUN', False)
+FILTERER_DRY_RUN = config('FILTERER_DRY_RUN', default=False, cast=bool)
 
 @app.on_after_finalize.connect
 def add_periodic_tasks(sender, **kwargs):
