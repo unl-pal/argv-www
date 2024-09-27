@@ -9,12 +9,14 @@ logger = get_task_logger(__name__)
 from django.conf import settings
 from django.utils import timezone
 
-import socket, os, shutil, subprocess, tempfile, time, traceback
+from decouple import config
+
+import socket, os, shutil, subprocess, tempfile, time, traceback, importlib
 
 from os import walk
 
 from website.choices import READY, ONGOING, PROCESSED
-from website.models import Dataset, Project, ProjectSnapshot, Selection, FilterDetail, ProjectSelector
+from website.models import Dataset, Project, ProjectSnapshot, Selection, FilterDetail, ProjectSelector, ProjectTransformer
 
 ### Utils
 
@@ -251,3 +253,29 @@ def test_repo(selection):
             pass
 
     return True
+
+### Run Transforms
+
+TRANSFORM_DRY_RUN = config('TRANSFORM_DRY_RUN', default=False, cast=bool)
+TRANSFORM_VERBOSITY = config('TRANSFORM_VERBOSITY', default=1, cast=int)
+TRANSFORM_DEBUG = config('TRANSFORM_DEBUG', default=False, cast=bool)
+
+@app.task
+def run_transforms(transform_slug):
+    transform = ProjectTransformer.objects.get(slug=transform_slug)
+    if not TRANSFORM_DRY_RUN:
+        transform.status = ONGOING
+        transform.save(update_fields=['status',])
+
+    options = transform.transform
+
+    module_name = str(options.transform.associated_backend) + '_backend.transformrunner'
+    backend = importlib.import_module(module_name)
+
+    transform_runner = backend.TransformRunner(transform, options, TRANSFORM_DRY_RUN, TRANSFORM_VERBOSITY)
+    logger.info(f'    -> calling backend: {module_name}')
+
+    if TRANSFORM_DEBUG:
+        transform_runner.debug()
+    else:
+        transform_runner.run()
