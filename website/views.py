@@ -604,6 +604,7 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
                 user=request.user,
                 transform=options
             )
+            backend_tasks.run_transforms.delay(create_transform.slug)
             messages.success(request, 'Project transform created successfully.')
             return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
 
