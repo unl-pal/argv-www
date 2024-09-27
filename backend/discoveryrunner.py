@@ -48,6 +48,5 @@ class DiscoveryRunner:
             s = p.snapshots.order_by('-datetime_processed').first()
         else:
             s, _ = ProjectSnapshot.objects.get_or_create(project=p)
-        Selection.objects.get_or_create(project_selector=self.selector, snapshot=s)
-        print(s.pk)
-        backend_tasks.process_snapshot.delay(s.pk)
+        sel = Selection.objects.get_or_create(project_selector=self.selector, snapshot=s)
+        backend_tasks.process_snapshot.delay(s.pk, sel.pk)
