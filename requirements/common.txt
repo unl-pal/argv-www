@@ -12,3 +12,4 @@ six==1.12.0
 urllib3~=2.2.2
 boa-api>=0.1.14
 django-countries~=7.6
+mysqlclient~=2.2.4
