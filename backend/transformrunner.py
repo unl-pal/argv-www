@@ -3,8 +3,10 @@ import socket
 from django.conf import settings
 from django.utils import timezone
 
-from website.choices import PROCESSED
-from website.models import TransformedProject, TransformSelection
+from website.choices import PROCESSED, ONGOING
+from website.models import TransformedProject, TransformSelection, ProjectTransformer
+
+from decouple import config
 
 
 class TransformRunner:
@@ -75,3 +77,37 @@ class TransformRunner:
         p.save()
 
         TransformSelection.objects.get_or_create(transformer=self.transformed_project,transformed_project=p)
+
+
+### Transformation Task
+
+from argv.celery import app
+from celery.utils.log import get_task_logger
+celery_logger = get_task_logger(__name__)
+
+import importlib
+
+TRANSFORM_DRY_RUN = config('TRANSFORM_DRY_RUN', default=False, cast=bool)
+TRANSFORM_VERBOSITY = config('TRANSFORM_VERBOSITY', default=1, cast=int)
+TRANSFORM_DEBUG = config('TRANSFORM_DEBUG', default=False, cast=bool)
+
+@app.task
+def run_transforms(transform_slug):
+    transform = ProjectTransformer.objects.get(slug=transform_slug)
+    if not TRANSFORM_DRY_RUN:
+        transform.status = ONGOING
+        transform.save(update_fields=['status',])
+
+    options = transform.transform
+
+    module_name = str(options.transform.associated_backend) + '_backend.transformrunner'
+    backend = importlib.import_module(module_name)
+
+    transform_runner = backend.TransformRunner(transform, options, TRANSFORM_DRY_RUN, TRANSFORM_VERBOSITY)
+    celery_logger.info(f'    -> calling backend: {module_name}')
+
+    if TRANSFORM_DEBUG:
+        transform_runner.debug()
+    else:
+        transform_runner.run()
+

@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
 from django.db.models import BooleanField, Func
 from django.db.utils import IntegrityError
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
@@ -36,6 +35,8 @@ from website.models import BackendFilter, Dataset, FilterDetail, Paper, Project,
 from website.tokens import email_verify_token
 from website.validators import string_to_urls
 
+import website.tasks as tasks
+import backend.tasks as backend_tasks
 
 class IsNull(Func):
     _output_field = BooleanField()
@@ -530,6 +531,7 @@ def create_manual_selection(request):
                 else:
                     s, _ = ProjectSnapshot.objects.get_or_create(project=p)
                 Selection.objects.get_or_create(project_selector=selector, snapshot=s)
+                backend_tasks.process_snapshot.delay(s.pk)
 
             messages.success(request, 'Project selection created successfully.')
             return redirect(reverse_lazy('website:selection_detail', args=(selector.slug,)))
@@ -602,6 +604,7 @@ def make_create_transform(request, selector=None, transform=None, parent=None):
                 user=request.user,
                 transform=options
             )
+            backend_tasks.run_transforms.delay(create_transform.slug)
             messages.success(request, 'Project transform created successfully.')
             return redirect(reverse_lazy('website:transform_detail', args=(create_transform.slug,)))
 
@@ -692,8 +695,7 @@ def send_email_verify(request, user, title):
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': email_verify_token.make_token(user),
     })
-    email = EmailMessage(title, message, to=[user.email])
-    email.send()
+    tasks.send_email.delay(title, message, to=[user.email])
     messages.info(request, 'If an account exists with the email you entered, we\'ve emailed you a link for verifying the email address. You should receive the email shortly. If you don\'t receive an email, check your spam/junk folder and please make sure your email address is entered correctly in your profile.')
     return redirect('website:index')
 

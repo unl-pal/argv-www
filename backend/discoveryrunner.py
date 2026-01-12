@@ -1,6 +1,8 @@
 from website.choices import ONGOING, PROCESSED
 from website.models import Project, ProjectSnapshot, Selection
 
+import backend.tasks as backend_tasks
+
 
 class DiscoveryRunner:
     def __init__(self, selector, backend_id, dry_run, verbosity):
@@ -46,4 +48,5 @@ class DiscoveryRunner:
             s = p.snapshots.order_by('-datetime_processed').first()
         else:
             s, _ = ProjectSnapshot.objects.get_or_create(project=p)
-        Selection.objects.get_or_create(project_selector=self.selector, snapshot=s)
+        sel = Selection.objects.get_or_create(project_selector=self.selector, snapshot=s)
+        backend_tasks.process_snapshot.delay(s.pk, sel.pk)
